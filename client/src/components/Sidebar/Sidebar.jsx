@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Factory, Building2, Store, UserRound, Users, LogOut, X } from 'lucide-react'
+import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Package, ShoppingCart, DollarSign, User, BarChart3 } from 'lucide-react'
 import { logout } from '../../lib/auth'
 import Button from '../ui/Button'
 
@@ -143,6 +143,72 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
               </div>
             )}
           </NavLink>
+
+          {/* Agent Dashboard Sub Navigation */}
+          {!isCollapsed && !mobile && (
+            <nav className="ml-8 mt-1 space-y-1">
+              <NavLink
+                to="/agents/dashboard"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <TrendingUp className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Dashboard
+                </span>
+              </NavLink>
+              <NavLink
+                to="/agents/products"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <Package className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Products
+                </span>
+              </NavLink>
+              <NavLink
+                to="/agents/orders"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <ShoppingCart className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Orders
+                </span>
+              </NavLink>
+              <NavLink
+                to="/agents/payment-report"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <DollarSign className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Payment Report
+                </span>
+              </NavLink>
+              <NavLink
+                to="/agents/profile"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <User className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Profile
+                </span>
+              </NavLink>
+              <NavLink
+                to="/agents/reports"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <BarChart3 className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Reports
+                </span>
+              </NavLink>
+            </nav>
+          )}
 
           <NavLink 
             to="/employees" 
