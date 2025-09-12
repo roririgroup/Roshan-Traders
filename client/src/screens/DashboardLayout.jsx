@@ -94,7 +94,7 @@ export default function DashboardLayout() {
             isDesktopSidebarCollapsed={isSidebarCollapsed}
             isMobileSidebarOpen={mobileOpen}
           />
-          <main className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6 xl:p-8">
+          <main className="flex-1 overflow-auto">
             <Outlet />
           </main>
         </div>

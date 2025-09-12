@@ -41,7 +41,7 @@ export default function ManufacturersPage() {
       <PageHeader />
 
       {/* Filters and Search Section */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+      <div className="top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search Bar */}
