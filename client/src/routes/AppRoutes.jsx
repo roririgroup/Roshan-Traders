@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import LoginPage from '../pages/Login/LoginPage'
 import DashboardLayout from '../screens/DashboardLayout'
 import ManufacturersPage from '../pages/Manufactures/ManufacturesPage'
 import ManufacturerDetailsPage from '../pages/Manufactures/components/ManufacturesDetailsPage'
@@ -15,10 +14,12 @@ import PaymentReport from '../user/agents/dashboard/PaymentReport'
 import Profile from '../user/agents/dashboard/Profile'
 import Reports from '../user/agents/dashboard/Reports'
 import { isAuthenticated } from '../lib/auth'
+import UserLogin from '../pages/Login/components/UserLogin'
+import SuperAdminLogin from '../pages/Login/components/SuperAdminLogin'
 
 function ProtectedRoute({ children }) {
   if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/user/login" replace />
   }
   return children
 }
@@ -26,7 +27,8 @@ function ProtectedRoute({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/user/login" element={<UserLogin/>} />
+       <Route path="/superadmin/login" element={<SuperAdminLogin/>} />
       <Route
         path="/"
         element={
