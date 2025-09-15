@@ -1,3 +1,4 @@
+v
 # Agent Dashboard Implementation TODO
 
 ## Overview
@@ -44,6 +45,39 @@ Implement an Agent Dashboard with sidebar navigation including Dashboard, Produc
   - Updating profile
   - Fetching reports data
 - [ ] Handle loading states and error handling
+
+## Manufactures Dashboard Implementation
+
+### 1. Create Manufactures Dashboard Pages Structure
+- [x] Create `client/src/user/manufactures/dashboard/` folder
+- [x] Create `Dashboard.jsx` - Key stats cards (Total Products, Total Orders, Today's Revenue, Monthly Revenue) with icons
+- [x] Create `Products.jsx` - Add/Edit/Delete product form (Name, Price, Description, Image, Stock), list products with quantity input and "Place Order" buttons
+- [x] Create `Orders.jsx` - List orders with status (Pending/Confirmed/Shipped), confirm and ship orders, tabs for Orders and Outsource Orders
+- [x] Create `PaymentReport.jsx` - Display Total Amount, Pending Amount, Paid Amount, payment modal for making payments
+- [x] Create `Profile.jsx` - Editable profile form (Name, Email, Phone, Address, Bank/UPI Details, Role, Services)
+- [x] Create `Reports.jsx` - Detailed reports for Daily/Weekly/Monthly with Orders, Revenue, and Avg Order Value
+- [x] Create `ProfileModal.jsx` - Modal component for profile editing
+
+### 2. Update Routing for Manufactures
+- [x] Modify `client/src/routes/AppRoutes.jsx` to add nested routes under `/manufactures` for dashboard pages
+- [x] Ensure protected routes for manufactures dashboard
+
+### 3. Update Sidebar Navigation for Manufactures
+- [x] Modify `client/src/components/Sidebar/Sidebar.jsx` to add collapsible sidebar with manufactures-specific navigation links
+- [x] Add icons for each section (Dashboard, Products, Orders, Payment Report, Profile, Reports)
+
+### 4. Implement UI Components for Manufactures
+- [x] Use existing UI components (Card, Button, Badge, Modal, etc.) from `client/src/components/ui/`
+- [x] Ensure responsive design (desktop & mobile)
+- [x] Implement clean, modern design with cards, tables, and forms
+
+### 4.2 Add Agents & Employees Management
+- [x] Add third tab "Agents & Employees" to Orders page
+- [x] Create agents table with Name, Email, Phone, Role, Status, Join Date, Actions columns
+- [x] Implement Add/Edit/Delete functionality for agents and employees
+- [x] Add modal form for agent/employee creation and editing
+- [x] Include role selection (Agent/Employee) and status management (Active/Inactive)
+- [x] Add sample agents data for demonstration
 
 ## Server-Side Implementation
 

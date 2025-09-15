@@ -90,6 +90,82 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
             )}
           </NavLink>
 
+              {/* Manufactures Dashboard Sub Navigation */}
+          {!isCollapsed && !mobile && (
+            <nav className="ml-8 mt-1 space-y-1">
+              <NavLink
+                to="/manufactures/dashboard"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <TrendingUp className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Dashboard
+                </span>
+              </NavLink>
+              <NavLink
+                to="/manufactures/products"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <Package className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Products
+                </span>
+              </NavLink>
+              <NavLink
+                to="/manufactures/orders"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <ShoppingCart className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Orders
+                </span>
+              </NavLink>
+              <NavLink
+                to="/manufactures/employees"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <Users className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Employees
+                </span>
+              </NavLink>
+              <NavLink
+                to="/manufactures/payment-report"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <DollarSign className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Payment Report
+                </span>
+              </NavLink>
+              <NavLink
+                to="/manufactures/profile"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <User className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Profile
+                </span>
+              </NavLink>
+              <NavLink
+                to="/manufactures/reports"
+                className={active}
+                onClick={mobile ? onClose : undefined}
+              >
+                <BarChart3 className="size-4 sm:size-5 flex-shrink-0" />
+                <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                  Reports
+                </span>
+              </NavLink>
+            </nav>
+          )}
+
           <NavLink 
             to="/companies" 
             className={active}
@@ -209,6 +285,8 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
               </NavLink>
             </nav>
           )}
+
+      
 
           <NavLink 
             to="/employees" 
