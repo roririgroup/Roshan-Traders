@@ -83,7 +83,7 @@ export default function Dashboard() {
       {/* Additional Dashboard Content */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activity */}
-        <Card className="p-6">
+        {/* <Card className="p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
@@ -105,10 +105,10 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        </Card>
+        </Card> */}
 
         {/* Quick Actions */}
-        <Card className="p-6">
+        {/* <Card className="p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 gap-3">
             <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
@@ -128,7 +128,7 @@ export default function Dashboard() {
               <p className="text-sm font-medium text-orange-900">View Reports</p>
             </button>
           </div>
-        </Card>
+        </Card> */}
       </div>
     </div>
   )

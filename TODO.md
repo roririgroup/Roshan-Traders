@@ -27,6 +27,12 @@ Implement an Agent Dashboard with sidebar navigation including Dashboard, Produc
 - [ ] Ensure responsive design (desktop & mobile)
 - [ ] Implement clean, modern design with cards, tables, and charts
 
+### 4.1 Update PaymentReport.jsx
+- [x] Remove summary cards, payment methods, and payment status sections
+- [x] Add "Payment" button above the payment details table
+- [x] Implement modal for payment input (total amount display, paid amount input, submit to update pending amount)
+- [x] Update payment details table to reflect pending amount changes after payment submission
+
 ### 5. Add State Management and API Integration
 - [ ] Implement state for current page navigation within dashboard
 - [ ] Add API calls to backend for:

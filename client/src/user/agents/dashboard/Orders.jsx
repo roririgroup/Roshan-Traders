@@ -1,75 +1,25 @@
 import { useState, useEffect } from 'react'
-import { Card } from '../../../components/ui/Card'
-import Button from '../../../components/ui/Button'
 import Badge from '../../../components/ui/Badge'
 import { ShoppingCart, CheckCircle, Clock, Truck } from 'lucide-react'
+import { getOrders } from '../../../store/ordersStore'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Mock data - replace with API calls
+  // Load orders from shared store
   useEffect(() => {
-    setOrders([
-      {
-        id: 1,
-        customerName: 'John Doe',
-        items: [
-          { name: 'Wireless Headphones', quantity: 1, price: 2999 },
-          { name: 'Bluetooth Speaker', quantity: 2, price: 1999 }
-        ],
-        totalAmount: 6997,
-        status: 'pending',
-        orderDate: '2024-01-15T10:30:00Z',
-        deliveryAddress: '123 Main St, Mumbai, Maharashtra'
-      },
-      {
-        id: 2,
-        customerName: 'Jane Smith',
-        items: [
-          { name: 'Smart Watch', quantity: 1, price: 4999 }
-        ],
-        totalAmount: 4999,
-        status: 'confirmed',
-        orderDate: '2024-01-14T14:20:00Z',
-        deliveryAddress: '456 Oak Ave, Delhi, NCR'
-      },
-      {
-        id: 3,
-        customerName: 'Bob Johnson',
-        items: [
-          { name: 'Wireless Headphones', quantity: 1, price: 2999 },
-          { name: 'Smart Watch', quantity: 1, price: 4999 }
-        ],
-        totalAmount: 7998,
-        status: 'pending',
-        orderDate: '2024-01-13T09:15:00Z',
-        deliveryAddress: '789 Pine Rd, Bangalore, Karnataka'
-      }
-    ])
+    setOrders(getOrders())
+  }, [refreshTrigger])
+
+  // Auto-refresh every 5 seconds to check for new orders
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRefreshTrigger(prev => prev + 1)
+    }, 5000)
+
+    return () => clearInterval(interval)
   }, [])
-
-  const handleConfirmOrder = (orderId) => {
-    setOrders(prev => prev.map(order =>
-      order.id === orderId
-        ? { ...order, status: 'confirmed' }
-        : order
-    ))
-    // API call to confirm order
-    console.log('Confirmed order:', orderId)
-  }
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="size-4 text-yellow-600" />
-      case 'confirmed':
-        return <CheckCircle className="size-4 text-green-600" />
-      case 'shipped':
-        return <Truck className="size-4 text-blue-600" />
-      default:
-        return <Clock className="size-4 text-gray-600" />
-    }
-  }
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -99,79 +49,57 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Orders List */}
-      <div className="space-y-6">
-        {orders.map((order) => (
-          <Card key={order.id} className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    Order #{order.id}
-                  </h3>
-                  {getStatusBadge(order.status)}
-                </div>
-                <p className="text-sm text-slate-600">
-                  Customer: {order.customerName}
-                </p>
-                <p className="text-sm text-slate-600">
-                  Ordered on: {new Date(order.orderDate).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xl font-bold text-slate-900">
-                  ₹{order.totalAmount.toLocaleString()}
-                </p>
-                <p className="text-sm text-slate-600">
-                  {order.items.length} item{order.items.length > 1 ? 's' : ''}
-                </p>
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div className="mb-4">
-              <h4 className="font-medium text-slate-900 mb-2">Items:</h4>
-              <div className="space-y-2">
-                {order.items.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 px-3 bg-slate-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-slate-900">{item.name}</p>
-                      <p className="text-sm text-slate-600">Qty: {item.quantity}</p>
+      {/* Orders Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Customer</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="py-4 px-6 font-medium text-slate-900">
+                    #{order.id}
+                  </td>
+                  <td className="py-4 px-6 text-slate-900">
+                    {order.customerName}
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="space-y-1">
+                      {order.items.map((item, index) => (
+                        <div key={index} className="text-sm">
+                          <span className="font-medium text-slate-900">{item.name}</span>
+                          <span className="text-slate-600"> (Qty: {item.quantity})</span>
+                        </div>
+                      ))}
                     </div>
-                    <p className="font-medium text-slate-900">
-                      ₹{(item.price * item.quantity).toLocaleString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Delivery Address */}
-            <div className="mb-4">
-              <h4 className="font-medium text-slate-900 mb-1">Delivery Address:</h4>
-              <p className="text-sm text-slate-600">{order.deliveryAddress}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(order.status)}
-                <span className="text-sm text-slate-600 capitalize">
-                  {order.status}
-                </span>
-              </div>
-              {order.status === 'pending' && (
-                <Button
-                  onClick={() => handleConfirmOrder(order.id)}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <CheckCircle className="size-4 mr-2" />
-                  Confirm Order
-                </Button>
-              )}
-            </div>
-          </Card>
-        ))}
+                  </td>
+                  <td className="py-4 px-6 font-medium text-slate-900">
+                    ₹{order.totalAmount.toLocaleString()}
+                  </td>
+                  <td className="py-4 px-6">
+                    {getStatusBadge(order.status)}
+                  </td>
+                  <td className="py-4 px-6 text-slate-600">
+                    {new Date(order.orderDate).toLocaleDateString()}
+                  </td>
+                  <td className="py-4 px-6 text-slate-600 max-w-xs truncate">
+                    {order.deliveryAddress}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {orders.length === 0 && (

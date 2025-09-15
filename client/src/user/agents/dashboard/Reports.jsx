@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
-import { BarChart3, TrendingUp, Calendar, Download } from 'lucide-react'
+import { BarChart3, Calendar } from 'lucide-react'
 
 export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState('daily')
@@ -13,13 +13,10 @@ export default function Reports() {
 
   // Mock data - replace with API calls
   useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]
     setReportData({
       daily: [
-        { date: '2024-01-15', orders: 5, revenue: 15000 },
-        { date: '2024-01-14', orders: 8, revenue: 22000 },
-        { date: '2024-01-13', orders: 3, revenue: 8500 },
-        { date: '2024-01-12', orders: 6, revenue: 18000 },
-        { date: '2024-01-11', orders: 4, revenue: 12000 }
+        { date: today, orders: 5, revenue: 15000 }
       ],
       weekly: [
         { week: 'Week 1', orders: 25, revenue: 75000 },
@@ -38,105 +35,18 @@ export default function Reports() {
 
   const currentData = reportData[selectedPeriod] || []
 
-  // Simple bar chart component
-  const BarChart = ({ data, dataKey, label }) => {
-    const maxValue = Math.max(...data.map(item => item[dataKey]))
-
-    return (
-      <div className="space-y-3">
-        {data.map((item, index) => {
-          const percentage = (item[dataKey] / maxValue) * 100
-          const labelKey = selectedPeriod === 'daily' ? 'date' :
-                          selectedPeriod === 'weekly' ? 'week' : 'month'
-
-          return (
-            <div key={index} className="flex items-center gap-4">
-              <div className="w-20 text-sm text-slate-600 truncate">
-                {item[labelKey]}
-              </div>
-              <div className="flex-1">
-                <div className="w-full bg-slate-200 rounded-full h-6 relative">
-                  <div
-                    className="bg-blue-500 h-6 rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${percentage}%` }}
-                  ></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-medium text-slate-900">
-                      {dataKey === 'revenue' ? `₹${item[dataKey].toLocaleString()}` : item[dataKey]}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-
-  // Simple line chart component (simplified)
-  const LineChart = ({ data, dataKey }) => {
-    const maxValue = Math.max(...data.map(item => item[dataKey]))
-    const points = data.map((item, index) => {
-      const x = (index / (data.length - 1)) * 100
-      const y = 100 - (item[dataKey] / maxValue) * 100
-      return `${x},${y}`
-    }).join(' ')
-
-    return (
-      <div className="relative h-64 bg-slate-50 rounded-lg p-4">
-        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <polyline
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2"
-            points={points}
-          />
-          {data.map((item, index) => {
-            const x = (index / (data.length - 1)) * 100
-            const y = 100 - (item[dataKey] / maxValue) * 100
-            return (
-              <circle
-                key={index}
-                cx={x}
-                cy={y}
-                r="1.5"
-                fill="#3b82f6"
-              />
-            )
-          })}
-        </svg>
-      </div>
-    )
-  }
-
-  const handleExport = () => {
-    // Export functionality
-    console.log('Exporting report for', selectedPeriod)
-  }
-
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <BarChart3 className="size-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">Reports</h1>
-              <p className="text-slate-600">Analyze your business performance with detailed reports</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+            <BarChart3 className="size-5 text-white" />
           </div>
-          <Button
-            onClick={handleExport}
-            variant="secondary"
-            className="bg-white hover:bg-slate-50"
-          >
-            <Download className="size-4 mr-2" />
-            Export Report
-          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Reports</h1>
+            <p className="text-slate-600">Analyze your business performance with detailed reports</p>
+          </div>
         </div>
       </div>
 
@@ -161,69 +71,7 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Orders Chart */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <TrendingUp className="size-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-slate-900">Orders Trend</h3>
-          </div>
-          <BarChart data={currentData} dataKey="orders" label="Orders" />
-        </Card>
-
-        {/* Revenue Chart */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <BarChart3 className="size-5 text-green-600" />
-            <h3 className="text-lg font-semibold text-slate-900">Revenue Trend</h3>
-          </div>
-          <BarChart data={currentData} dataKey="revenue" label="Revenue" />
-        </Card>
-      </div>
-
-      {/* Summary Stats */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-slate-900">
-              {currentData.reduce((sum, item) => sum + item.orders, 0)}
-            </p>
-            <p className="text-sm text-slate-600">Total Orders</p>
-            <p className="text-xs text-slate-500 mt-1">
-              {selectedPeriod === 'daily' ? 'Last 5 days' :
-               selectedPeriod === 'weekly' ? 'Last 4 weeks' : 'Last 4 months'}
-            </p>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-slate-900">
-              ₹{currentData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}
-            </p>
-            <p className="text-sm text-slate-600">Total Revenue</p>
-            <p className="text-xs text-slate-500 mt-1">
-              {selectedPeriod === 'daily' ? 'Last 5 days' :
-               selectedPeriod === 'weekly' ? 'Last 4 weeks' : 'Last 4 months'}
-            </p>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-slate-900">
-              ₹{Math.round(currentData.reduce((sum, item) => sum + item.revenue, 0) / currentData.length).toLocaleString()}
-            </p>
-            <p className="text-sm text-slate-600">Average Revenue</p>
-            <p className="text-xs text-slate-500 mt-1">
-              Per {selectedPeriod.slice(0, -2)}
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      {/* Detailed Table */}
+      {/* Detailed Report */}
       <Card className="p-6 mt-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Detailed Report</h3>
         <div className="overflow-x-auto">
