@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Package, ShoppingCart, DollarSign, User, BarChart3 } from 'lucide-react'
+import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Package, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
 import { logout } from '../../lib/auth'
 import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
@@ -27,14 +27,17 @@ const MENU_CONFIG = {
     { to: '/agents/profile', label: 'Profile', icon: User },
     { to: '/agents/reports', label: 'Reports', icon: BarChart3 },
   ],
-  manufacturer: [
-    { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
-    { to: '/manufacturers/products', label: 'Products', icon: Package },
-    { to: '/manufacturers/orders', label: 'Orders', icon: ShoppingCart },
-    { to: '/manufacturers/payment-report', label: 'Payment Report', icon: DollarSign },
-    { to: '/manufacturers/profile', label: 'Profile', icon: User },
-    { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
-  ],
+ manufacturer: [
+  { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
+  { to: '/manufacturers/products', label: 'Products', icon: Package },
+  { to: '/manufacturers/orders', label: 'Customer Orders', icon: ShoppingCart },
+  { to: '/manufacturers/deliveries', label: 'Deliveries', icon: Truck },
+  { to: '/manufacturers/referrals', label: 'Referrals', icon: Gift },
+  { to: '/manufacturers/payments', label: 'Payments', icon: DollarSign },
+  { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/manufacturers/profile', label: 'Profile', icon: User },
+],
+
 }
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
