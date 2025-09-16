@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Package, ShoppingCart, DollarSign, User, BarChart3 } from 'lucide-react'
 import { logout } from '../../lib/auth'
+import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
 
 const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
@@ -9,7 +10,36 @@ const active = ({ isActive }) =>
     ? `${linkBase} bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25` 
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`
 
+const MENU_CONFIG = {
+  superadmin: [
+    { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
+    { to: '/agents', label: 'Agents', icon: UserRound },
+    { to: '/companies', label: 'Companies', icon: Building2 },
+    { to: '/traders', label: 'Traders', icon: Store },
+    { to: '/employees', label: 'Employees', icon: Users },
+    { to: '/users', label: 'Users', icon: Users },
+  ],
+  agent: [
+    { to: '/agents/dashboard', label: 'Dashboard', icon: TrendingUp },
+    { to: '/agents/products', label: 'Products', icon: Package },
+    { to: '/agents/orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/agents/payment-report', label: 'Payment Report', icon: DollarSign },
+    { to: '/agents/profile', label: 'Profile', icon: User },
+    { to: '/agents/reports', label: 'Reports', icon: BarChart3 },
+  ],
+  manufacturer: [
+    { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
+    { to: '/manufacturers/products', label: 'Products', icon: Package },
+    { to: '/manufacturers/orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/manufacturers/payment-report', label: 'Payment Report', icon: DollarSign },
+    { to: '/manufacturers/profile', label: 'Profile', icon: User },
+    { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
+  ],
+}
+
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
+  const role = getCurrentUserRole()
+  const menuItems = MENU_CONFIG[role] || []
   return (
     <>
       {/* Mobile Overlay */}
@@ -71,180 +101,29 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
               </p>
             </div>
           )}
-          
-          <NavLink 
-            to="/manufacturers" 
-            className={active}
-            onClick={mobile ? onClose : undefined}
-          >
-            <Factory className="size-4 sm:size-5 flex-shrink-0" />
-            {(!isCollapsed || mobile) && (
-              <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                Manufacturers
-              </span>
-            )}
-            {(!isCollapsed || mobile) && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink 
-            to="/companies" 
-            className={active}
-            onClick={mobile ? onClose : undefined}
-          >
-            <Building2 className="size-4 sm:size-5 flex-shrink-0" />
-            {(!isCollapsed || mobile) && (
-              <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                Companies
-              </span>
-            )}
-            {(!isCollapsed || mobile) && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink 
-            to="/traders" 
-            className={active}
-            onClick={mobile ? onClose : undefined}
-          >
-            <Store className="size-4 sm:size-5 flex-shrink-0" />
-            {(!isCollapsed || mobile) && (
-              <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                Traders
-              </span>
-            )}
-            {(!isCollapsed || mobile) && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink 
-            to="/agents" 
-            className={active}
-            onClick={mobile ? onClose : undefined}
-          >
-            <UserRound className="size-4 sm:size-5 flex-shrink-0" />
-            {(!isCollapsed || mobile) && (
-              <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                Agents
-              </span>
-            )}
-            {(!isCollapsed || mobile) && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-              </div>
-            )}
-          </NavLink>
-
-          {/* Agent Dashboard Sub Navigation */}
-          {!isCollapsed && !mobile && (
-            <nav className="ml-8 mt-1 space-y-1">
+          {(MENU_CONFIG[role] || []).map((item) => {
+            const Icon = item.icon
+            return (
               <NavLink
-                to="/agents/dashboard"
+                key={item.to}
+                to={item.to}
                 className={active}
                 onClick={mobile ? onClose : undefined}
               >
-                <TrendingUp className="size-4 sm:size-5 flex-shrink-0" />
-                <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                  Dashboard
-                </span>
+                <Icon className="size-4 sm:size-5 flex-shrink-0" />
+                {(!isCollapsed || mobile) && (
+                  <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                    {item.label}
+                  </span>
+                )}
+                {(!isCollapsed || mobile) && (
+                  <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                  </div>
+                )}
               </NavLink>
-              <NavLink
-                to="/agents/products"
-                className={active}
-                onClick={mobile ? onClose : undefined}
-              >
-                <Package className="size-4 sm:size-5 flex-shrink-0" />
-                <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                  Products
-                </span>
-              </NavLink>
-              <NavLink
-                to="/agents/orders"
-                className={active}
-                onClick={mobile ? onClose : undefined}
-              >
-                <ShoppingCart className="size-4 sm:size-5 flex-shrink-0" />
-                <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                  Orders
-                </span>
-              </NavLink>
-              <NavLink
-                to="/agents/payment-report"
-                className={active}
-                onClick={mobile ? onClose : undefined}
-              >
-                <DollarSign className="size-4 sm:size-5 flex-shrink-0" />
-                <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                  Payment Report
-                </span>
-              </NavLink>
-              <NavLink
-                to="/agents/profile"
-                className={active}
-                onClick={mobile ? onClose : undefined}
-              >
-                <User className="size-4 sm:size-5 flex-shrink-0" />
-                <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                  Profile
-                </span>
-              </NavLink>
-              <NavLink
-                to="/agents/reports"
-                className={active}
-                onClick={mobile ? onClose : undefined}
-              >
-                <BarChart3 className="size-4 sm:size-5 flex-shrink-0" />
-                <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                  Reports
-                </span>
-              </NavLink>
-            </nav>
-          )}
-
-          <NavLink 
-            to="/employees" 
-            className={active}
-            onClick={mobile ? onClose : undefined}
-          >
-            <Users className="size-4 sm:size-5 flex-shrink-0" />
-            {(!isCollapsed || mobile) && (
-              <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                Employees
-              </span>
-            )}
-            {(!isCollapsed || mobile) && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink 
-            to="/users" 
-            className={active}
-            onClick={mobile ? onClose : undefined}
-          >
-            <Users className="size-4 sm:size-5 flex-shrink-0" />
-            {(!isCollapsed || mobile) && (
-              <span className="group-hover:translate-x-0.5 transition-transform truncate">
-                Users
-              </span>
-            )}
-            {(!isCollapsed || mobile) && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-              </div>
-            )}
-          </NavLink>
+            )
+          })}
         </nav>
 
         {/* Logout Section */}
@@ -258,7 +137,7 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
             }`}
             onClick={() => {
               logout();
-              window.location.href = "/login";
+              window.location.href = "/user/login";
             }}
           >
             <LogOut className="size-4 flex-shrink-0" />

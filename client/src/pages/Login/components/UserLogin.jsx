@@ -3,6 +3,7 @@ import { useNavigate, Navigate } from 'react-router-dom'
 import { loginUser, isAuthenticated } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
 import logo from "../../../assets/Roshan logo/Roshan_white.png";
+import { User, Factory, Wrench, Phone, Key, Loader2 } from 'lucide-react'
 
 export default function UserLogin() {
   const navigate = useNavigate()
@@ -17,23 +18,31 @@ export default function UserLogin() {
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
-    if (!phone || !otp) {
-      setError('Please enter both mobile number and OTP')
-      return
-    }
+  e.preventDefault()
+  if (!phone || !otp) {
+    setError('Please enter both mobile number and OTP')
+    return
+  }
 
-    setIsLoading(true)
-    setError('')
+  setIsLoading(true)
+  setError('')
 
-    const res = loginUser({ phone, otp, userType })
-    if (!res.success) {
-      setError(res.error || 'Login failed')
-      setIsLoading(false)
-      return
-    }
+  const res = loginUser({ phone, otp, userType })
+  if (!res.success) {
+    setError(res.error || 'Login failed')
+    setIsLoading(false)
+    return
+  }
+
+  // Redirect based on userType
+  if (userType === 'agent') {
+    navigate('/agents/dashboard')
+  } else if (userType === 'manufacturer') {
+    navigate('/manufacturers')
+  }else {
     navigate('/')
   }
+}
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center relative">
@@ -70,37 +79,39 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { value: 'agent', label: 'Agent' },
-                    { value: 'manufacturer', label: 'Manufacturer' },
-                    { value: 'contractor', label: 'Contractor' }
-                  ].map((type) => (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => setUserType(type.value)}
-                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${userType === type.value
-                          ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                    >
-                      {type.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
+                  { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
+                  { value: 'contractor', label: 'Contractor', icon: <Wrench className="w-4 h-4" /> }
+                ].map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => setUserType(type.value)}
+                    className={`py-2 px-3 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${userType === type.value
+                        ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                  >
+                    {type.icon}
+                    {type.label}
+                  </button>
+                ))}
+              </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
-                <div className="flex rounded-xl border bg-white focus-within:ring-2 focus-within:ring-indigo-200">
+                <div className="relative flex rounded-xl border bg-white focus-within:ring-2 focus-within:ring-indigo-200">
                   <span className="px-3 inline-flex items-center text-gray-500 border-r select-none">+91</span>
+                  <Phone className="absolute left-16 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                   <input
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
+                    className="w-full pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
                     placeholder="98765 43210"
                     required
                   />
@@ -108,17 +119,20 @@ export default function UserLogin() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">OTP</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete="one-time-code"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200 placeholder:text-gray-400"
-                  placeholder="Enter OTP (any 4+ digits)"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="one-time-code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full rounded-xl border pl-10 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200 placeholder:text-gray-400"
+                    placeholder="Enter OTP (any 4+ digits)"
+                    required
+                  />
+                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
                 <p className="text-xs text-gray-500 mt-1">For demo, enter any 4+ digit OTP</p>
               </div>
 
@@ -130,9 +144,10 @@ export default function UserLogin() {
 
               <Button
                 type="submit"
-                className="w-full h-11 rounded-xl text-[15px]"
+                className="w-full h-11 rounded-xl text-[15px] flex items-center justify-center gap-2"
                 disabled={isLoading}
               >
+                {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
             </form>
