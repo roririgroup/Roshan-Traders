@@ -83,7 +83,6 @@ export default function UserLogin() {
                 {[
                   { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
                   { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
-                  { value: 'contractor', label: 'Contractor', icon: <Wrench className="w-4 h-4" /> }
                 ].map((type) => (
                   <button
                     key={type.value}
