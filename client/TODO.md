@@ -1,0 +1,7 @@
+- [x] Add construction-themed icons for user types (e.g., factory for manufacturers, user for agents)
+- [x] Add smooth hover and focus animations to buttons and input fields
+- [x] Improve the left panel with subtle animations or thematic background patterns
+- [x] Enhance spacing, typography, and color usage for modern look
+- [x] Add shadows or borders to the form container for depth
+- [x] Add fade-in animation for the login form on page load
+- [x] Optionally add loading spinner inside the login button
