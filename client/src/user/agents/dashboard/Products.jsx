@@ -5,6 +5,7 @@ import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import { Package, Plus, ShoppingCart, Edit, Trash2 } from 'lucide-react'
+import FilterBar from '../../../components/ui/FilterBar'
 import { addOrder } from '../../../store/ordersStore'
 
 export default function Products() {
@@ -17,6 +18,8 @@ export default function Products() {
     image: ''
   })
   const [quantities, setQuantities] = useState({})
+  const [search, setSearch] = useState('')
+  const [stockFilter, setStockFilter] = useState('all')
 
   // Mock data - replace with API calls
   useEffect(() => {
@@ -121,8 +124,26 @@ export default function Products() {
         ...prev,
         [product.id]: 0
       }))
+      
+      // Show success animation
+      const button = document.querySelector(`[data-product-id="${product.id}"]`)
+      if (button) {
+        button.classList.add('animate-bounce-in')
+        setTimeout(() => {
+          button.classList.remove('animate-bounce-in')
+        }, 600)
+      }
+      
       alert(`Order placed successfully!\n${product.name} x ${quantity} = ₹${(product.price * quantity).toLocaleString()}`)
     } else {
+      // Show shake animation for invalid input
+      const input = document.querySelector(`input[data-product-id="${product.id}"]`)
+      if (input) {
+        input.classList.add('animate-shake')
+        setTimeout(() => {
+          input.classList.remove('animate-shake')
+        }, 500)
+      }
       alert('Please enter a quantity greater than 0')
     }
   }
@@ -231,29 +252,59 @@ export default function Products() {
         </Modal>
       )}
 
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search products..."
+        selects={[{
+          name: 'stock',
+          value: stockFilter,
+          onChange: setStockFilter,
+          options: [
+            { value: 'all', label: 'All' },
+            { value: 'in', label: 'In Stock' },
+            { value: 'out', label: 'Out of Stock' },
+          ]
+        }]}
+      />
+
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {products.map((product) => (
-          <Card key={product.id} className="p-4 hover:shadow-lg transition-shadow duration-200">
-            <div className="h-32 mb-3 overflow-hidden rounded-lg bg-slate-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products
+          .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+          .filter(p => stockFilter === 'all' || (stockFilter === 'in' ? p.inStock : !p.inStock))
+          .map((product, index) => (
+          <Card 
+            key={product.id} 
+            className="p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <div className="h-32 mb-3 overflow-hidden rounded-lg bg-slate-100 relative group">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 onError={(e) => {
                   e.target.src = 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300'
                 }}
               />
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              {!product.inStock && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <span className="text-white font-semibold text-lg">Out of Stock</span>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-slate-900 text-lg">{product.name}</h3>
+              <h3 className="font-semibold text-slate-900 text-lg group-hover:text-blue-600 transition-colors duration-200">{product.name}</h3>
               <p className="text-slate-600 text-sm line-clamp-2">{product.description}</p>
-              <p className="text-xl font-bold text-slate-900">₹{product.price.toLocaleString()}</p>
+              <p className="text-xl font-bold text-slate-900 animate-pulse-slow">₹{product.price.toLocaleString()}</p>
               <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                   product.inStock
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-red-100 text-red-800 hover:bg-red-200'
                 }`}>
                   {product.inStock ? 'In Stock' : 'Out of Stock'}
                 </span>
@@ -267,14 +318,19 @@ export default function Products() {
                   value={quantities[product.id] || ''}
                   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
                   placeholder="Enter quantity"
-                  className="w-35 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  data-product-id={product.id}
+                  className="w-35 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
                 />
                 <Button
                   onClick={() => handlePlaceOrder(product)}
-                  className="w-50 bg-green-600 hover:bg-green-700 text-white"
+                  data-product-id={product.id}
+                  className="w-50 bg-green-600 hover:bg-green-700 text-white transition-all duration-200 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   disabled={!product.inStock || !(quantities[product.id] > 0)}
                 >
-                  Place Order
+                  <span className="flex items-center gap-2">
+                    <ShoppingCart className="size-4" />
+                    Place Order
+                  </span>
                 </Button>
               </div>
               <div className="flex gap-2">

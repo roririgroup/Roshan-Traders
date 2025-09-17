@@ -51,14 +51,14 @@ export default function Dashboard() {
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <TrendingUp className="size-5 text-white" />
+      <div className="mb-8 animate-slide-in-right">
+        <div className="flex items-center gap-3 mb-2 group">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
+            <TrendingUp className="size-5 text-white transition-transform duration-300 group-hover:scale-110" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-600">Welcome back! Here's your business overview</p>
+            <h1 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">Dashboard</h1>
+            <p className="text-slate-600 group-hover:text-slate-800 transition-colors duration-200">Welcome back! Here's your business overview</p>
           </div>
         </div>
       </div>
@@ -66,16 +66,22 @@ export default function Dashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, index) => (
-          <Card key={index} className="p-6 hover:shadow-lg transition-shadow duration-200">
+          <Card 
+            key={index} 
+            className="p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group relative overflow-hidden"
+            style={{ animationDelay: `${index * 150}ms` }}
+          >
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 ${card.color} rounded-lg flex items-center justify-center`}>
-                <card.icon className="size-6 text-white" />
+              <div className={`w-12 h-12 ${card.color} rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`}>
+                <card.icon className="size-6 text-white transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{card.value}</p>
-                <p className="text-sm text-slate-600">{card.title}</p>
+                <p className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">{card.value}</p>
+                <p className="text-sm text-slate-600 group-hover:text-slate-800 transition-colors duration-200">{card.title}</p>
               </div>
             </div>
+            {/* Hover effect overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
           </Card>
         ))}
       </div>

@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
 import { ShoppingCart, CheckCircle, Clock, Truck } from 'lucide-react'
 import { getOrders } from '../../../store/ordersStore'
+import FilterBar from '../../../components/ui/FilterBar'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
 
   // Load orders from shared store
   useEffect(() => {
@@ -49,6 +52,23 @@ export default function Orders() {
         </div>
       </div>
 
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search orders..."
+        selects={[{
+          name: 'status',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          options: [
+            { value: 'all', label: 'All Status' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'confirmed', label: 'Confirmed' },
+            { value: 'shipped', label: 'Shipped' },
+          ]
+        }]}
+      />
+
       {/* Orders Table */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -65,7 +85,13 @@ export default function Orders() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {orders
+                .filter(o => (
+                  o.customerName.toLowerCase().includes(search.toLowerCase()) ||
+                  String(o.id).includes(search)
+                ))
+                .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
+                .map((order) => (
                 <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                   <td className="py-4 px-6 font-medium text-slate-900">
                     #{order.id}

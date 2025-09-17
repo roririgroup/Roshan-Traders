@@ -1,12 +1,15 @@
 import './App.css'
 import { BrowserRouter as Router } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes'
+import { NotificationProvider } from './lib/notifications.jsx'
 
 function App() {
   return (
-    <Router>
-      <AppRoutes />
-    </Router>
+    <NotificationProvider>
+      <Router>
+        <AppRoutes />
+      </Router>
+    </NotificationProvider>
   )
 }
 

@@ -5,6 +5,7 @@ import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import Badge from '../../../components/ui/Badge'
 import { getOrders } from '../../../store/ordersStore'
+import FilterBar from '../../../components/ui/FilterBar'
 
 export default function PaymentReport() {
   const [paymentData, setPaymentData] = useState({
@@ -17,6 +18,8 @@ export default function PaymentReport() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState(null)
   const [paidInput, setPaidInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
 
   useEffect(() => {
     // Fetch confirmed orders and calculate payment summary
@@ -44,12 +47,6 @@ export default function PaymentReport() {
     }))
     setPaymentDetails(details)
   }, [])
-
-  const openModal = (payment) => {
-    setSelectedPayment(payment)
-    setPaidInput('')
-    setIsModalOpen(true)
-  }
 
   const closeModal = () => {
     setIsModalOpen(false)
@@ -136,6 +133,23 @@ export default function PaymentReport() {
         </Card>
       </div>
 
+      {/* Filters */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by order or customer..."
+        selects={[{
+          name: 'status',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          options: [
+            { value: 'all', label: 'All Status' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'paid', label: 'Paid' }
+          ]
+        }]}
+      />
+
       {/* Payment Details Table */}
       <Card className="p-6">
         <div className="overflow-x-auto">
@@ -152,7 +166,14 @@ export default function PaymentReport() {
               </tr>
             </thead>
             <tbody>
-              {paymentDetails.map((payment) => (
+              {paymentDetails
+                .filter(p => (
+                  p.customer.toLowerCase().includes(search.toLowerCase()) ||
+                  String(p.id).includes(search) ||
+                  p.orderId.toLowerCase().includes(search.toLowerCase())
+                ))
+                .filter(p => statusFilter === 'all' ? true : p.status === statusFilter)
+                .map((payment) => (
                 <tr key={payment.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                   <td className="py-3 px-4 font-medium text-slate-900">{payment.orderId}</td>
                   <td className="py-3 px-4 text-slate-700">{payment.customer}</td>

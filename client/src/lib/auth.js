@@ -19,7 +19,7 @@ export function loginSuperAdmin({ email, password }) {
   
   const user = {
     id: "super-admin-1",
-    role: "superAdmin",
+    role: "superadmin",
     name: "Super Admin",
     email,
     loginMethod: 'email'
@@ -40,7 +40,7 @@ export function loginUser({ phone, otp, userType }) {
   
   const user = {
     id: `${userType}-${Date.now()}`,
-    role: userType,
+    role: String(userType).toLowerCase(),
     name: `${userType.charAt(0).toUpperCase() + userType.slice(1)} User`,
     phone,
     loginMethod: 'mobile'

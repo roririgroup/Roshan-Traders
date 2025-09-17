@@ -50,7 +50,7 @@ const ProfileModal = ({ isOpen, onClose, profile, isEditing, setProfile, handleI
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <div className="p-6">
         <h3 className="text-lg font-semibold mb-4">Edit Profile</h3>
         <div className="space-y-6">

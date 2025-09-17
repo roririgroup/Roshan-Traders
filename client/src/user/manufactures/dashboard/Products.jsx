@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
+import FilterBar from '../../../components/ui/FilterBar'
 import { Package, Plus, ShoppingCart, Edit, Trash2 } from 'lucide-react'
 import { addOrder } from '../../../store/ordersStore'
 
@@ -9,6 +10,9 @@ export default function Products() {
   const [products, setProducts] = useState([])
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [showAddStockModal, setShowAddStockModal] = useState(false)
+  const [selectedProductId, setSelectedProductId] = useState(null)
+  const [addStockQuantity, setAddStockQuantity] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -18,6 +22,8 @@ export default function Products() {
     stockQuantity: 0
   })
   const [quantities, setQuantities] = useState({})
+  const [search, setSearch] = useState('')
+  const [stockFilter, setStockFilter] = useState('all')
 
   // Mock data - replace with API calls
   useEffect(() => {
@@ -36,7 +42,7 @@ export default function Products() {
         name: 'Teak Wood Planks',
         price: 1500,
         description: 'Durable teak wood planks for furniture and flooring',
-        image: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTEhMVFRUWFRcWGBUXFxUXFRUVFRUXFxcXFRUYHSggGBolGxUVITEhJSkrLi4uFyAzODMtNygtLisBCgoKDg0OGxAQGy0mICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAKsBJgMBIgACEQEDEQH/xAAcAAACAgMBAQAAAAAAAAAAAAAEBQYHAQIDAAj/xABBEAABAgQEBAMFBwMCBAcAAAABAhEAAwQhBRIxQQYiUWETcYEHMpGhsRQjQlLB0fBicuEkkhUzQ1M0c4KissLx/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDBAAF/8QAKREAAgICAgEDAwUBAQAAAAAAAAECEQMhEjFBBBNRImFxBTJCgbHwM//aAAwDAQACEQMRAD8AjWKkqBeF1ChjDarIMLE6wsQyDETsk1CxqFAxbmGY2lSAQdop7LdL9Yk+G1Ia0eR+pQfJSQbpBHHWIeIoIGgiMUVDnUAYk8zDlTFZsto64BSBFQAptDaI4MvHG15DCLezvIwACUTl2JiM1NKStCWuVAfGLVXOASRs0JKbh4Z0zD+Z/nEsSfJvstJaJPwnS5JQT0hzU6GPUUoJSGjep0h44uOPZEgNfXZVKeG3DQ8ROY7wi40ACJqhsPqYacETvuJb6kCNT/8AFfk690SvwQ0KcTksR5gw8e0JsdTytuWhJ41xCAS6pPicsPqaszWEIqKgBXpEjp6cCIQjK9HGZyHERLiKkAUlTXBPxIiaERHuI6fMktqLxd4eSY0e7F8iS8sWip+IqcfaVAfmI+cWZQ1Kvs4F3Dg/GIT9jz1qR1U/6xP0EfblJ/Y7K+TQlOHNtFmcB0yfsg/uU/m//wCRyxHAB4ZbVoK4HpyKc/3q/SNkMvJbLe3TIf7RKUInpI3T+sRJMrMYm/tHlEzUP+U/WIjSS+b0jdilaRmyKpM8mSApCui0n4KBj6Fw+cFIHlFD0qfvZT6eIh/9wi8qSnZNow/qGScckeKvTGxRTi7DJZDmFuJyMyknvG4CwXgauqT8I8SWd8OLVGiOK2R2fLesUi9kpL+b/tE4p2CABsIrjBsWK6ycJgYuAnyAiZFZItGr0a9pdbZNpNuhJ7TsTQmlVKcZ1sAOgfWIvwzwvLTkmEAqN384zxJhajNJmHXR4MwTEdEjYgRTJJTW/wCzBlb9y2WDhchKUhgNaN5ba0?w=300',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
         stockQuantity: 50
       }
     ])
@@ -165,48 +171,93 @@ export default function Products() {
     )
   }
 
+  // Add Stock Modal handlers
+  const openAddStockModal = (productId) => {
+    setSelectedProductId(productId)
+    setAddStockQuantity('')
+    setShowAddStockModal(true)
+  }
+
+  const handleConfirmAddStock = () => {
+    const qty = Number(addStockQuantity)
+    if (!qty || qty <= 0) {
+      alert('Please enter a valid quantity to add')
+      return
+    }
+    setProducts(prev => prev.map(product => {
+      if (product.id !== selectedProductId) return product
+      const current = Number(product.stockQuantity || 0)
+      const updated = current + qty
+      return { ...product, stockQuantity: updated, inStock: updated > 0 }
+    }))
+    setShowAddStockModal(false)
+    setSelectedProductId(null)
+    setAddStockQuantity('')
+  }
+
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="p-6 bg-slate-50 min-h-screen relative">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <Package className="size-5 text-white" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <Package className="size-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Products</h1>
+              <p className="text-slate-600">Manage your product inventory and place orders</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Products</h1>
-            <p className="text-slate-600">Manage your product inventory and place orders</p>
-          </div>
+          <Button
+            onClick={() => {
+              setEditingProduct(null)
+              setFormData({
+                name: '',
+                price: '',
+                description: '',
+                image: '',
+                inStock: true
+              })
+              setShowAddForm(true)
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Plus className="size-4 mr-2" />
+            Add Product
+          </Button>
         </div>
-        <Button
-          onClick={() => {
-            setEditingProduct(null)
-            setFormData({
-              name: '',
-              price: '',
-              description: '',
-              image: '',
-              inStock: true
-            })
-            setShowAddForm(true)
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          <Plus className="size-4 mr-2" />
-          Add Product
-        </Button>
       </div>
 
       {/* Products Grid */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search products..."
+        selects={[{
+          name: 'stock',
+          value: stockFilter,
+          onChange: setStockFilter,
+          options: [
+            { value: 'all', label: 'All' },
+            { value: 'in', label: 'In Stock' },
+            { value: 'out', label: 'Out of Stock' },
+          ]
+        }]}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow duration-200">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
+        {products
+          .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+          .filter(p => stockFilter === 'all' || (stockFilter === 'in' ? p.inStock : !p.inStock))
+          .map((product) => (
+          <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow duration-200 flex flex-col">
+            <div className="flex-1">
+              <div className="mb-4">
                 <h3 className="font-semibold text-slate-900 text-lg mb-2">{product.name}</h3>
                 <p className="text-slate-600 text-sm line-clamp-2 mb-2">{product.description}</p>
                 <p className="text-xl font-bold text-slate-900 mb-2">₹{product.price.toLocaleString()}</p>
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-2">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                     product.inStock
                       ? 'bg-green-100 text-green-800'
@@ -214,26 +265,9 @@ export default function Products() {
                   }`}>
                     {product.inStock ? 'In Stock' : 'Out of Stock'}
                   </span>
+                  <span className="text-sm text-slate-700">Stock: <span className="font-semibold">{Number(product.stockQuantity || 0)}</span></span>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => handleEditProduct(product)}
-                  variant="secondary"
-                  size="sm"
-                >
-                  <Edit className="size-4" />
-                </Button>
-                <Button
-                  onClick={() => handleDeleteProduct(product.id)}
-                  variant="secondary"
-                  size="sm"
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            </div>
 
             {product.image && (
               <img
@@ -243,14 +277,16 @@ export default function Products() {
               />
             )}
 
-            <div className="space-y-3">
+            </div>
+
+            <div className="space-y-3 mt-4">
               <div className="flex gap-2">
                 <input
                   type="number"
                   min="0"
                   value={quantities[product.id] || ''}
                   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-                  placeholder="Enter quantity"
+                  placeholder="Enter order qty"
                   className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <Button
@@ -263,15 +299,33 @@ export default function Products() {
                 </Button>
               </div>
 
-              <div className="flex gap-2 items-center">
-                <label className="text-sm font-medium text-slate-700">Stock Quantity:</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={product.stockQuantity}
-                  onChange={(e) => handleStockQuantityChange(product.id, e.target.value)}
-                  className="w-24 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleEditProduct(product)}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    <Edit className="size-4" />
+                  </Button>
+                  <Button
+                    onClick={() => handleDeleteProduct(product.id)}
+                    variant="secondary"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+                <Button
+                  onClick={() => openAddStockModal(product.id)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                  size="sm"
+                  title="Add Stock"
+                >
+                  <Plus className="size-4" />
+                  Add Stock
+                </Button>
               </div>
             </div>
           </Card>
@@ -291,7 +345,7 @@ export default function Products() {
       )}
 
       {/* Add/Edit Product Modal */}
-      <Modal isOpen={showAddForm} onClose={() => setShowAddForm(false)} title={editingProduct ? "Edit Product" : "Add New Product"}>
+      <Modal inline isOpen={showAddForm} onClose={() => setShowAddForm(false)} title={editingProduct ? "Edit Product" : "Add New Product"}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Product Name</label>
@@ -364,6 +418,27 @@ export default function Products() {
             >
               {editingProduct ? 'Update Product' : 'Add Product'}
             </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Add Stock Modal */}
+      <Modal inline isOpen={showAddStockModal} onClose={() => setShowAddStockModal(false)} title="Add Stock">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Quantity to Add</label>
+            <input
+              type="number"
+              min="1"
+              value={addStockQuantity}
+              onChange={(e) => setAddStockQuantity(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter quantity"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setShowAddStockModal(false)}>Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleConfirmAddStock}>Add</Button>
           </div>
         </div>
       </Modal>

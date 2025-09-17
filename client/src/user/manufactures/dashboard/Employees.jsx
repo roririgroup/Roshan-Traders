@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
+import FilterBar from '../../../components/ui/FilterBar'
 import { Users, UserPlus, Edit, Trash2 } from 'lucide-react'
 
 export default function Employees() {
@@ -14,6 +15,9 @@ export default function Employees() {
   ])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingAgent, setEditingAgent] = useState(null)
+  const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -120,6 +124,35 @@ export default function Employees() {
         </Button>
       </div>
 
+      {/* Filters */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by name or email..."
+        selects={[
+          {
+            name: 'role',
+            value: roleFilter,
+            onChange: setRoleFilter,
+            options: [
+              { value: 'all', label: 'All Roles' },
+              { value: 'agent', label: 'Agent' },
+              { value: 'employee', label: 'Employee' }
+            ]
+          },
+          {
+            name: 'status',
+            value: statusFilter,
+            onChange: setStatusFilter,
+            options: [
+              { value: 'all', label: 'All Status' },
+              { value: 'active', label: 'Active' },
+              { value: 'inactive', label: 'Inactive' }
+            ]
+          }
+        ]}
+      />
+
       {/* Agents Table */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -136,7 +169,14 @@ export default function Employees() {
               </tr>
             </thead>
             <tbody>
-              {agents.map((agent) => (
+              {agents
+                .filter(a => (
+                  a.name.toLowerCase().includes(search.toLowerCase()) ||
+                  a.email.toLowerCase().includes(search.toLowerCase())
+                ))
+                .filter(a => roleFilter === 'all' ? true : a.role === roleFilter)
+                .filter(a => statusFilter === 'all' ? true : a.status === statusFilter)
+                .map((agent) => (
                 <tr key={agent.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                   <td className="py-4 px-6 font-medium text-slate-900">
                     {agent.name}

@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
 import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink } from 'lucide-react'
 import { getOrders, updateOrderStatus } from '../../../store/ordersStore'
+import NotificationContainer from '../../../components/ui/NotificationContainer'
+import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
+import { useNotifications } from '../../../lib/notifications.jsx'
+import FilterBar from '../../../components/ui/FilterBar'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -9,6 +13,13 @@ export default function Orders() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [activeTab, setActiveTab] = useState('orders')
   const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  
+  const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
   // Load orders from shared store
   useEffect(() => {
@@ -34,6 +45,11 @@ export default function Orders() {
       const externalOrders = allOrders.filter(order => order.customerName !== 'Current Agent')
       if (externalOrders.length > outsourceOrders.length) {
         setNewOutsourceOrder(true)
+        // Show notification for new orders
+        const newOrders = externalOrders.slice(outsourceOrders.length)
+        newOrders.forEach(order => {
+          showOrderNotification(order)
+        })
         setTimeout(() => setNewOutsourceOrder(false), 5000) // Hide notification after 5 seconds
       }
       setOutsourceOrders(externalOrders)
@@ -41,7 +57,7 @@ export default function Orders() {
 
     const interval = setInterval(checkForNewOrders, 10000) // Check every 10 seconds
     return () => clearInterval(interval)
-  }, [outsourceOrders.length])
+    }, [outsourceOrders.length, showOrderNotification])
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -59,6 +75,54 @@ export default function Orders() {
   const handleStatusChange = (orderId, newStatus) => {
     updateOrderStatus(orderId, newStatus)
     setRefreshTrigger(prev => prev + 1)
+  }
+
+  const handleNotificationClick = (notificationId) => {
+    const notification = notifications.find(n => n.id === notificationId)
+    if (notification && notification.order) {
+      setSelectedOrder(notification.order)
+      setIsOrderModalOpen(true)
+      removeNotification(notificationId)
+    }
+  }
+
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order)
+    setIsOrderModalOpen(true)
+  }
+
+  const handleConfirmOrder = async (orderId) => {
+    setIsLoading(true)
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      updateOrderStatus(orderId, 'confirmed')
+      setRefreshTrigger(prev => prev + 1)
+      showSuccessNotification('Order confirmed successfully!')
+      setIsOrderModalOpen(false)
+      setSelectedOrder(null)
+    } catch (error) {
+      showErrorNotification('Failed to confirm order. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRejectOrder = async (orderId) => {
+    setIsLoading(true)
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      updateOrderStatus(orderId, 'rejected')
+      setRefreshTrigger(prev => prev + 1)
+      showSuccessNotification('Order rejected successfully!')
+      setIsOrderModalOpen(false)
+      setSelectedOrder(null)
+    } catch (error) {
+      showErrorNotification('Failed to reject order. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const renderOrderTable = (orderList, title) => (
@@ -82,11 +146,15 @@ export default function Orders() {
           </thead>
           <tbody>
             {orderList.map((order) => (
-              <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-slate-900">
+              <tr 
+                key={order.id} 
+                className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group"
+                onClick={() => handleOrderClick(order)}
+              >
+                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
                   #{order.id}
                 </td>
-                <td className="py-4 px-6 text-slate-900">
+                <td className="py-4 px-6 text-slate-900 group-hover:text-blue-600 transition-colors">
                   {order.customerName}
                 </td>
                 <td className="py-4 px-6">
@@ -99,29 +167,42 @@ export default function Orders() {
                     ))}
                   </div>
                 </td>
-                <td className="py-4 px-6 font-medium text-slate-900">
+                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
                   ₹{order.totalAmount.toLocaleString()}
                 </td>
                 <td className="py-4 px-6">
                   {getStatusBadge(order.status)}
                 </td>
-                <td className="py-4 px-6 text-slate-600">
+                <td className="py-4 px-6 text-slate-600 group-hover:text-blue-600 transition-colors">
                   {new Date(order.orderDate).toLocaleDateString()}
                 </td>
-                <td className="py-4 px-6 text-slate-600 max-w-xs truncate">
+                <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-blue-600 transition-colors">
                   {order.deliveryAddress}
                 </td>
                 <td className="py-4 px-6">
                   {order.status === 'pending' && (
-                    <select
-                      value={order.status}
-                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      className="px-3 py-1 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirm</option>
-                      <option value="shipped">Shipped</option>
-                    </select>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleConfirmOrder(order.id)
+                        }}
+                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                        disabled={isLoading}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRejectOrder(order.id)
+                        }}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                        disabled={isLoading}
+                      >
+                        Reject
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -134,6 +215,26 @@ export default function Orders() {
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
+      {/* Notifications */}
+      <NotificationContainer 
+        notifications={notifications}
+        onRemove={removeNotification}
+        onNotificationClick={handleNotificationClick}
+      />
+
+      {/* Order Details Modal */}
+      <OrderDetailsModal
+        isOpen={isOrderModalOpen}
+        onClose={() => {
+          setIsOrderModalOpen(false)
+          setSelectedOrder(null)
+        }}
+        order={selectedOrder}
+        onConfirm={handleConfirmOrder}
+        onReject={handleRejectOrder}
+        isLoading={isLoading}
+      />
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
@@ -148,7 +249,7 @@ export default function Orders() {
 
         {/* New Outsource Order Notification */}
         {newOutsourceOrder && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 animate-bounce-in">
             <div className="flex items-center gap-2">
               <ExternalLink className="size-5 text-yellow-600" />
               <span className="text-yellow-800 font-medium">New outsource order received!</span>
@@ -186,11 +287,44 @@ export default function Orders() {
         </div>
       </div>
 
+      {/* Filters */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search orders..."
+        selects={[{
+          name: 'status',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          options: [
+            { value: 'all', label: 'All Status' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'confirmed', label: 'Confirmed' },
+            { value: 'shipped', label: 'Shipped' },
+            { value: 'rejected', label: 'Rejected' },
+          ]
+        }]}
+      />
+
       {/* Orders Table */}
-      {activeTab === 'orders' && renderOrderTable(orders, 'Orders')}
+      {activeTab === 'orders' && renderOrderTable(
+        orders
+          .filter(o => (
+            o.customerName.toLowerCase().includes(search.toLowerCase()) ||
+            String(o.id).includes(search)
+          ))
+          .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
+        , 'Orders')}
 
       {/* Outsource Orders Table */}
-      {activeTab === 'outsource' && renderOrderTable(outsourceOrders, 'Outsource Orders')}
+      {activeTab === 'outsource' && renderOrderTable(
+        outsourceOrders
+          .filter(o => (
+            o.customerName.toLowerCase().includes(search.toLowerCase()) ||
+            String(o.id).includes(search)
+          ))
+          .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
+        , 'Outsource Orders')}
 
       {(activeTab === 'orders' && orders.length === 0) && (
         <div className="text-center py-12">
