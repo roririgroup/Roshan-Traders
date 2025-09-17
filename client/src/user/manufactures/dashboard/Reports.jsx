@@ -74,7 +74,7 @@ export default function Reports() {
     
 
       {/* Detailed Report */}
-      <Card className="p-6">
+      <Card className="p-6 border-gray-200">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Detailed Report</h3>
         <div className="overflow-x-auto">
           <table className="w-full">

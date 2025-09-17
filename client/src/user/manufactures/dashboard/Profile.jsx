@@ -74,8 +74,8 @@ export default function Profile() {
     <div className="p-6 bg-slate-50 min-h-screen">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Profile</h1>
-        <Button onClick={openModal} className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Edit className="size-4 mr-2" />
+        <Button onClick={openModal} className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
+          <Edit className="size-4 mr-2 " />
           Edit Profile
         </Button>
       </div>
@@ -83,7 +83,7 @@ export default function Profile() {
       {/* Grid inspired by provided design: left profile card, right accounts and bills */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Profile card */}
-        <Card className="p-6 lg:col-span-1">
+        <Card className="p-6 lg:col-span-1 border-gray-200">
           <div className="flex flex-col items-center text-center">
             <div className="w-40 h-40 rounded-xl overflow-hidden bg-slate-200 mb-4 shadow">
               <img
@@ -124,15 +124,15 @@ export default function Profile() {
                 </div>
               </div>
               <div className="flex justify-center pt-2">
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white px-6">Save</Button>
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white px-6 cursor-pointer">Save</Button>
               </div>
             </div>
           </div>
         </Card>
 
         {/* Right: Accounts and Bills */}
-        <div className="lg:col-span-2 grid grid-cols-1 gap-6">
-          <Card className="p-6">
+        <div className="lg:col-span-2 grid grid-cols-1 gap-6 ">
+          <Card className="p-6 border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900">My xPay accounts</h3>
               <div className="flex items-center gap-2">
@@ -143,17 +143,17 @@ export default function Profile() {
               <div className="p-4 rounded-lg border border-slate-200">
                 <p className="text-sm text-slate-500">Active account</p>
                 <p className="text-slate-900 font-medium">{profile.name}</p>
-                <Button className="mt-3 bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 text-sm">Block Account</Button>
+                <Button className="mt-3 bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 text-sm cursor-pointer">Block Account</Button>
               </div>
               <div className="p-4 rounded-lg border border-slate-200">
                 <p className="text-sm text-slate-500">Blocked account</p>
                 <p className="text-slate-900 font-medium">—</p>
-                <Button className="mt-3 bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-sm">Unlock account</Button>
+                <Button className="mt-3 bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-sm cursor-pointer">Unlock account</Button>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900">My bills</h3>
               <Button variant="secondary" className="px-3 py-1 text-sm">Filter by</Button>

@@ -68,11 +68,11 @@ export default function Dashboard() {
         {statCards.map((card, index) => (
           <Card 
             key={index} 
-            className="p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group relative overflow-hidden"
+            className="p-6 border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group relative overflow-hidden"
             style={{ animationDelay: `${index * 150}ms` }}
           >
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 ${card.color} rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`}>
+              <div className={`w-12 h-12 ${card.color} rounded-lg flex items-center justify-center transition-transform duration-300 `}>
                 <card.icon className="size-6 text-white transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div>

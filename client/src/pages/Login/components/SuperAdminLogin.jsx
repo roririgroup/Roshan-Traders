@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { loginSuperAdmin, isAuthenticated } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
-import logo from "../../../assets/Roshan logo/Roshan_white.png";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { pudgy } from '../../../../public/lottie/lottie';
+import { pudgy,white } from '../../../../public/lottie/lottie';
 export default function SuperAdminLogin() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -54,7 +53,7 @@ export default function SuperAdminLogin() {
           <div className="flex flex-col justify-between rounded-l-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 text-white">
 
             <div className="items-center gap- mt-5 ml-5">
-              <img src={logo} alt="Roshan Traders" className="h-13 w-35" />
+              <img src={white} alt="Roshan Traders" className="h-13 w-35" />
             </div>
             <DotLottieReact src={pudgy} loop autoplay style={{ width: 260, height: 260 }} />
           </div>

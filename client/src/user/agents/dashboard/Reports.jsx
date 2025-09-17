@@ -51,8 +51,8 @@ export default function Reports() {
       </div>
 
       {/* Period Selector */}
-      <div className="mb-6">
-        <div className="flex gap-2">
+      <div className="mb-6  ">
+        <div className="flex gap-2 ">
           {[
             { key: 'daily', label: 'Daily' },
             { key: 'weekly', label: 'Weekly' },
@@ -72,7 +72,7 @@ export default function Reports() {
       </div>
 
       {/* Detailed Report */}
-      <Card className="p-6 mt-6">
+      <Card className="p-6 mt-6 border-gray-200">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Detailed Report</h3>
         <div className="overflow-x-auto">
           <table className="w-full">

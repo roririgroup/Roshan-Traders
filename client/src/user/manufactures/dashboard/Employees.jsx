@@ -118,7 +118,7 @@ export default function Employees() {
 
       {/* Add Employee Button */}
       <div className="mb-6 flex justify-end">
-        <Button onClick={handleAddAgent} className="bg-green-600 hover:bg-green-700">
+        <Button onClick={handleAddAgent} className="bg-green-600 hover:bg-green-700 cursor-pointer">
           <UserPlus className="size-4 mr-2" />
           Add Agent/Employee
         </Button>
