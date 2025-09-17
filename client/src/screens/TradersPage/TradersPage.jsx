@@ -1,5 +1,5 @@
-import { Card, CardMedia, CardHeader } from '../components/ui/Card'
-import Badge from '../components/ui/Badge'
+import { Card, CardMedia, CardHeader } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
 export default function TradersPage() {
   const data = [
     { id: 't1', name: 'Om Traders', category: 'Cement', image: 'https://images.unsplash.com/photo-1596079890684-cfdc3e0f4b3b?q=80&w=800&auto=format&fit=crop' },

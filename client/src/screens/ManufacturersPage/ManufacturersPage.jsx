@@ -1,5 +1,5 @@
-import { Card, CardMedia, CardHeader, CardContent } from '../components/ui/Card'
-import Badge from '../components/ui/Badge'
+import { Card, CardMedia, CardHeader, CardContent } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
 export default function ManufacturersPage() {
   const data = [
     { id: 'm1', name: 'Alpha Bricks Co.', location: 'Pune', products: 12, image: 'https://images.unsplash.com/photo-1581093458791-9d1f8f5b88f8?q=80&w=800&auto=format&fit=crop' },

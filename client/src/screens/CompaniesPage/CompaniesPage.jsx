@@ -1,5 +1,5 @@
-import { Card, CardMedia, CardHeader } from '../components/ui/Card'
-import Button from '../components/ui/Button'
+import { Card, CardMedia, CardHeader } from '../../components/ui/Card'
+import Button from '../../components/ui/Button'
 export default function CompaniesPage() {
   const data = [
     { id: 'c1', name: 'BuildRight Constructions', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop' },

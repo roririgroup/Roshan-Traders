@@ -1,4 +1,4 @@
-import Badge from '../components/ui/Badge'
+import Badge from '../../components/ui/Badge'
 import { Users, TrendingUp, Award, Phone, Mail, MapPin } from 'lucide-react'
 
 export default function AgentsPage() {
