@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
-import { BarChart3, Calendar } from 'lucide-react'
+import { BarChart3, Calendar, TrendingUp, DollarSign } from 'lucide-react'
 
 export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState('daily')
@@ -71,8 +71,10 @@ export default function Reports() {
         </div>
       </div>
 
+    
+
       {/* Detailed Report */}
-      <Card className="p-6 mt-6">
+      <Card className="p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Detailed Report</h3>
         <div className="overflow-x-auto">
           <table className="w-full">

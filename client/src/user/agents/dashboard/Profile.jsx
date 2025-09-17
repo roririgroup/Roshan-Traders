@@ -5,13 +5,16 @@ import { User, Mail, Phone, MapPin, CreditCard, Edit, Save, X } from 'lucide-rea
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [profile, setProfile] = useState({
     name: '',
     email: '',
     phone: '',
     address: '',
     bankDetails: '',
-    upiId: ''
+    upiId: '',
+    role: '',
+    services: []
   })
 
   // Mock data - replace with API calls
@@ -22,7 +25,9 @@ export default function Profile() {
       phone: '+91 98765 43210',
       address: '123 Business Street, Mumbai, Maharashtra 400001',
       bankDetails: 'HDFC Bank, Account: ****1234',
-      upiId: 'ravi.patil@upi'
+      upiId: 'ravi.patil@upi',
+      role: 'agent',
+      services: ['wood', 'bricks']
     })
   }, [])
 
@@ -34,15 +39,34 @@ export default function Profile() {
     }))
   }
 
+  const handleServiceChange = (service) => {
+    setProfile(prev => ({
+      ...prev,
+      services: prev.services.includes(service)
+        ? prev.services.filter(s => s !== service)
+        : [...prev.services, service]
+    }))
+  }
+
+  const openModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
   const handleSave = () => {
     // Save profile via API
     console.log('Saving profile:', profile)
     setIsEditing(false)
+    closeModal()
   }
 
   const handleCancel = () => {
     // Reset to original data if needed
     setIsEditing(false)
+    closeModal()
   }
 
   const profileFields = [
@@ -133,8 +157,74 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Profile Form */}
-      <div className="max-w-2xl">
+      {/* Profile Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Profile Summary - Left Side */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Summary</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <User className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Name</p>
+                <p className="font-medium text-slate-900">{profile.name || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Mail className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Email</p>
+                <p className="font-medium text-slate-900">{profile.email || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Phone className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Phone</p>
+                <p className="font-medium text-slate-900">{profile.phone || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <MapPin className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Address</p>
+                <p className="font-medium text-slate-900">{profile.address || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <CreditCard className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Bank Details</p>
+                <p className="font-medium text-slate-900">{profile.bankDetails || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <CreditCard className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">UPI ID</p>
+                <p className="font-medium text-slate-900">{profile.upiId || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <User className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Role</p>
+                <p className="font-medium text-slate-900 capitalize">{profile.role || 'Not set'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <User className="size-5 text-slate-400" />
+              <div>
+                <p className="text-sm text-slate-600">Services</p>
+                <p className="font-medium text-slate-900 capitalize">
+                  {profile.services.length > 0 ? profile.services.join(', ') : 'Not set'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Profile Form - Right Side */}
         <Card className="p-6">
           <div className="space-y-6">
             {profileFields.map((field) => (
@@ -174,57 +264,47 @@ export default function Profile() {
                 </div>
               </div>
             ))}
-          </div>
-        </Card>
 
-        {/* Profile Summary */}
-        <Card className="p-6 mt-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Summary</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <User className="size-5 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-600">Name</p>
-                  <p className="font-medium text-slate-900">{profile.name || 'Not set'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="size-5 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-600">Email</p>
-                  <p className="font-medium text-slate-900">{profile.email || 'Not set'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="size-5 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-600">Phone</p>
-                  <p className="font-medium text-slate-900">{profile.phone || 'Not set'}</p>
-                </div>
-              </div>
+            {/* Role Field */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Role
+              </label>
+              <select
+                name="role"
+                value={profile.role}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className={`w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500 ${
+                  isEditing ? 'bg-white' : 'bg-slate-50'
+                }`}
+              >
+                <option value="">Select Role</option>
+                <option value="agent">Agent</option>
+                <option value="manufactures">Manufactures</option>
+              </select>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <MapPin className="size-5 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-600">Address</p>
-                  <p className="font-medium text-slate-900">{profile.address || 'Not set'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <CreditCard className="size-5 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-600">Bank Details</p>
-                  <p className="font-medium text-slate-900">{profile.bankDetails || 'Not set'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <CreditCard className="size-5 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-600">UPI ID</p>
-                  <p className="font-medium text-slate-900">{profile.upiId || 'Not set'}</p>
-                </div>
+
+            {/* Services Field */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-3">
+                Services
+              </label>
+              <div className="space-y-2">
+                {['wood', 'sand', 'bricks', 'truck'].map((service) => (
+                  <label key={service} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={profile.services.includes(service)}
+                      onChange={() => handleServiceChange(service)}
+                      disabled={!isEditing}
+                      className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded disabled:opacity-50"
+                    />
+                    <span className={`text-sm capitalize ${!isEditing ? 'text-slate-500' : 'text-slate-700'}`}>
+                      {service}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>

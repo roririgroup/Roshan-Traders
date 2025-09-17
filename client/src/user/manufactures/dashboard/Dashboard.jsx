@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+// Try both named and default import for Card
 import { Card } from '../../../components/ui/Card'
-import { Package, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react'
+// import Card from '../../../components/ui/Card' // Uncomment if Card is default export
+import { Package,User, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react'
 
-export default function Dashboard() {
+export default function ManufacturerDashboard() {
   const [stats, setStats] = useState({
     totalProducts: 0,
+    totalEmployee: 0,
     totalOrders: 0,
     todayRevenue: 0,
     monthlyRevenue: 0
@@ -15,6 +18,7 @@ export default function Dashboard() {
     // Fetch stats from API
     setStats({
       totalProducts: 25,
+      totalEmployee: 50,
       totalOrders: 12,
       todayRevenue: 2500,
       monthlyRevenue: 45000
@@ -27,6 +31,12 @@ export default function Dashboard() {
       value: stats.totalProducts,
       icon: Package,
       color: 'bg-blue-500'
+    },
+    {
+      title: 'Total Employees',
+      value: stats.totalEmployee,
+      icon: User,
+      color: 'bg-orange-500'
     },
     {
       title: 'Total Orders',
@@ -64,7 +74,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {statCards.map((card, index) => (
           <Card 
             key={index} 
@@ -84,57 +94,6 @@ export default function Dashboard() {
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
           </Card>
         ))}
-      </div>
-
-      {/* Additional Dashboard Content */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
-        {/* <Card className="p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <ShoppingCart className="size-4 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-900">New order placed</p>
-                <p className="text-xs text-slate-500">2 minutes ago</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <Package className="size-4 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-900">Product added to inventory</p>
-                <p className="text-xs text-slate-500">1 hour ago</p>
-              </div>
-            </div>
-          </div>
-        </Card> */}
-
-        {/* Quick Actions */}
-        {/* <Card className="p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
-              <Package className="size-6 text-blue-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-blue-900">Add Product</p>
-            </button>
-            <button className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200">
-              <ShoppingCart className="size-6 text-green-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-green-900">View Orders</p>
-            </button>
-            <button className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200">
-              <DollarSign className="size-6 text-purple-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-purple-900">Payment Report</p>
-            </button>
-            <button className="p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors duration-200">
-              <TrendingUp className="size-6 text-orange-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-orange-900">View Reports</p>
-            </button>
-          </div>
-        </Card> */}
       </div>
     </div>
   )
