@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, MapPin, Phone, Mail, Users, Calendar, ArrowLeft, Building2, Star, ExternalLink } from 'lucide-react';
+import { X, MapPin, Phone, Mail, Users, Calendar, Factory, Star, ExternalLink, Package } from 'lucide-react';
 
 // Card Components
 const Card = ({ children, className = "" }) => (
@@ -75,88 +75,88 @@ export default function CompaniesPage() {
   
   const data = [
     { 
-      id: 'c1', 
-      name: 'BuildRight Constructions', 
-      city: 'Mumbai', 
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop',
-      description: 'Leading construction company with over 15 years of experience in residential and commercial projects.',
-      contact: '+91 98765 43210',
-      email: 'contact@buildright.com',
-      employees: '150-200',
-      established: '2008',
-      rating: 4.8,
-      projects: 145,
-      services: ['Residential Construction', 'Commercial Buildings', 'Interior Design', 'Renovation']
-    },
-    { 
-      id: 'c2', 
-      name: 'Skyline Infra', 
-      city: 'Pune', 
-      image: 'https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?q=80&w=800&auto=format&fit=crop',
-      description: 'Premium infrastructure development company specializing in smart city projects and urban planning.',
-      contact: '+91 97654 32109',
-      email: 'info@skylineinfra.com',
-      employees: '200-250',
-      established: '2012',
-      rating: 4.6,
-      projects: 89,
-      services: ['Infrastructure Development', 'Smart City Projects', 'Urban Planning', 'Civil Engineering']
-    },
-    { 
-      id: 'c3', 
-      name: 'GreenBuild Developers', 
-      city: 'Bangalore', 
-      image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=800&auto=format&fit=crop',
-      description: 'Eco-friendly construction company focused on sustainable building practices and green certifications.',
-      contact: '+91 96543 21098',
-      email: 'hello@greenbuild.com',
-      employees: '100-150',
-      established: '2015',
-      rating: 4.9,
-      projects: 67,
-      services: ['Green Building', 'LEED Certification', 'Sustainable Design', 'Energy Efficiency']
-    },
-    { 
-      id: 'c4', 
-      name: 'Metro Structures Ltd', 
-      city: 'Delhi', 
-      image: 'https://images.unsplash.com/photo-1465433045946-ba6506ce5a59?q=80&w=800&auto=format&fit=crop',
-      description: 'Large-scale construction firm specializing in metro rail projects and industrial infrastructure.',
-      contact: '+91 95432 10987',
-      email: 'admin@metroltd.com',
-      employees: '300-350',
+      id: 'm1', 
+      name: 'Premium Bricks & Blocks', 
+      city: 'Ahmedabad', 
+      image: 'https://images.unsplash.com/photo-1621553981196-2e084f2e2a77?q=80&w=800&auto=format&fit=crop',
+      description: 'Leading manufacturer of high-quality clay bricks, concrete blocks, and paving stones with ISO 9001 certification.',
+      contact: '+91 98765 12340',
+      email: 'sales@premiumbricks.com',
+      employees: '80-100',
       established: '2005',
       rating: 4.7,
-      projects: 234,
-      services: ['Metro Rail Projects', 'Industrial Construction', 'Bridge Engineering', 'Public Infrastructure']
+      capacity: '50,000 units/day',
+      products: ['Clay Bricks', 'Concrete Blocks', 'Paving Stones', 'Hollow Blocks', 'Interlocking Pavers']
     },
     { 
-      id: 'c5', 
-      name: 'Coastal Builders', 
-      city: 'Chennai', 
-      image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop',
-      description: 'Specialized in coastal construction with expertise in marine engineering and waterfront development.',
-      contact: '+91 94321 09876',
-      email: 'coastal@builders.com',
-      employees: '80-120',
+      id: 'm2', 
+      name: 'SteelStrong Sheets', 
+      city: 'Pune', 
+      image: 'https://images.unsplash.com/photo-163338841271-28c181f4c1e6?q=80&w=800&auto=format&fit=crop',
+      description: 'Manufacturer of premium steel sheets, roofing materials, and structural components for construction industry.',
+      contact: '+91 97654 32109',
+      email: 'info@steelstrong.com',
+      employees: '120-150',
       established: '2010',
-      rating: 4.5,
-      projects: 52,
-      services: ['Marine Construction', 'Waterfront Development', 'Coastal Engineering', 'Port Infrastructure']
+      rating: 4.6,
+      capacity: '200 tons/day',
+      products: ['GI Sheets', 'Galvanized Steel', 'Roofing Sheets', 'Color Coated Sheets', 'Structural Components']
     },
     { 
-      id: 'c6', 
-      name: 'Urban Heights', 
-      city: 'Hyderabad', 
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop',
-      description: 'High-rise specialists with cutting-edge technology in skyscraper construction and urban development.',
-      contact: '+91 93210 98765',
-      email: 'info@urbanheights.com',
-      employees: '180-220',
-      established: '2013',
+      id: 'm3', 
+      name: 'PureSand Minerals', 
+      city: 'Chennai', 
+      image: 'https://images.unsplash.com/photo-1621553981196-2e084f2e2a77?q=80&w=800&auto=format&fit=crop',
+      description: 'Supplier of high-quality construction sand, river sand, and manufactured sand with consistent grading and purity.',
+      contact: '+91 96543 21098',
+      email: 'orders@puresand.com',
+      employees: '60-80',
+      established: '2012',
+      rating: 4.5,
+      capacity: '500 tons/day',
+      products: ['River Sand', 'M-Sand', 'Plastering Sand', 'Filter Sand', 'Graded Aggregates']
+    },
+    { 
+      id: 'm4', 
+      name: 'CementPlus Industries', 
+      city: 'Raipur', 
+      image: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?q=80&w=800&auto=format&fit=crop',
+      description: 'Manufacturer of OPC, PPC, and specialty cement products with advanced quality control systems.',
+      contact: '+91 95432 10987',
+      email: 'contact@cementplus.com',
+      employees: '200-250',
+      established: '2008',
       rating: 4.8,
-      projects: 78,
-      services: ['High-rise Construction', 'Urban Development', 'Skyscraper Engineering', 'Modern Architecture']
+      capacity: '1000 tons/day',
+      products: ['OPC Cement', 'PPC Cement', 'White Cement', 'Masonry Cement', 'Specialty Cements']
+    },
+    { 
+      id: 'm5', 
+      name: 'PolyTech Plastics', 
+      city: 'Bangalore', 
+      image: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?q=80&w=800&auto=format&fit=crop',
+      description: 'Manufacturer of PVC pipes, fittings, and plastic construction materials with BIS certification.',
+      contact: '+91 94321 09876',
+      email: 'sales@polytech.com',
+      employees: '150-180',
+      established: '2011',
+      rating: 4.4,
+      capacity: '20,000 units/day',
+      products: ['PVC Pipes', 'CPVC Pipes', 'Plastic Fittings', 'Water Tanks', 'Drainage Systems']
+    },
+    { 
+      id: 'm6', 
+      name: 'TileCraft Ceramics', 
+      city: 'Morbi', 
+      image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=800&auto=format&fit=crop',
+      description: 'Premium manufacturer of ceramic tiles, vitrified tiles, and sanitaryware for residential and commercial use.',
+      contact: '+91 93210 98765',
+      email: 'export@tilecraft.com',
+      employees: '300-350',
+      established: '2007',
+      rating: 4.9,
+      capacity: '25,000 sqm/day',
+      products: ['Ceramic Tiles', 'Vitrified Tiles', 'Sanitaryware', 'Wall Tiles', 'Floor Tiles']
     }
   ];
 
@@ -203,8 +203,8 @@ export default function CompaniesPage() {
               <span>{company.rating}</span>
             </div>
             <div className="flex items-center">
-              <Building2 size={12} className="mr-1" />
-              <span>{company.projects} projects</span>
+              <Factory size={12} className="mr-1" />
+              <span>{company.capacity}</span>
             </div>
           </div>
         </CardContent>
@@ -219,8 +219,8 @@ export default function CompaniesPage() {
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Construction Companies</h1>
-              <p className="text-gray-600 mt-1 text-sm sm:text-base">Browse our network of trusted construction partners</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Construction Material Manufacturers</h1>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">Browse our network of trusted material suppliers and manufacturers</p>
             </div>
             
             {/* View Toggle - Hidden on mobile for space */}
@@ -245,7 +245,7 @@ export default function CompaniesPage() {
           {/* Mobile Stats */}
           <div className="flex justify-center mt-4 sm:hidden">
             <div className="bg-blue-50 rounded-lg px-4 py-2">
-              <span className="text-blue-600 text-sm font-medium">{data.length} Companies Available</span>
+              <span className="text-blue-600 text-sm font-medium">{data.length} Manufacturers Available</span>
             </div>
           </div>
         </div>
@@ -312,8 +312,8 @@ export default function CompaniesPage() {
                         <div className="text-xs text-gray-600">Rating</div>
                       </div>
                       <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-lg sm:text-xl font-bold text-green-600">{selectedCompany.projects}</div>
-                        <div className="text-xs text-gray-600">Projects</div>
+                        <div className="text-lg sm:text-xl font-bold text-green-600">{selectedCompany.capacity}</div>
+                        <div className="text-xs text-gray-600">Capacity</div>
                       </div>
                       <div className="text-center p-3 bg-purple-50 rounded-lg">
                         <div className="text-lg sm:text-xl font-bold text-purple-600">{selectedCompany.employees}</div>
@@ -339,16 +339,19 @@ export default function CompaniesPage() {
                       </div>
                     </div>
                     
-                    {/* Services */}
+                    {/* Products */}
                     <div className="mb-6">
-                      <h3 className="text-lg font-semibold text-gray-9 mb-3">Services Offered</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Package size={18} className="mr-2" />
+                        Products Manufactured
+                      </h3>
                       <div className="flex flex-wrap gap-2">
-                        {selectedCompany.services.map((service, index) => (
+                        {selectedCompany.products.map((product, index) => (
                           <span 
                             key={index}
-                            className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full"
+                            className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full"
                           >
-                            {service}
+                            {product}
                           </span>
                         ))}
                       </div>
@@ -368,7 +371,7 @@ export default function CompaniesPage() {
                     </Button>
                     <Button className="order-1 sm:order-2">
                       <ExternalLink size={16} className="mr-2" />
-                      Contact Company
+                      Request Quote
                     </Button>
                   </div>
                 </div>
