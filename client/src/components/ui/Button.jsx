@@ -8,11 +8,11 @@ const variants = {
   danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-ring',
 }
 
-export default function Button({ variant = 'primary', className = '', children, ...props }) {
+export default function Button({ variant = 'primary', className = '', children, type = 'button', ...props }) {
   const variantClass = variants[variant] || variants.primary
   const combined = `${base} ${variantClass} px-4 py-2 ${className}`.trim()
   return (
-    <button className={combined} {...props}>
+    <button type={type} className={combined} {...props}>
       {children}
     </button>
   )

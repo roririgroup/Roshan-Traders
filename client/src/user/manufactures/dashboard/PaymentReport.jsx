@@ -1,64 +1,52 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import { DollarSign, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
+import Badge from '../../../components/ui/Badge'
+import { getOrders } from '../../../store/ordersStore'
+import FilterBar from '../../../components/ui/FilterBar'
 
 export default function PaymentReport() {
   const [paymentData, setPaymentData] = useState({
-    totalAmount: 25000,
-    pendingAmount: 8500,
-    paidAmount: 16500
+    totalAmount: 0,
+    pendingAmount: 0,
+    paidAmount: 0
   })
 
-  const [paymentDetails, setPaymentDetails] = useState([
-    {
-      id: 1,
-      orderId: '#1234',
-      customer: 'John Doe',
-      amount: 2999,
-      status: 'paid',
-      paymentDate: '2024-01-15',
-      method: 'UPI'
-    },
-    {
-      id: 2,
-      orderId: '#1235',
-      customer: 'Jane Smith',
-      amount: 4999,
-      status: 'pending',
-      paymentDate: null,
-      method: 'Cash'
-    },
-    {
-      id: 3,
-      orderId: '#1236',
-      customer: 'Bob Johnson',
-      amount: 7998,
-      status: 'paid',
-      paymentDate: '2024-01-14',
-      method: 'Card'
-    },
-    {
-      id: 4,
-      orderId: '#1237',
-      customer: 'Alice Brown',
-      amount: 1999,
-      status: 'pending',
-      paymentDate: null,
-      method: 'Bank Transfer'
-    }
-  ])
-
+  const [paymentDetails, setPaymentDetails] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState(null)
   const [paidInput, setPaidInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
 
-  const openModal = (payment) => {
-    setSelectedPayment(payment)
-    setPaidInput('')
-    setIsModalOpen(true)
-  }
+  useEffect(() => {
+    // Fetch confirmed orders and calculate payment summary
+    const orders = getOrders().filter(order => order.status === 'confirmed')
+    const total = orders.reduce((sum, order) => sum + order.totalAmount, 0)
+    // For simplicity, assume half paid, half pending
+    const paid = total / 2
+    const pending = total - paid
+
+    setPaymentData({
+      totalAmount: total,
+      pendingAmount: pending,
+      paidAmount: paid
+    })
+
+    // Map orders to payment details
+    const details = orders.map(order => ({
+      id: order.id,
+      orderId: `#${order.id}`,
+      customer: order.customerName,
+      amount: order.totalAmount,
+      status: 'pending', // Simplified, could be dynamic
+      paymentDate: null,
+      method: 'UPI' // Placeholder
+    }))
+    setPaymentDetails(details)
+  }, [])
 
   const closeModal = () => {
     setIsModalOpen(false)
@@ -89,34 +77,29 @@ export default function PaymentReport() {
       return payment
     })
     setPaymentDetails(updatedPayments)
-
-    // Update summary data
-    const totalAmount = updatedPayments.reduce((sum, p) => sum + p.amount + (p.status === 'paid' ? p.amount : 0), 0)
-    const paidAmountSum = updatedPayments.reduce((sum, p) => sum + (p.status === 'paid' ? p.amount : 0), 0)
-    const pendingAmountSum = updatedPayments.reduce((sum, p) => sum + (p.status === 'pending' ? p.amount : 0), 0)
-    setPaymentData({
-      totalAmount,
-      paidAmount: paidAmountSum,
-      pendingAmount: pendingAmountSum
-    })
-
     closeModal()
   }
 
-  const getStatusIcon = (status) => {
-    return status === 'paid'
-      ? <CheckCircle className="size-4 text-green-600" />
-      : <Clock className="size-4 text-yellow-600" />
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'paid':
+        return <Badge variant="success">Paid</Badge>
+      case 'pending':
+        return <Badge variant="warning">Pending</Badge>
+      default:
+        return <Badge variant="default">{status}</Badge>
+    }
   }
 
-  const getStatusBadge = (status) => {
-    return status === 'paid'
-      ? <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          Paid
-        </span>
-      : <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          Pending
-        </span>
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'paid':
+        return <CheckCircle className="text-green-500" />
+      case 'pending':
+        return <Clock className="text-yellow-500" />
+      default:
+        return <AlertCircle className="text-gray-400" />
+    }
   }
 
   return (
@@ -129,22 +112,46 @@ export default function PaymentReport() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Payment Report</h1>
-            <p className="text-slate-600">Track your payment status and financial overview</p>
+            <p className="text-slate-600">Summary of payments and pending amounts</p>
           </div>
         </div>
       </div>
 
-      {/* Payment Summary Cards */}
-      {/* Removed as per requirement */}
-
-      {/* Add Payment Button */}
-      <div className="mb-4">
-        <Button onClick={() => openModal(null)}>Add Payment</Button>
+      {/* Payment Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Total Amount</h3>
+          <p className="text-2xl font-bold">₹{paymentData.totalAmount.toLocaleString()}</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Pending Amount</h3>
+          <p className="text-2xl font-bold text-yellow-600">₹{paymentData.pendingAmount.toLocaleString()}</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Paid Amount</h3>
+          <p className="text-2xl font-bold text-green-600">₹{paymentData.paidAmount.toLocaleString()}</p>
+        </Card>
       </div>
+
+      {/* Filters */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by order or customer..."
+        selects={[{
+          name: 'status',
+          value: statusFilter,
+          onChange: setStatusFilter,
+          options: [
+            { value: 'all', label: 'All Status' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'paid', label: 'Paid' }
+          ]
+        }]}
+      />
 
       {/* Payment Details Table */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">Payment Details</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
@@ -159,7 +166,14 @@ export default function PaymentReport() {
               </tr>
             </thead>
             <tbody>
-              {paymentDetails.map((payment) => (
+              {paymentDetails
+                .filter(p => (
+                  p.customer.toLowerCase().includes(search.toLowerCase()) ||
+                  String(p.id).includes(search) ||
+                  p.orderId.toLowerCase().includes(search.toLowerCase())
+                ))
+                .filter(p => statusFilter === 'all' ? true : p.status === statusFilter)
+                .map((payment) => (
                 <tr key={payment.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                   <td className="py-3 px-4 font-medium text-slate-900">{payment.orderId}</td>
                   <td className="py-3 px-4 text-slate-700">{payment.customer}</td>
@@ -185,9 +199,6 @@ export default function PaymentReport() {
           </table>
         </div>
       </Card>
-
-      {/* Payment Insights */}
-      {/* Removed as per requirement */}
 
       {/* Payment Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Make a Payment">
