@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { loginUser, isAuthenticated } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
-import logo from "../../../assets/Roshan logo/Roshan_white.png";
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { truck3 } from '../../../../public/lottie/lottie';
+import { truck3, white } from '../../../../public/lottie/lottie';
 import { User, Factory, Wrench, Phone, Key, Loader2 } from 'lucide-react'
 
 export default function UserLogin() {
@@ -59,7 +58,7 @@ export default function UserLogin() {
           <div className="flex flex-col justify-between rounded-l-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 text-white">
             
               <div className="items-center gap- mt-10 ml-5">
-                <img src={logo} alt="Roshan Traders" className="h-13 w-35" />
+                <img src={white} alt="Roshan Traders" className="h-13 w-35" />
               </div>
               <DotLottieReact src={truck3} loop autoplay style={{ width: 260, height: 260 }} />
           </div>

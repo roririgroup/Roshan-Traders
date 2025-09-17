@@ -148,7 +148,7 @@ export default function Orders() {
             {orderList.map((order) => (
               <tr 
                 key={order.id} 
-                className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group"
+                className="border-b border-slate-100 hover:bg-slate-50 transition-colors  group"
                 onClick={() => handleOrderClick(order)}
               >
                 <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
@@ -187,7 +187,7 @@ export default function Orders() {
                           e.stopPropagation()
                           handleConfirmOrder(order.id)
                         }}
-                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors cursor-pointer"
                         disabled={isLoading}
                       >
                         Confirm
@@ -197,7 +197,7 @@ export default function Orders() {
                           e.stopPropagation()
                           handleRejectOrder(order.id)
                         }}
-                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors cursor-pointer"
                         disabled={isLoading}
                       >
                         Reject
