@@ -5,7 +5,7 @@ import Button from '../../../components/ui/Button'
 import logo from "../../../assets/Roshan logo/Roshan_white.png";
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { pudgy } from '../../../../public/lottie/lottie';
+import { truck3 } from '../../../../public/lottie/lottie';
 import { User, Factory, Wrench, Phone, Key, Loader2 } from 'lucide-react'
 
 export default function UserLogin() {
@@ -58,10 +58,10 @@ export default function UserLogin() {
         <div className="flex rounded-2xl border bg-white shadow-xl overflow-hidden">
           <div className="flex flex-col justify-between rounded-l-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 text-white">
             
-              <div className="items-center gap- mt-5 ml-5">
+              <div className="items-center gap- mt-10 ml-5">
                 <img src={logo} alt="Roshan Traders" className="h-13 w-35" />
               </div>
-              <DotLottieReact src={pudgy} loop autoplay style={{ width: 260, height: 260 }} />
+              <DotLottieReact src={truck3} loop autoplay style={{ width: 260, height: 260 }} />
           </div>
           <div className="p-6 sm:p-8">
             <div className="mb-6 ">
@@ -71,7 +71,7 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4 ">
               <div>
-              <div className="grid grid-cols-3 gap-2 ml-25">
+              <div className="grid grid-cols-3 gap-2 ml-25 ">
                 {[
                   { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
                   { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
@@ -80,7 +80,7 @@ export default function UserLogin() {
                     key={type.value}
                     type="button"
                     onClick={() => setUserType(type.value)}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${userType === type.value
+                    className={`py-2 px-3 cursor-pointer rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${userType === type.value
                         ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
@@ -135,7 +135,7 @@ export default function UserLogin() {
 
               <Button
                 type="submit"
-                className="w-full h-11 rounded-xl text-[15px] flex items-center justify-center gap-2"
+                className="w-full h-11 rounded-xl text-[15px] flex items-center justify-center gap-2 cursor-pointer"
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
