@@ -4,7 +4,7 @@ import { Card } from '../../../components/ui/Card'
 // import Card from '../../../components/ui/Card' // Uncomment if Card is default export
 import { Package,User, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react'
 
-export default function Dashboard() {
+export default function ManufacturerDashboard() {
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalEmployee: 0,
