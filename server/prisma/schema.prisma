@@ -1,3 +1,214 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Manufacturer {
+  id               String              @id
+  name             String
+  location         String
+  established_year Int
+  image_url        String?
+  logo_url         String?
+  description      String?
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @updatedAt
+  
+  // Relations
+  Founder                 Founder?
+  CompanyInfo            CompanyInfo?
+  Contact                Contact?
+  Certifications         ManufacturerCertification[]
+  Specializations        ManufacturerSpecialization[]
+  Achievements           ManufacturerAchievement[]
+  Products               Product[]
+  Orders                 Order[]
+  
+  @@map("manufacturers")
+}
+
+model Founder {
+  id              Int     @id @default(autoincrement())
+  name            String
+  experience      String?
+  qualification   String?
+  manufacturer_id String  @unique
+  
+  // Relations
+  Manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  
+  @@map("founders")
+}
+
+model CompanyInfo {
+  id               Int    @id @default(autoincrement())
+  employees        Int?
+  annual_turnover  String?
+  export_countries Int?
+  manufacturer_id  String @unique
+  
+  // Relations
+  Manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  
+  @@map("company_info")
+}
+
+model Contact {
+  id              Int     @id @default(autoincrement())
+  phone           String?
+  email           String?
+  website         String?
+  address         String?
+  manufacturer_id String  @unique
+  
+  // Relations
+  Manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  
+  @@map("contacts")
+}
+
+model Certification {
+  id          Int                         @id @default(autoincrement())
+  name        String
+  description String?
+  
+  // Relations
+  Manufacturers ManufacturerCertification[]
+  
+  @@map("certifications")
+}
+
+model ManufacturerCertification {
+  manufacturer_id  String
+  certification_id Int
+  
+  // Relations
+  Manufacturer   Manufacturer  @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  Certification  Certification @relation(fields: [certification_id], references: [id], onDelete: Cascade)
+  
+  @@id([manufacturer_id, certification_id])
+  @@map("manufacturer_certifications")
+}
+
+model Specialization {
+  id   Int    @id @default(autoincrement())
+  name String
+  
+  // Relations
+  Manufacturers ManufacturerSpecialization[]
+  
+  @@map("specializations")
+}
+
+model ManufacturerSpecialization {
+  manufacturer_id   String
+  specialization_id Int
+  
+  // Relations
+  Manufacturer    Manufacturer   @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  Specialization  Specialization @relation(fields: [specialization_id], references: [id], onDelete: Cascade)
+  
+  @@id([manufacturer_id, specialization_id])
+  @@map("manufacturer_specializations")
+}
+
+model Achievement {
+  id   Int    @id @default(autoincrement())
+  name String
+  year Int?
+  
+  // Relations
+  Manufacturers ManufacturerAchievement[]
+  
+  @@map("achievements")
+}
+
+model ManufacturerAchievement {
+  manufacturer_id String
+  achievement_id  Int
+  
+  // Relations
+  Manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  Achievement   Achievement  @relation(fields: [achievement_id], references: [id], onDelete: Cascade)
+  
+  @@id([manufacturer_id, achievement_id])
+  @@map("manufacturer_achievements")
+}
+
+model Product {
+  id              String    @id
+  name            String
+  category        String
+  price_range     String?
+  image_url       String?
+  manufacturer_id String
+  
+  // Relations
+  Manufacturer      Manufacturer      @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  Attributes        ProductAttribute[]
+  OrderItems        OrderItem[]
+  
+  @@map("products")
+}
+
+model ProductAttribute {
+  id              Int     @id @default(autoincrement())
+  attribute_type  String
+  attribute_value String
+  product_id      String
+  
+  // Relations
+  Product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  
+  @@map("product_attributes")
+}
+
+model Order {
+  id               String    @id
+  customer_name    String
+  customer_email   String?
+  order_date       DateTime
+  status           OrderStatus @default(pending)
+  total_amount     Float
+  delivery_address String?
+  notes            String?
+  manufacturer_id  String
+  
+  // Relations
+  Manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  Items        OrderItem[]
+  
+  @@map("orders")
+}
+
+model OrderItem {
+  id           Int     @id @default(autoincrement())
+  product_name String
+  quantity     Int
+  unit_price   Float
+  total_price  Float
+  order_id     String
+  product_id   String
+  
+  // Relations
+  Order   Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  pending
+  in_progress
+  completed
+}
+
+// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,137 +218,151 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  CUSTOMER
-  SUPPLIER
-  EMPLOYEE
-  ADMIN
-}
-
-enum EmployeeType {
-  DRIVER
-  JCB_OPERATOR
-  LOADER
-  OTHER
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  ASSIGNED
-  IN_PROGRESS
-  DELIVERED
-  CANCELLED
-}
-
-enum DeliveryStatus {
-  ASSIGNED
-  PICKED_UP
-  IN_TRANSIT
-  COMPLETED
-}
-
 model User {
-  id          String      @id @default(uuid()) @map("_id") @db.Uuid
-  phone       String      @unique
-  name        String?
-  role        UserRole
-  employee    Employee?
-  supplier    Supplier?
-  customer    Customer?
-  referrals   Referral[]  @relation("Referrer")
-  referredBy  Referral?   @relation("Referred", fields: [referredById], references: [id])
-  referredById String?    @db.Uuid
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id            Int       @id @default(autoincrement())
+  phoneNumber   String    @unique
+  countryCode   String    @default("+91")
+  userType      UserType
+  isVerified    Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLogin     DateTime?
+  
+  // Relations
+  profile       UserProfile?
+  otps          OTP[]
+  sessions      LoginSession[]
+  auditLogs     AuditLog[]
+  agent         Agent?
+  manufacturer  Manufacturer?
+  
+  @@map("users")
 }
 
-model Customer {
-  id       String   @id @default(uuid()) @map("_id") @db.Uuid
-  user     User     @relation(fields: [userId], references: [id])
-  userId   String   @unique @db.Uuid
-  orders   Order[]
+model UserProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  fullName    String?
+  email       String?
+  profileImageUrl String?
+  dateOfBirth DateTime?
+  gender      Gender?
+  address     Json? // {street, city, state, pincode, country}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_profiles")
 }
 
-model Supplier {
-  id        String     @id @default(uuid()) @map("_id") @db.Uuid
-  user      User       @relation(fields: [userId], references: [id])
-  userId    String     @unique @db.Uuid
-  products  Product[]
+model OTP {
+  id          Int      @id @default(autoincrement())
+  phoneNumber String
+  otpCode     String
+  userType    UserType
+  isUsed      Boolean  @default(false)
+  expiresAt   DateTime
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  @@map("otps")
+  @@index([phoneNumber])
+  @@index([expiresAt])
 }
 
-model Employee {
-  id          String        @id @default(uuid()) @map("_id") @db.Uuid
-  user        User          @relation(fields: [userId], references: [id])
-  userId      String        @unique @db.Uuid
-  type        EmployeeType
-  deliveries  Delivery[]
+model LoginSession {
+  id          Int      @id @default(autoincrement())
+  userId      Int        
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references : [id], onDelete: Cascade)
+  
+  @@map("login_sessions")
+  @@index([userId])
+  @@index([sessionToken])
 }
 
-model Product {
-  id          String     @id @default(uuid()) @map("_id") @db.Uuid
-  name        String
+model Agent {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  agentCode       String    @unique
+  commissionRate  Float     @default(0.0)
+  totalEarnings   Float     @default(0.0)
+  assignedArea    String?
+  isApproved      Boolean   @default(false)
+  approvedById    Int?
+  approvedAt      DateTime?
+  bankDetails     Json?     // {accountNumber, ifscCode, bankName, accountHolderName}
+  createdAt       DateTime  @default(now())
+  
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy      User?     @relation("AgentApprovedBy", fields: [approvedById], references: [id])
+  supervisedAgents Agent[]  @relation("AgentSupervisor")
+  supervisor      Agent?    @relation("AgentSupervisor", fields: [supervisorId], references: [id])
+  supervisorId    Int?
+  
+  @@map("agents")
+  @@index([userId])
+  @@index([agentCode])
+}
+
+model Manufacturer {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  companyName     String
+  businessType    String?
+  gstNumber       String?
+  panNumber       String?
+  businessAddress Json?     // {street, city, state, pincode, country}
+  websiteUrl      String?
+  isVerified      Boolean   @default(false)
+  verifiedById    Int?
+  verifiedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifiedBy      User?     @relation("ManufacturerVerifiedBy", fields: [verifiedById], references: [id])
+  
+  @@map("manufacturers")
+  @@index([userId])
+  @@index([gstNumber])
+  @@index([panNumber])
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  action      String   // login, login_failed, otp_sent, otp_verified, etc.
   description String?
-  price       Float
-  quantity    Int
-  category    String
-  supplier    Supplier   @relation(fields: [supplierId], references: [id])
-  supplierId  String     @db.Uuid
-  orderItems  OrderItem[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-}
-
-model Order {
-  id          String      @id @default(uuid()) @map("_id") @db.Uuid
-  customer    Customer    @relation(fields: [customerId], references: [id])
-  customerId  String      @db.Uuid
-  status      OrderStatus @default(PENDING)
-  items       OrderItem[]
-  delivery    Delivery?
-  payment     Payment?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-model OrderItem {
-  id        String   @id @default(uuid()) @map("_id") @db.Uuid
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   String   @db.Uuid
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String   @db.Uuid
-  quantity  Int
-  price     Float
-}
-
-model Delivery {
-  id          String        @id @default(uuid()) @map("_id") @db.Uuid
-  order       Order         @relation(fields: [orderId], references: [id])
-  orderId     String        @db.Uuid
-  employee    Employee      @relation(fields: [employeeId], references: [id])
-  employeeId  String        @db.Uuid
-  status      DeliveryStatus @default(ASSIGNED)
-  startedAt   DateTime?
-  completedAt DateTime?
-}
-
-model Payment {
-  id          String   @id @default(uuid()) @map("_id") @db.Uuid
-  order       Order    @relation(fields: [orderId], references: [id])
-  orderId     String   @unique @db.Uuid
-  amount      Float
-  method      String
-  status      String
-  transactionId String?
+  ipAddress   String?
+  userAgent   String?
   createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([createdAt])
 }
 
-model Referral {
-  id          String  @id @default(uuid()) @map("_id") @db.Uuid
-  referrer    User    @relation("Referrer", fields: [referrerId], references: [id])
-  referrerId  String  @db.Uuid
-  referred    User    @relation("Referred", fields: [referredId], references: [id])
-  referredId  String  @db.Uuid
-  reward      Float?
-  createdAt   DateTime @default(now())
+enum UserType {
+  agent
+  manufacturer
+  customer
+  admin
 }
+
+enum Gender {
+  male
+  female
+  other
+}
+
