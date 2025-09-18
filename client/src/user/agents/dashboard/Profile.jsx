@@ -160,7 +160,7 @@ export default function Profile() {
       {/* Profile Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Profile Summary - Left Side */}
-        <Card className="p-6">
+        <Card className="p-6 border-gray-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Summary</h3>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -225,7 +225,7 @@ export default function Profile() {
         </Card>
 
         {/* Profile Form - Right Side */}
-        <Card className="p-6">
+        <Card className="p-6 border-gray-200">
           <div className="space-y-6">
             {profileFields.map((field) => (
               <div key={field.name}>

@@ -3,11 +3,12 @@ import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Pac
 import { logout } from '../../lib/auth'
 import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
+import { black } from '../../../public/lottie/lottie'
 
 const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
 const active = ({ isActive }) =>
   isActive 
-    ? `${linkBase} bg-gradient-to-r from-orange-700 to-orange-800 text-white shadow-lg shadow-orange-500/25` 
+    ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25` 
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`
 
 const MENU_CONFIG = {
@@ -71,13 +72,10 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
           <div className={`flex items-center gap-2 sm:gap-3 ${
             isCollapsed && !mobile ? 'justify-center' : ''
           }`}>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-sm">
-              <img src="/logo.svg" alt="RT" className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-            </div>
+           
             {(!isCollapsed || mobile) && (
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-slate-900">Roshan Traders</h1>
-                <p className="text-xs text-slate-500 -mt-0.5 sm:-mt-1">Business Management</p>
+                <img src={black} alt="Roshan Traders" className="h-10 w-35" />
               </div>
             )}
           </div>

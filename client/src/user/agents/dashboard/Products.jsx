@@ -269,14 +269,14 @@ export default function Products() {
       />
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ">
         {products
           .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
           .filter(p => stockFilter === 'all' || (stockFilter === 'in' ? p.inStock : !p.inStock))
           .map((product, index) => (
           <Card 
             key={product.id} 
-            className="p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group"
+            className=" border-gray-200 p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group"
             style={{ animationDelay: `${index * 100}ms` }}
           >
             <div className="h-32 mb-3 overflow-hidden rounded-lg bg-slate-100 relative group">
