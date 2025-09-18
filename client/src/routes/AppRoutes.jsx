@@ -13,14 +13,13 @@ import Orders from "../user/agents/dashboard/Orders";
 import PaymentReport from "../user/agents/dashboard/PaymentReport";
 import Profile from "../user/agents/dashboard/Profile";
 import Reports from "../user/agents/dashboard/Reports";
-import ManufacturerDashboard from "../components/Manufacturer/Dashboard";
-import ManufacturerProducts from "../components/Manufacturer/Products";
-import CustomerOrder from "../components/Manufacturer/CustomerOrder";
-import Deliveries from "../components/Manufacturer/Deliveries";
-import Payments from "../components/Manufacturer/Payment";
-import Referrals from "../components/Manufacturer/Referrals";
-import ManufacturerReports from "../components/Manufacturer/Report";
-import ManufacturerProfile from "../components/Manufacturer/Profile";
+import ManufacturerDashboard from "../user/manufactures/dashboard/Dashboard";
+import ManufacturerProducts from "../user/manufactures/dashboard/Products";
+import CustomerOrder from "../user/manufactures/dashboard/Orders";
+import Payments from "../user/manufactures/dashboard/PaymentReport";
+import Employees from "../user/manufactures/dashboard/Employees";
+import ManufacturerReports from "../user/manufactures/dashboard/Reports";
+import ManufacturerProfile from "../user/manufactures/dashboard/Profile";
 
 import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
@@ -151,14 +150,6 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/deliveries"
-          element={
-            <RoleRoute roles={["manufacturer"]}>
-              <Deliveries />
-            </RoleRoute>
-          }
-        />
-        <Route
           path="manufacturers/payments"
           element={
             <RoleRoute roles={["manufacturer"]}>
@@ -167,10 +158,10 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/referrals"
+          path="manufacturers/employees"
           element={
             <RoleRoute roles={["manufacturer"]}>
-              <Referrals />
+              <Employees />
             </RoleRoute>
           }
         />
