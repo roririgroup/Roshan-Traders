@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Users, Building2, Factory, UserRound, Search } from 'lucide-react'
-import Badge from '../components/ui/Badge'
-import Button from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
+import Button from '../../components/ui/Button'
+import Badge from '../../components/ui/Badge'
+import { Card } from '../../components/ui/Card'
 
 const ROLE_OPTIONS = [
   { key: 'All', label: 'All People', icon: Users },

@@ -8,7 +8,7 @@ import { black } from '../../../public/lottie/lottie'
 const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
 const active = ({ isActive }) =>
   isActive 
-    ? `${linkBase} bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25` 
+    ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25` 
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`
 
 const MENU_CONFIG = {
