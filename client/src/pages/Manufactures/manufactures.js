@@ -134,14 +134,14 @@ export const manufacturersData = [
     ]
   },
   {
-    id: 'steelmax-sheets',
-    name: 'SteelMax Sheets',
+    id: 'isr',
+    name: 'ISR',
     location: 'Nashik, Maharashtra',
     establishedYear: 2008,
     image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=200&auto=format&fit=crop',
     founder: {
-      name: 'Amit Sharma',
+      name: 'Israil',
       experience: '18 years',
       qualification: 'M.Tech Metallurgical Engineering'
     },
@@ -249,14 +249,155 @@ export const manufacturersData = [
     ]
   },
   {
-    id: 'alpha-bricks',
-    name: 'Alpha Bricks Co.',
+    id: 'mss',
+    name: 'MSS',
     location: 'Pune, Maharashtra',
     establishedYear: 2012,
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
     founder: {
-      name: 'Suresh Mehta',
+      name: 'Gosal',
+      experience: '12 years',
+      qualification: 'Diploma in Civil Engineering'
+    },
+    companyInfo: {
+      employees: 80,
+      annualTurnover: '₹25 Crores',
+      exportCountries: 3,
+      certifications: ['BIS 3495', 'IGBC Approved', 'GRIHA Certified']
+    },
+    contact: {
+      phone: '+91 98234 56789',
+      email: 'orders@alphabricks.com',
+      website: 'www.alphabricks.com',
+      address: 'Survey No. 123, Chakan Industrial Area, Pune - 410501, Maharashtra'
+    },
+    products: [
+      {
+        id: 'p7',
+        name: 'Clay Bricks',
+        category: 'Bricks',
+        types: ['Common Bricks', 'Facing Bricks', 'Engineering Bricks'],
+        sizes: ['230x110x70mm', '230x110x100mm'],
+        priceRange: '₹4-8 per piece',
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop'
+      },
+      {
+        id: 'p8',
+        name: 'Fly Ash Bricks',
+        category: 'Bricks',
+        types: ['Standard', 'High Strength', 'Lightweight'],
+        sizes: ['230x110x70mm', '230x110x100mm'],
+        priceRange: '₹3-6 per piece',
+        image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop'
+      },
+      {
+        id: 'p9',
+        name: 'Concrete Blocks',
+        category: 'Blocks',
+        types: ['Solid', 'Hollow', 'AAC Blocks'],
+        sizes: ['400x200x200mm', '600x200x200mm'],
+        priceRange: '₹25-45 per piece',
+        image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=400&auto=format&fit=crop'
+      }
+    ],
+    specializations: ['Eco-Friendly Products', 'Custom Sizes', 'Bulk Supply'],
+    description: 'Quality brick manufacturer focused on sustainable and eco-friendly building materials. Specializes in clay bricks, fly ash bricks, and concrete blocks for residential and commercial construction.',
+    achievements: [
+      'Green Building Material Award 2023',
+      'Quality Certification 2022',
+      'Regional Supplier Award 2021'
+    ],
+    orders: [
+      {
+        id: 'ORD-006',
+        customerName: 'Eco Builders Ltd.',
+        customerEmail: 'orders@ecobuilders.com',
+        orderDate: '2024-01-12',
+        status: 'completed',
+        totalAmount: 350000,
+        items: [
+          {
+            productId: 'p7',
+            productName: 'Clay Bricks',
+            quantity: 50000,
+            unitPrice: 6,
+            totalPrice: 300000
+          },
+          {
+            productId: 'p8',
+            productName: 'Fly Ash Bricks',
+            quantity: 10000,
+            unitPrice: 5,
+            totalPrice: 50000
+          }
+        ],
+        deliveryAddress: 'Green Valley, Pune - 411001',
+        notes: 'Eco-friendly construction project'
+      },
+      {
+        id: 'ORD-007',
+        customerName: 'Urban Developers',
+        customerEmail: 'procurement@urbandevelopers.com',
+        orderDate: '2024-01-22',
+        status: 'in_progress',
+        totalAmount: 180000,
+        items: [
+          {
+            productId: 'p9',
+            productName: 'Concrete Blocks',
+            quantity: 4000,
+            unitPrice: 35,
+            totalPrice: 140000
+          },
+          {
+            productId: 'p7',
+            productName: 'Clay Bricks',
+            quantity: 10000,
+            unitPrice: 6,
+            totalPrice: 60000
+          }
+        ],
+        deliveryAddress: 'Commercial Complex, Mumbai - 400001',
+        notes: 'High-rise building project'
+      },
+      {
+        id: 'ORD-008',
+        customerName: 'Rural Housing Corp.',
+        customerEmail: 'orders@ruralhousing.com',
+        orderDate: '2024-01-28',
+        status: 'pending',
+        totalAmount: 120000,
+        items: [
+          {
+            productId: 'p8',
+            productName: 'Fly Ash Bricks',
+            quantity: 20000,
+            unitPrice: 5,
+            totalPrice: 100000
+          },
+          {
+            productId: 'p9',
+            productName: 'Concrete Blocks',
+            quantity: 500,
+            unitPrice: 35,
+            totalPrice: 17500
+          }
+        ],
+        deliveryAddress: 'Village Development, Satara - 415001',
+        notes: 'Government housing scheme'
+      }
+    ]
+  },
+  {
+    id: 'rks',
+    name: 'RKS',
+    location: 'Pune, Maharashtra',
+    establishedYear: 2012,
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
+    logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
+    founder: {
+      name: 'Chellaya',
       experience: '12 years',
       qualification: 'Diploma in Civil Engineering'
     },

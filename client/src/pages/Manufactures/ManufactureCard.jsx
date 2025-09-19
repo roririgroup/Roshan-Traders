@@ -43,7 +43,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
                   <div className="flex items-center text-gray-600 text-sm mb-3">
                     <MapPin className="w-4 h-4 mr-1 text-red-500" />
                     {manufacturer.location}
-                  </div>
+                  </div>  
                   <p className="text-gray-600 text-sm leading-relaxed">
                     {manufacturer.description?.substring(0, 120)}...
                   </p>
