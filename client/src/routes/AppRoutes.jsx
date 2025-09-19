@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "../screens/DashboardLayout";
+import DashboradPage from "../screens/DashboradPage/DashboradPage";
 import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
 import CompaniesPage from "../screens/CompaniesPage/CompaniesPage";
-import TradersPage from "../screens/TradersPage/TradersPage";
 import AgentsPage from "../screens/AgentPage/AgentsPage";
 import EmployeesPage from "../screens/EmployeesPage/EmployeesPage";
 import UsersPage from "../screens/UsersPage/UsersPage";
@@ -43,15 +43,15 @@ function RoleBasedRedirect() {
   if (!isAuthenticated()) {
     return <Navigate to="/user/login" replace />;
   }
-  
+
   if (hasRole("superadmin")) {
-    return <Navigate to="/manufacturers" replace />; // Changed from "/admin/orders" to "/manufacturers"
+    return <Navigate to="/dashboard" replace />; // 👈 fixed
   } else if (hasRole("manufacturer")) {
     return <Navigate to="/manufacturers/dashboard" replace />;
   } else if (hasRole("agent")) {
     return <Navigate to="/agents/dashboard" replace />;
   }
-  
+
   return <Navigate to="/user/login" replace />;
 }
 
@@ -76,6 +76,14 @@ export default function AppRoutes() {
 
         {/* Superadmin Routes - Manufacturer Management */}
         <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <DashboradPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="manufacturers"
           element={
             <ProtectedRoute requiredRole="superadmin">
@@ -96,14 +104,6 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <CompaniesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="traders"
-          element={
-            <ProtectedRoute requiredRole="superadmin">
-              <TradersPage />
             </ProtectedRoute>
           }
         />
