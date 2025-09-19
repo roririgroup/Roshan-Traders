@@ -53,11 +53,11 @@ export default function Dashboard() {
       {/* Header */}
       <div className="mb-8 animate-slide-in-right">
         <div className="flex items-center gap-3 mb-2 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
             <TrendingUp className="size-5 text-white transition-transform duration-300 group-hover:scale-110" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-slate-900 group-hover:text-[#F08344] transition-colors duration-200">Dashboard</h1>
             <p className="text-slate-600 group-hover:text-slate-800 transition-colors duration-200">Welcome back! Here's your business overview</p>
           </div>
         </div>
@@ -76,12 +76,12 @@ export default function Dashboard() {
                 <card.icon className="size-6 text-white transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">{card.value}</p>
+                <p className="text-2xl font-bold text-slate-900 group-hover:text-[#F08344] transition-colors duration-200">{card.value}</p>
                 <p className="text-sm text-slate-600 group-hover:text-slate-800 transition-colors duration-200">{card.title}</p>
               </div>
             </div>
             {/* Hover effect overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#F08344]/5 to-[#F08344]/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
           </Card>
         ))}
       </div>

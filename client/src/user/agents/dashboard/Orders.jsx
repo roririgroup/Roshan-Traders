@@ -42,7 +42,7 @@ export default function Orders() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <ShoppingCart className="size-5 text-white" />
           </div>
           <div>
@@ -93,10 +93,10 @@ export default function Orders() {
                 .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
                 .map((order) => (
                 <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="py-4 px-6 font-medium text-slate-900">
+                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
                     #{order.id}
                   </td>
-                  <td className="py-4 px-6 text-slate-900">
+                  <td className="py-4 px-6 text-slate-900 hover:text-[#F08344] transition-colors">
                     {order.customerName}
                   </td>
                   <td className="py-4 px-6">
@@ -109,16 +109,16 @@ export default function Orders() {
                       ))}
                     </div>
                   </td>
-                  <td className="py-4 px-6 font-medium text-slate-900">
+                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
                     ₹{order.totalAmount.toLocaleString()}
                   </td>
                   <td className="py-4 px-6">
                     {getStatusBadge(order.status)}
                   </td>
-                  <td className="py-4 px-6 text-slate-600">
+                  <td className="py-4 px-6 text-slate-600 hover:text-[#F08344] transition-colors">
                     {new Date(order.orderDate).toLocaleDateString()}
                   </td>
-                  <td className="py-4 px-6 text-slate-600 max-w-xs truncate">
+                  <td className="py-4 px-6 text-slate-600 max-w-xs truncate hover:text-[#F08344] transition-colors">
                     {order.deliveryAddress}
                   </td>
                 </tr>

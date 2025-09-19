@@ -1,15 +1,15 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "../screens/DashboardLayout";
+import DashboradPage from "../screens/DashboradPage/DashboradPage";
 import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
 import CompaniesPage from "../screens/CompaniesPage/CompaniesPage";
-import TradersPage from "../screens/TradersPage/TradersPage";
 import AgentsPage from "../screens/AgentPage/AgentsPage";
 import EmployeesPage from "../screens/EmployeesPage/EmployeesPage";
 import UsersPage from "../screens/UsersPage/UsersPage";
 import Dashboard from "../user/agents/dashboard/Dashboard";
 import Products from "../user/agents/dashboard/Products";
-import Orders from "../user/agents/dashboard/Orders";
+import AgentOrders from "../user/agents/dashboard/Orders";
 import PaymentReport from "../user/agents/dashboard/PaymentReport";
 import Profile from "../user/agents/dashboard/Profile";
 import Reports from "../user/agents/dashboard/Reports";
@@ -24,7 +24,9 @@ import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
 import SuperAdminLogin from "../pages/Login/components/SuperAdminLogin";
 import { hasRole } from "../lib/roles";
-import AdminOrders from "../features/orders/pages/AdminOrders";
+import OrdersScreen from "../screens/Orders/OrdersScreen";
+import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
+import ReportPage from "../screens/ReportPage/ReportPage";
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -43,15 +45,15 @@ function RoleBasedRedirect() {
   if (!isAuthenticated()) {
     return <Navigate to="/user/login" replace />;
   }
-  
+
   if (hasRole("superadmin")) {
-    return <Navigate to="/manufacturers" replace />; // Changed from "/admin/orders" to "/manufacturers"
+    return <Navigate to="/dashboard" replace />; // 👈 fixed
   } else if (hasRole("manufacturer")) {
     return <Navigate to="/manufacturers/dashboard" replace />;
   } else if (hasRole("agent")) {
     return <Navigate to="/agents/dashboard" replace />;
   }
-  
+
   return <Navigate to="/user/login" replace />;
 }
 
@@ -76,6 +78,14 @@ export default function AppRoutes() {
 
         {/* Superadmin Routes - Manufacturer Management */}
         <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <DashboradPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="manufacturers"
           element={
             <ProtectedRoute requiredRole="superadmin">
@@ -96,14 +106,6 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <CompaniesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="traders"
-          element={
-            <ProtectedRoute requiredRole="superadmin">
-              <TradersPage />
             </ProtectedRoute>
           }
         />
@@ -132,13 +134,30 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="admin/orders"
+          path="orders"
           element={
             <ProtectedRoute requiredRole="superadmin">
-              <AdminOrders />
+              <OrdersScreen />
             </ProtectedRoute>
           }
         />
+           <Route
+          path="paymentreports"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <PaymentReports/>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="report"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <ReportPage/>
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* Agent Routes */}
         <Route
@@ -161,7 +180,7 @@ export default function AppRoutes() {
           path="agents/orders"
           element={
             <ProtectedRoute requiredRole="agent">
-              <Orders />
+              <AgentOrders />
             </ProtectedRoute>
           }
         />

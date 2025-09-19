@@ -105,16 +105,16 @@ export default function PaymentReport() {
 
   const getStatusIcon = (status) => {
     return status === 'paid'
-      ? <CheckCircle className="size-4 text-green-600" />
-      : <Clock className="size-4 text-yellow-600" />
+      ? <CheckCircle className="size-4 text-[#F08344]" />
+      : <Clock className="size-4 text-[#F08344]" />
   }
 
   const getStatusBadge = (status) => {
     return status === 'paid'
-      ? <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+      ? <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#FEF0E8] text-[#D45A2A]">
           Paid
         </span>
-      : <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+      : <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#FEF0E8] text-[#D45A2A]">
           Pending
         </span>
   }
@@ -124,7 +124,7 @@ export default function PaymentReport() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <DollarSign className="size-5 text-white" />
           </div>
           <div>
@@ -134,12 +134,11 @@ export default function PaymentReport() {
         </div>
       </div>
 
-      {/* Payment Summary Cards */}
-      {/* Removed as per requirement */}
-
       {/* Add Payment Button */}
       <div className="mb-4">
-        <Button onClick={() => openModal(null)}>Add Payment</Button>
+        <Button onClick={() => openModal(null)} className="bg-[#F08344] hover:bg-[#E5672E] text-white">
+          Add Payment
+        </Button>
       </div>
 
       {/* Payment Details Table */}
@@ -176,7 +175,12 @@ export default function PaymentReport() {
                   <td className="py-3 px-4 text-slate-600">{payment.method}</td>
                   <td className="py-3 px-4">
                     {payment.status === 'pending' && (
-                      <Button onClick={() => openModal(payment)}>Pay</Button>
+                      <Button 
+                        onClick={() => openModal(payment)} 
+                        className="bg-[#F08344] hover:bg-[#E5672E] text-white"
+                      >
+                        Pay
+                      </Button>
                     )}
                   </td>
                 </tr>
@@ -185,9 +189,6 @@ export default function PaymentReport() {
           </table>
         </div>
       </Card>
-
-      {/* Payment Insights */}
-      {/* Removed as per requirement */}
 
       {/* Payment Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Make a Payment">
@@ -202,8 +203,12 @@ export default function PaymentReport() {
             className="border border-gray-300 rounded px-3 py-2 w-full"
           />
           <div className="mt-4">
-            <Button onClick={handlePaymentSubmit}>Submit Payment</Button>
-            <Button onClick={closeModal} className="ml-2">Cancel</Button>
+            <Button onClick={handlePaymentSubmit} className="bg-[#F08344] hover:bg-[#E5672E] text-white">
+              Submit Payment
+            </Button>
+            <Button onClick={closeModal} className="ml-2 bg-gray-500 hover:bg-gray-600 text-white">
+              Cancel
+            </Button>
           </div>
         </div>
       </Modal>

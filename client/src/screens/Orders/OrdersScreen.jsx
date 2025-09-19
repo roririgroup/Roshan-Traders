@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink } from 'lucide-react'
-import { getOrders, updateOrderStatus } from '../../../store/ordersStore'
-import NotificationContainer from '../../../components/ui/NotificationContainer'
-import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
-import { useNotifications } from '../../../lib/notifications.jsx'
-import FilterBar from '../../../components/ui/FilterBar'
+import Badge from '../../components/ui/Badge.jsx'
+import { ShoppingCart, ExternalLink } from 'lucide-react'
+import { getOrders, updateOrderStatus } from '../../store/ordersStore.js'
+import NotificationContainer from '../../components/ui/NotificationContainer.jsx'
+import OrderDetailsModal from '../../components/ui/OrderDetailsModal.jsx'
+import { useNotifications } from '../../lib/notifications.jsx'
+import FilterBar from '../../components/ui/FilterBar.jsx'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -24,12 +24,12 @@ export default function Orders() {
   // Load orders from shared store
   useEffect(() => {
     const allOrders = getOrders()
-    // Separate orders: assume orders placed by manufacture are "Orders", others are "Outsource Orders"
+    // Separate orders: assume orders placed by current org are "Orders", others are "Outsource Orders"
     setOrders(allOrders.filter(order => order.customerName === 'Current Agent'))
     setOutsourceOrders(allOrders.filter(order => order.customerName !== 'Current Agent'))
   }, [refreshTrigger])
 
-  // Auto-refresh every 5 seconds to check for new orders
+  // Auto-refresh periodically to check for updates
   useEffect(() => {
     const interval = setInterval(() => {
       setRefreshTrigger(prev => prev + 1)
@@ -50,12 +50,12 @@ export default function Orders() {
         newOrders.forEach(order => {
           showOrderNotification(order)
         })
-        setTimeout(() => setNewOutsourceOrder(false), 5000) // Hide notification after 5 seconds
+        setTimeout(() => setNewOutsourceOrder(false), 5000)
       }
       setOutsourceOrders(externalOrders)
     }
 
-    const interval = setInterval(checkForNewOrders, 10000) // Check every 10 seconds
+    const interval = setInterval(checkForNewOrders, 10000)
     return () => clearInterval(interval)
     }, [outsourceOrders.length, showOrderNotification])
 
@@ -94,7 +94,6 @@ export default function Orders() {
   const handleConfirmOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'confirmed')
       setRefreshTrigger(prev => prev + 1)
@@ -111,7 +110,6 @@ export default function Orders() {
   const handleRejectOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'rejected')
       setRefreshTrigger(prev => prev + 1)
@@ -344,3 +342,5 @@ export default function Orders() {
     </div>
   )
 }
+
+

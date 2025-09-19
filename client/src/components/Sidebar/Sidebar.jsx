@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Package, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
+import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp,  FileText, CreditCard, Package, LayoutDashboard, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
 import { logout } from '../../lib/auth'
 import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
@@ -13,12 +13,15 @@ const active = ({ isActive }) =>
 
 const MENU_CONFIG = {
   superadmin: [
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }, 
     { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
     { to: '/agents', label: 'Agents', icon: UserRound },
     { to: '/companies', label: 'Companies', icon: Building2 },
-    { to: '/traders', label: 'Traders', icon: Store },
-    { to: '/employees', label: 'Employees', icon: Users },
+    { to: '/employees', label: 'Employees', icon: Gift },
     { to: '/users', label: 'Users', icon: Users },
+    { to: '/orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/paymentreports', label: 'Payment Reports', icon: CreditCard },
+    { to: '/report', label: 'Reports', icon: FileText },
   ],
   agent: [
     { to: '/agents/dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -28,21 +31,21 @@ const MENU_CONFIG = {
     { to: '/agents/profile', label: 'Profile', icon: User },
     { to: '/agents/reports', label: 'Reports', icon: BarChart3 },
   ],
- manufacturer: [
-  { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
-  { to: '/manufacturers/products', label: 'Products', icon: Package },
-  { to: '/manufacturers/orders', label: 'Customer Orders', icon: ShoppingCart },
-  { to: '/manufacturers/employees', label: 'Employees', icon: Gift },
-  { to: '/manufacturers/payments', label: 'Payments', icon: DollarSign },
-  { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/manufacturers/profile', label: 'Profile', icon: User },
-],
-
+  manufacturer: [
+    { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
+    { to: '/manufacturers/products', label: 'Products', icon: Package },
+    { to: '/manufacturers/orders', label: 'Customer Orders', icon: ShoppingCart },
+    { to: '/manufacturers/employees', label: 'Employees', icon: Gift },
+    { to: '/manufacturers/payments', label: 'Payments', icon: DollarSign },
+    { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
+    { to: '/manufacturers/profile', label: 'Profile', icon: User },
+  ],
 }
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const role = getCurrentUserRole()
-  const menuItems = MENU_CONFIG[role] || []
+  // Removed the unused menuItems variable
+  
   return (
     <>
       {/* Mobile Overlay */}
@@ -145,6 +148,6 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
           </Button>
         </div>
       </aside>
-      </>
+    </>
   )
 }
