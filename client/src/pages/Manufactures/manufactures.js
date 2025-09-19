@@ -141,7 +141,7 @@ export const manufacturersData = [
     image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=200&auto=format&fit=crop',
     founder: {
-      name: 'Israil',
+      name: 'Israil Ahmed Khan',
       experience: '18 years',
       qualification: 'M.Tech Metallurgical Engineering'
     },
@@ -256,7 +256,7 @@ export const manufacturersData = [
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
     founder: {
-      name: 'Gosal',
+      name: 'Gosal Singh Rathore',
       experience: '12 years',
       qualification: 'Diploma in Civil Engineering'
     },
@@ -397,7 +397,7 @@ export const manufacturersData = [
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
     founder: {
-      name: 'Chellaya',
+      name: 'Chellaya Reddy',
       experience: '12 years',
       qualification: 'Diploma in Civil Engineering'
     },
@@ -529,6 +529,94 @@ export const manufacturersData = [
         notes: 'Government housing scheme'
       }
     ]
+  },
+  {
+    id: 'premium-steel',
+    name: 'Premium Steel Works',
+    location: 'Chennai, Tamil Nadu',
+    establishedYear: 2015,
+    image: 'https://images.unsplash.com/photo-1581093458791-9d1f8f5b88f8?q=80&w=800&auto=format&fit=crop',
+    logo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=200&auto=format&fit=crop',
+    founder: {
+      name: 'Dr. Priya Sharma',
+      experience: '10 years',
+      qualification: 'Ph.D. Materials Science'
+    },
+    companyInfo: {
+      employees: 120,
+      annualTurnover: '₹40 Crores',
+      exportCountries: 12,
+      certifications: ['ISO 9001:2015', 'IATF 16949', 'OHSAS 18001']
+    },
+    contact: {
+      phone: '+91 98765 12345',
+      email: 'info@premiumsteel.com',
+      website: 'www.premiumsteel.com',
+      address: 'Industrial Area, Chennai - 600001, Tamil Nadu'
+    },
+    products: [
+      {
+        id: 'ps1',
+        name: 'Stainless Steel Sheets',
+        category: 'Steel Products',
+        grades: ['304', '316L', '430'],
+        thickness: ['0.5mm', '1.0mm', '2.0mm'],
+        priceRange: '₹180-350 per kg',
+        image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=400&auto=format&fit=crop'
+      }
+    ],
+    specializations: ['Precision Engineering', 'Custom Fabrication', 'Quality Control'],
+    description: 'Leading manufacturer of high-grade stainless steel products with advanced manufacturing capabilities and strict quality standards.',
+    achievements: [
+      'Excellence in Innovation Award 2023',
+      'Best Quality Supplier 2022',
+      'Export Achievement Award 2021'
+    ],
+    orders: []
+  },
+  {
+    id: 'green-construction',
+    name: 'Green Construction Materials',
+    location: 'Bangalore, Karnataka',
+    establishedYear: 2018,
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
+    logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
+    founder: {
+      name: 'Arjun Kumar Mehta',
+      experience: '8 years',
+      qualification: 'M.Tech Environmental Engineering'
+    },
+    companyInfo: {
+      employees: 65,
+      annualTurnover: '₹18 Crores',
+      exportCountries: 5,
+      certifications: ['IGBC Platinum', 'GRIHA 5-Star', 'LEED Certified']
+    },
+    contact: {
+      phone: '+91 87654 32109',
+      email: 'contact@greenconstruction.com',
+      website: 'www.greenconstruction.com',
+      address: 'Tech Park, Bangalore - 560001, Karnataka'
+    },
+    products: [
+      {
+        id: 'gc1',
+        name: 'Eco-Friendly Bricks',
+        category: 'Sustainable Materials',
+        types: ['Fly Ash Bricks', 'Recycled Bricks', 'Bio Bricks'],
+        sizes: ['230x110x70mm', '230x110x100mm'],
+        priceRange: '₹5-8 per piece',
+        image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop'
+      }
+    ],
+    specializations: ['Sustainable Materials', 'Green Technology', 'Environmental Solutions'],
+    description: 'Pioneer in eco-friendly construction materials, committed to sustainable building practices and environmental conservation.',
+    achievements: [
+      'Green Innovation Award 2023',
+      'Sustainability Excellence 2022',
+      'Environmental Impact Award 2021'
+    ],
+    orders: []
   }
 ]
 

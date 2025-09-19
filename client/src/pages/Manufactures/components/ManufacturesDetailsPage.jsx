@@ -39,13 +39,14 @@ import { getManufacturerById } from '../manufactures';
 // StatCard Component
 function StatCard({ icon, label, value, color, gradient }) {
   return (
-    <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
-      <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-white/20 backdrop-blur-sm">
-        {icon}
-      </div>
-      <h3 className={`font-bold text-2xl ${color}`}>{value}</h3>
-      <p className={`text-sm font-medium ${color} opacity-80`}>{label}</p>
-    </div>
+    <div className={`bg-gradient-to-br ${gradient} rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2`}>
+  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-white/30 backdrop-blur-md shadow-md">
+    {icon}
+  </div>
+  <h3 className={`font-extrabold text-3xl tracking-tight ${color}`}>{value}</h3>
+  <p className={`text-sm font-medium ${color} opacity-80`}>{label}</p>
+</div>
+
   );
 }
 
@@ -54,11 +55,12 @@ function TabButton({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`px-6 py-3 font-semibold rounded-xl transition-all duration-300 ${
+      className={`px-6 py-3 font-semibold rounded-2xl transition-all duration-300 ${
         active
-          ? 'bg-blue-500 text-white shadow-lg transform scale-105'
-          : 'bg-white/50 text-gray-600 hover:bg-white/80 hover:text-blue-600'
+          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
+          : 'bg-white/70 text-gray-600 hover:bg-white hover:text-blue-600 border border-gray-200'
       }`}
+      
     >
       {children}
     </button>
@@ -67,14 +69,13 @@ function TabButton({ active, onClick, children }) {
 
 // ActionButton Component
 function ActionButton({ icon, label, onClick, variant = 'primary' }) {
-  const baseClasses = "flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105";
-  const variants = {
-    primary: "bg-blue-500 text-white hover:bg-blue-600 shadow-lg",
-    secondary: "bg-white/80 text-gray-700 hover:bg-white border border-gray-200",
-    success: "bg-green-500 text-white hover:bg-green-600 shadow-lg",
-    outline: "bg-transparent text-blue-600 border-2 border-blue-500 hover:bg-blue-50"
-  };
-  
+  const baseClasses = "flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-md";
+const variants = {
+  primary: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700",
+  secondary: "bg-white/90 text-gray-700 hover:bg-gray-100 border border-gray-200",
+  success: "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700",
+  outline: "bg-transparent text-blue-600 border-2 border-blue-500 hover:bg-blue-50"
+};
   return (
     <button onClick={onClick} className={`${baseClasses} ${variants[variant]}`}>
       {icon}
@@ -383,6 +384,37 @@ export default function ManufacturerDetailsPage() {
                       <p className="text-gray-700 leading-relaxed text-lg">
                         {manufacturer.description}
                       </p>
+                    </div>
+
+                    {/* Founder Information */}
+                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200/50">
+                      <h4 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                        <User className="w-5 h-5 mr-2" />
+                        Founder Information
+                      </h4>
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="text-2xl font-bold text-indigo-900 mb-1">
+                            {manufacturer.founder.name}
+                          </h5>
+                          <p className="text-lg font-semibold text-indigo-700 mb-2">
+                            {manufacturer.name}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-indigo-600">
+                            <span className="flex items-center">
+                              <Award className="w-4 h-4 mr-1" />
+                              {manufacturer.founder.experience} experience
+                            </span>
+                            <span className="flex items-center">
+                              <FileText className="w-4 h-4 mr-1" />
+                              {manufacturer.founder.qualification}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     
                     <div className="grid md:grid-cols-2 gap-8">
