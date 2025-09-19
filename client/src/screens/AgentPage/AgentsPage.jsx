@@ -5,7 +5,7 @@ export default function AgentsPage() {
   const data = [
     { 
       id: 'a1', 
-      name: 'Ravi Patil', 
+      name: 'Israil', 
       referrals: 14, 
       image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop',
       phone: '+91 98765 43210',
@@ -16,34 +16,34 @@ export default function AgentsPage() {
     },
     { 
       id: 'a2', 
-      name: 'Neha Gupta', 
+      name: 'Kumar', 
       referrals: 9, 
       image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop',
       phone: '+91 87654 32109',
       email: 'neha.gupta@example.com',
-      location: 'Pune, Maharashtra',
+      location: 'Kallikulam',
       joinDate: 'Feb 2024',
       status: 'active'
     },
     { 
       id: 'a3', 
-      name: 'Amit Sharma', 
+      name: 'Iyyapa', 
       referrals: 18, 
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
       phone: '+91 76543 21098',
       email: 'amit.sharma@example.com',
-      location: 'Delhi, NCR',
+      location: 'Pothai',
       joinDate: 'Dec 2023',
       status: 'active'
     },
     { 
       id: 'a4', 
-      name: 'Priya Verma', 
+      name: 'Kanidurai', 
       referrals: 6, 
       image: 'https://images.unsplash.com/photo-1494790108755-2616c9d08dd5?q=80&w=800&auto=format&fit=crop',
       phone: '+91 65432 10987',
       email: 'priya.verma@example.com',
-      location: 'Bangalore, Karnataka',
+      location: 'Kallilulam',
       joinDate: 'Mar 2024',
       status: 'inactive'
     }
