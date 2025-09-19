@@ -1,23 +1,26 @@
 import { NavLink } from 'react-router-dom'
-import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp, Package, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
+import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp,  FileText, CreditCard, Package, LayoutDashboard, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
 import { logout } from '../../lib/auth'
 import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
+import { black } from '../../../public/lottie/lottie'
 
 const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
 const active = ({ isActive }) =>
   isActive 
-    ? `${linkBase} bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25` 
+    ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25` 
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`
 
 const MENU_CONFIG = {
   superadmin: [
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }, 
     { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
     { to: '/agents', label: 'Agents', icon: UserRound },
     { to: '/companies', label: 'Companies', icon: Building2 },
-    { to: '/traders', label: 'Traders', icon: Store },
     { to: '/employees', label: 'Employees', icon: Users },
     { to: '/users', label: 'Users', icon: Users },
+    { to: '/payment-reports', label: 'Payment Reports', icon: CreditCard },
+    { to: '/reports', label: 'Reports', icon: FileText },
   ],
   agent: [
     { to: '/agents/dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -27,21 +30,21 @@ const MENU_CONFIG = {
     { to: '/agents/profile', label: 'Profile', icon: User },
     { to: '/agents/reports', label: 'Reports', icon: BarChart3 },
   ],
- manufacturer: [
-  { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
-  { to: '/manufacturers/products', label: 'Products', icon: Package },
-  { to: '/manufacturers/orders', label: 'Customer Orders', icon: ShoppingCart },
-  { to: '/manufacturers/employees', label: 'Employees', icon: Gift },
-  { to: '/manufacturers/payments', label: 'Payments', icon: DollarSign },
-  { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/manufacturers/profile', label: 'Profile', icon: User },
-],
-
+  manufacturer: [
+    { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
+    { to: '/manufacturers/products', label: 'Products', icon: Package },
+    { to: '/manufacturers/orders', label: 'Customer Orders', icon: ShoppingCart },
+    { to: '/manufacturers/employees', label: 'Employees', icon: Gift },
+    { to: '/manufacturers/payments', label: 'Payments', icon: DollarSign },
+    { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
+    { to: '/manufacturers/profile', label: 'Profile', icon: User },
+  ],
 }
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const role = getCurrentUserRole()
-  const menuItems = MENU_CONFIG[role] || []
+  // Removed the unused menuItems variable
+  
   return (
     <>
       {/* Mobile Overlay */}
@@ -71,13 +74,10 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
           <div className={`flex items-center gap-2 sm:gap-3 ${
             isCollapsed && !mobile ? 'justify-center' : ''
           }`}>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-sm">
-              <img src="/logo.svg" alt="RT" className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-            </div>
+           
             {(!isCollapsed || mobile) && (
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-slate-900">Roshan Traders</h1>
-                <p className="text-xs text-slate-500 -mt-0.5 sm:-mt-1">Business Management</p>
+                <img src={black} alt="Roshan Traders" className="h-10 w-35" />
               </div>
             )}
           </div>
@@ -147,6 +147,6 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
           </Button>
         </div>
       </aside>
-      </>
+    </>
   )
 }

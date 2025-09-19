@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "../screens/DashboardLayout";
+import DashboradPage from "../screens/DashboradPage/DashboradPage";
 import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
-import CompaniesPage from "../screens/CompaniesPage";
-import TradersPage from "../screens/TradersPage";
-import AgentsPage from "../screens/AgentsPage";
-import EmployeesPage from "../screens/EmployeesPage";
-import UsersPage from "../screens/UsersPage";
+import CompaniesPage from "../screens/CompaniesPage/CompaniesPage";
+import AgentsPage from "../screens/AgentPage/AgentsPage";
+import EmployeesPage from "../screens/EmployeesPage/EmployeesPage";
+import UsersPage from "../screens/UsersPage/UsersPage";
 import Dashboard from "../user/agents/dashboard/Dashboard";
 import Products from "../user/agents/dashboard/Products";
 import Orders from "../user/agents/dashboard/Orders";
@@ -20,37 +20,49 @@ import Payments from "../user/manufactures/dashboard/PaymentReport";
 import Employees from "../user/manufactures/dashboard/Employees";
 import ManufacturerReports from "../user/manufactures/dashboard/Reports";
 import ManufacturerProfile from "../user/manufactures/dashboard/Profile";
-
 import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
 import SuperAdminLogin from "../pages/Login/components/SuperAdminLogin";
 import { hasRole } from "../lib/roles";
 import AdminOrders from "../features/orders/pages/AdminOrders";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
     return <Navigate to="/user/login" replace />;
   }
+  
+  // If a specific role is required, check for it
+  if (requiredRole && !hasRole(requiredRole)) {
+    return <Navigate to="/" replace />;
+  }
+  
   return children;
 }
 
-function RoleRoute({ roles, children }) {
+function RoleBasedRedirect() {
   if (!isAuthenticated()) {
     return <Navigate to="/user/login" replace />;
   }
-  if (!hasRole(roles)) {
-    return <Navigate to="/" replace />;
+
+  if (hasRole("superadmin")) {
+    return <Navigate to="/dashboard" replace />; // 👈 fixed
+  } else if (hasRole("manufacturer")) {
+    return <Navigate to="/manufacturers/dashboard" replace />;
+  } else if (hasRole("agent")) {
+    return <Navigate to="/agents/dashboard" replace />;
   }
-  return children;
+
+  return <Navigate to="/user/login" replace />;
 }
 
 export default function AppRoutes() {
   return (
     <Routes>
-     
+      {/* Public Routes */}
       <Route path="/user/login" element={<UserLogin />} />
       <Route path="/superadmin/login" element={<SuperAdminLogin />} />
 
+      {/* Protected Routes with Layout */}
       <Route
         path="/"
         element={
@@ -59,141 +71,185 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        
-        <Route index element={<Navigate to="/agents/dashboard" replace />} />
+        {/* Role-based redirect for root path */}
+        <Route index element={<RoleBasedRedirect />} />
 
-       
-        <Route path="manufacturers" element={<ManufacturersPage />} />
+        {/* Superadmin Routes - Manufacturer Management */}
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <DashboradPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="manufacturers"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <ManufacturersPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="manufacturers/:manufacturerId"
-          element={<ManufacturerDetailsPage />}
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <ManufacturerDetailsPage />
+            </ProtectedRoute>
+          }
         />
-        <Route path="companies" element={<CompaniesPage />} />
-        <Route path="traders" element={<TradersPage />} />
-        <Route path="agents" element={<AgentsPage />} />
-        <Route path="employees" element={<EmployeesPage />} />
-        <Route path="users" element={<UsersPage />} />
+        <Route
+          path="companies"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <CompaniesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="agents"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <AgentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="employees"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <EmployeesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/orders"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <AdminOrders />
+            </ProtectedRoute>
+          }
+        />
 
-        
+        {/* Agent Routes */}
         <Route
           path="agents/dashboard"
           element={
-            <RoleRoute roles={["agent"]}>
+            <ProtectedRoute requiredRole="agent">
               <Dashboard />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="agents/products"
           element={
-            <RoleRoute roles={["agent"]}>
+            <ProtectedRoute requiredRole="agent">
               <Products />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="agents/orders"
           element={
-            <RoleRoute roles={["agent"]}>
+            <ProtectedRoute requiredRole="agent">
               <Orders />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="agents/payment-report"
           element={
-            <RoleRoute roles={["agent"]}>
+            <ProtectedRoute requiredRole="agent">
               <PaymentReport />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="agents/profile"
           element={
-            <RoleRoute roles={["agent"]}>
+            <ProtectedRoute requiredRole="agent">
               <Profile />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="agents/reports"
           element={
-            <RoleRoute roles={["agent"]}>
+            <ProtectedRoute requiredRole="agent">
               <Reports />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
 
-        {/* Manufacturer Routes */}
+        {/* Manufacturer Dashboard Routes - Accessible only to manufacturers */}
         <Route
           path="manufacturers/dashboard"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerDashboard />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="manufacturers/products"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerProducts />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="manufacturers/orders"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <CustomerOrder />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="manufacturers/payments"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <Payments />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="manufacturers/employees"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <Employees />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="manufacturers/reports"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerReports />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="manufacturers/profile"
           element={
-            <RoleRoute roles={["manufacturer"]}>
+            <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerProfile />
-            </RoleRoute>
-          }
-        />
-
-        {/* Superadmin Orders */}
-        <Route
-          path="admin/orders"
-          element={
-            <RoleRoute roles={["superadmin"]}>
-              <AdminOrders />
-            </RoleRoute>
+            </ProtectedRoute>
           }
         />
       </Route>
 
-     
+      {/* Fallback route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

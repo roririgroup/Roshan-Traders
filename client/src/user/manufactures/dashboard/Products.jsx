@@ -251,7 +251,7 @@ export default function Products() {
           .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
           .filter(p => stockFilter === 'all' || (stockFilter === 'in' ? p.inStock : !p.inStock))
           .map((product) => (
-          <Card key={product.id} className="p-6 hover:shadow-lg transition-shadow duration-200 flex flex-col">
+          <Card key={product.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow duration-200 flex flex-col">
             <div className="flex-1">
               <div className="mb-4">
                 <h3 className="font-semibold text-slate-900 text-lg mb-2">{product.name}</h3>
@@ -438,7 +438,7 @@ export default function Products() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setShowAddStockModal(false)}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleConfirmAddStock}>Add</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer" onClick={handleConfirmAddStock}>Add</Button>
           </div>
         </div>
       </Modal>
