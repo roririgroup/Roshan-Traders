@@ -360,7 +360,7 @@ Amazon style (E-commerce) → smooth customer experience with cart, payments, tr
 
 Admin Dashboard → founder runs everything from one place (orders, employees, suppliers, reports).
 
-Referral & Growth → viral growth by agents, customers, employees, and suppliers inviting new people.
+Referral & Growth → viral growth by agents, customers, , and suppliers inviting new people.
 
 Future Proofing → first web app, then mobile app, with scope to expand into a nationwide construction trading ecosystem.
 
@@ -403,7 +403,7 @@ Employee → Login via OTP
 5. Admin Flow (Founder Dashboard)
 Admin → Manage All Orders (incoming & completed)
       → Manage Customers, Suppliers, and Employees
-      → Assign Jobs to Employees
+      → Assign Jobs to 
       → Track Deliveries (GPS / status)
       → Manage Products & Pricing
       → View Reports (Sales, Payments, Referrals, Inventory)

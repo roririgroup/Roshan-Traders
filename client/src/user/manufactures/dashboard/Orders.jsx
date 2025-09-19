@@ -151,10 +151,10 @@ export default function Orders() {
                 className="border-b border-slate-100 hover:bg-slate-50 transition-colors  group"
                 onClick={() => handleOrderClick(order)}
               >
-                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
+                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
                   #{order.id}
                 </td>
-                <td className="py-4 px-6 text-slate-900 group-hover:text-blue-600 transition-colors">
+                <td className="py-4 px-6 text-slate-900 group-hover:text-[#F08344] transition-colors">
                   {order.customerName}
                 </td>
                 <td className="py-4 px-6">
@@ -167,16 +167,16 @@ export default function Orders() {
                     ))}
                   </div>
                 </td>
-                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
+                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
                   ₹{order.totalAmount.toLocaleString()}
                 </td>
                 <td className="py-4 px-6">
                   {getStatusBadge(order.status)}
                 </td>
-                <td className="py-4 px-6 text-slate-600 group-hover:text-blue-600 transition-colors">
+                <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
                   {new Date(order.orderDate).toLocaleDateString()}
                 </td>
-                <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-blue-600 transition-colors">
+                <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress}
                 </td>
                 <td className="py-4 px-6">
@@ -187,7 +187,7 @@ export default function Orders() {
                           e.stopPropagation()
                           handleConfirmOrder(order.id)
                         }}
-                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors cursor-pointer"
+                        className="px-3 py-1 bg-[#F08344] text-white rounded-lg text-sm hover:bg-[#e0763a] transition-colors cursor-pointer"
                         disabled={isLoading}
                       >
                         Confirm
@@ -238,7 +238,7 @@ export default function Orders() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <ShoppingCart className="size-5 text-white" />
           </div>
           <div>
@@ -265,7 +265,7 @@ export default function Orders() {
             onClick={() => setActiveTab('orders')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'orders'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#F08344] text-white'
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -275,7 +275,7 @@ export default function Orders() {
             onClick={() => setActiveTab('outsource')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
               activeTab === 'outsource'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#F08344] text-white'
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >

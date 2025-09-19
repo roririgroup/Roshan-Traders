@@ -1,35 +1,92 @@
-import Button from '../../components/ui/Button'
-import Badge from '../../components/ui/Badge'
-import { Card } from '../../components/ui/Card'
+import React, { useState, useEffect } from "react";
+import EmployeeHeader from "./EmployeeHeader";
+import EmployeeFilter from "./EmployeeFilter";
+import EmployeeList from "./EmployeeList";
+import AddEmployeeModal from "./AddEmployeeModal";
+import ConfirmRemoveModal from "./ConfirmRemoveModal";
+import { MOCK_EMPLOYEES } from "./employeeConstants";
 
-export default function EmployeesPage() {
-  const data = [
-    { id: 'e1', name: 'Sanjay (Driver)', status: 'Available', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop' },
-    { id: 'e2', name: 'Karan (Loader)', status: 'On Job', image: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=800&auto=format&fit=crop' },
-  ]
+const EmployeesPage = () => {
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [filter, setFilter] = useState("All");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState(null);
+
+  // Load data from localStorage + merge mock
+  useEffect(() => {
+    const saved = localStorage.getItem("employees");
+    const parsed = saved ? JSON.parse(saved) : [];
+
+    const merged = [...MOCK_EMPLOYEES, ...parsed].filter(
+      (emp, index, self) => index === self.findIndex((e) => e.id === emp.id)
+    );
+
+    setEmployees(merged);
+  }, []);
+
+  // Save to localStorage whenever employees change
+  useEffect(() => {
+    localStorage.setItem("employees", JSON.stringify(employees));
+  }, [employees]);
+
+  const handleAssignEmployee = (id) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp.id === id ? { ...emp, status: "On Job" } : emp
+        )
+      );
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleRemoveEmployee = (id) => {
+    setEmployees((prev) => prev.filter((emp) => emp.id !== id));
+    setRemoveTarget(null);
+  };
+
+  const handleAddEmployee = (newEmployee) => {
+    setEmployees((prev) => [...prev, newEmployee]);
+  };
+
+  const filteredEmployees =
+    filter === "All"
+      ? employees
+      : employees.filter((emp) => emp.status === filter);
+
   return (
-    <section>
-      <h2 className="text-lg font-semibold mb-4">Employees</h2>
-      <ul className="space-y-3">
-        {data.map((e) => (
-          <li key={e.id}>
-            <Card className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img src={e.image} alt={e.name} className="h-10 w-10 rounded-full object-cover" />
-                  <div>
-                    <div className="font-medium">{e.name}</div>
-                    <div className="text-sm text-gray-600"><Badge color={e.status === 'Available' ? 'green' : 'amber'}>{e.status}</Badge></div>
-                  </div>
-                </div>
-                <Button variant="secondary">Assign</Button>
-              </div>
-            </Card>
-          </li>
-        ))}
-      </ul>
+    <section className="p-6" role="main" aria-labelledby="employees-heading">
+      <EmployeeHeader onAddEmployee={() => setShowAddModal(true)} />
+      
+      <EmployeeFilter 
+        currentFilter={filter} 
+        onFilterChange={setFilter} 
+      />
+
+      <EmployeeList
+        employees={filteredEmployees}
+        onAssign={handleAssignEmployee}
+        onRemoveClick={setRemoveTarget}
+        isLoading={isLoading}
+      />
+
+      {showAddModal && (
+        <AddEmployeeModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddEmployee}
+        />
+      )}
+
+      {removeTarget && (
+        <ConfirmRemoveModal
+          onClose={() => setRemoveTarget(null)}
+          onConfirm={() => handleRemoveEmployee(removeTarget)}
+        />
+      )}
     </section>
-  )
-}
+  );
+};
 
-
+export default EmployeesPage;

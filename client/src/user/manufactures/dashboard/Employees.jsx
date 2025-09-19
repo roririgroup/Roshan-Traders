@@ -106,7 +106,7 @@ export default function Employees() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <Users className="size-5 text-white" />
           </div>
           <div>
@@ -118,7 +118,7 @@ export default function Employees() {
 
       {/* Add Employee Button */}
       <div className="mb-6 flex justify-end">
-        <Button onClick={handleAddAgent} className="bg-green-600 hover:bg-green-700 cursor-pointer">
+        <Button onClick={handleAddAgent} className="bg-[#ece6e3] hover:bg-[#e0763a] cursor-pointer">
           <UserPlus className="size-4 mr-2" />
           Add Agent/Employee
         </Button>
@@ -200,7 +200,7 @@ export default function Employees() {
                     <div className="flex gap-2">
                       <Button
                         onClick={() => handleEditAgent(agent)}
-                        className="bg-blue-600 hover:bg-blue-700 p-2"
+                        className="bg-[#F08344] hover:bg-[#e0763a] p-2"
                       >
                         <Edit className="size-4" />
                       </Button>
@@ -237,7 +237,7 @@ export default function Employees() {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
               placeholder="Enter full name"
             />
           </div>
@@ -248,7 +248,7 @@ export default function Employees() {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
               placeholder="Enter email address"
             />
           </div>
@@ -259,7 +259,7 @@ export default function Employees() {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
               placeholder="Enter phone number"
             />
           </div>
@@ -269,7 +269,7 @@ export default function Employees() {
               name="role"
               value={formData.role}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
             >
               <option value="agent">Agent</option>
               <option value="employee">Employee</option>
@@ -281,14 +281,14 @@ export default function Employees() {
               name="status"
               value={formData.status}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
           <div className="flex gap-3 pt-4">
-            <Button onClick={handleSaveAgent} className="bg-blue-600 hover:bg-blue-700 flex-1">
+            <Button onClick={handleSaveAgent} className="bg-[#F08344] hover:bg-[#e0763a] flex-1">
               {editingAgent ? 'Update' : 'Add'} Agent/Employee
             </Button>
             <Button onClick={() => setIsModalOpen(false)} variant="secondary" className="flex-1">

@@ -32,7 +32,7 @@ export default function Products() {
         id: 1,
         name: 'Red Bricks',
         price: 50,
-        description: 'High-quality red bricks for dream house construction works',
+        description: 'High-quality  for dream house construction works',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
         inStock: true,
         stockQuantity: 1000
