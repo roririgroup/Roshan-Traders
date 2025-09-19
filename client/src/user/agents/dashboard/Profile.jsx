@@ -120,7 +120,7 @@ export default function Profile() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
               <User className="size-5 text-white" />
             </div>
             <div>
@@ -131,7 +131,7 @@ export default function Profile() {
           {!isEditing ? (
             <Button
               onClick={() => setIsEditing(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-[#F08344] hover:bg-[#E5672E] text-white"
             >
               <Edit className="size-4 mr-2" />
               Edit Profile
@@ -140,7 +140,7 @@ export default function Profile() {
             <div className="flex gap-2">
               <Button
                 onClick={handleSave}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-[#F08344] hover:bg-[#E5672E] text-white"
               >
                 <Save className="size-4 mr-2" />
                 Save Changes
@@ -164,56 +164,56 @@ export default function Profile() {
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Summary</h3>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <User className="size-5 text-slate-400" />
+              <User className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Name</p>
                 <p className="font-medium text-slate-900">{profile.name || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Mail className="size-5 text-slate-400" />
+              <Mail className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Email</p>
                 <p className="font-medium text-slate-900">{profile.email || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Phone className="size-5 text-slate-400" />
+              <Phone className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Phone</p>
                 <p className="font-medium text-slate-900">{profile.phone || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <MapPin className="size-5 text-slate-400" />
+              <MapPin className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Address</p>
                 <p className="font-medium text-slate-900">{profile.address || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <CreditCard className="size-5 text-slate-400" />
+              <CreditCard className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Bank Details</p>
                 <p className="font-medium text-slate-900">{profile.bankDetails || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <CreditCard className="size-5 text-slate-400" />
+              <CreditCard className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">UPI ID</p>
                 <p className="font-medium text-slate-900">{profile.upiId || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <User className="size-5 text-slate-400" />
+              <User className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Role</p>
                 <p className="font-medium text-slate-900 capitalize">{profile.role || 'Not set'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <User className="size-5 text-slate-400" />
+              <User className="size-5 text-[#F08344]" />
               <div>
                 <p className="text-sm text-slate-600">Services</p>
                 <p className="font-medium text-slate-900 capitalize">
@@ -234,7 +234,7 @@ export default function Profile() {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <field.icon className="size-5 text-slate-400" />
+                    <field.icon className="size-5 text-[#F08344]" />
                   </div>
                   {field.type === 'textarea' ? (
                     <textarea
@@ -243,7 +243,7 @@ export default function Profile() {
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       rows={3}
-                      className={`w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500 ${
+                      className={`w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-[#F08344] disabled:bg-slate-50 disabled:text-slate-500 ${
                         isEditing ? 'bg-white' : 'bg-slate-50'
                       }`}
                       placeholder={field.placeholder}
@@ -255,7 +255,7 @@ export default function Profile() {
                       value={profile[field.name]}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      className={`w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500 ${
+                      className={`w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-[#F08344] disabled:bg-slate-50 disabled:text-slate-500 ${
                         isEditing ? 'bg-white' : 'bg-slate-50'
                       }`}
                       placeholder={field.placeholder}
@@ -275,7 +275,7 @@ export default function Profile() {
                 value={profile.role}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className={`w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-500 ${
+                className={`w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-[#F08344] disabled:bg-slate-50 disabled:text-slate-500 ${
                   isEditing ? 'bg-white' : 'bg-slate-50'
                 }`}
               >
@@ -298,7 +298,7 @@ export default function Profile() {
                       checked={profile.services.includes(service)}
                       onChange={() => handleServiceChange(service)}
                       disabled={!isEditing}
-                      className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded disabled:opacity-50"
+                      className="mr-3 h-4 w-4 text-[#F08344] focus:ring-[#F08344] border-slate-300 rounded disabled:opacity-50"
                     />
                     <span className={`text-sm capitalize ${!isEditing ? 'text-slate-500' : 'text-slate-700'}`}>
                       {service}

@@ -40,7 +40,7 @@ export default function Reports() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <BarChart3 className="size-5 text-white" />
           </div>
           <div>
@@ -62,7 +62,7 @@ export default function Reports() {
               key={period.key}
               onClick={() => setSelectedPeriod(period.key)}
               variant={selectedPeriod === period.key ? 'primary' : 'secondary'}
-              className={selectedPeriod === period.key ? 'bg-blue-600 text-white' : ''}
+              className={selectedPeriod === period.key ? 'bg-[#F08344] text-white hover:bg-[#e0763a]' : ''}
             >
               <Calendar className="size-4 mr-2" />
               {period.label}

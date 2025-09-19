@@ -58,7 +58,7 @@ export default function AgentsPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <Users className="size-5 text-white" />
           </div>
           <div>
@@ -72,8 +72,8 @@ export default function AgentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Users className="size-6 text-blue-600" />
+            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
+              <Users className="size-6 text-[#F08344]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-900">{data.length}</p>
@@ -84,8 +84,8 @@ export default function AgentsPage() {
 
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="size-6 text-green-600" />
+            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
+              <TrendingUp className="size-6 text-[#F08344]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-900">{totalReferrals}</p>
@@ -96,8 +96,8 @@ export default function AgentsPage() {
 
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Award className="size-6 text-purple-600" />
+            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
+              <Award className="size-6 text-[#F08344]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-900">{activeAgents}</p>
@@ -126,7 +126,7 @@ export default function AgentsPage() {
                     className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm"
                   />
                   <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                    agent.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
+                    agent.status === 'active' ? 'bg-[#F08344]' : 'bg-gray-400'
                   }`}></div>
                 </div>
                 <div className="flex-1">
@@ -143,32 +143,32 @@ export default function AgentsPage() {
               {/* Agent Details */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <Phone className="size-4 text-slate-400" />
+                  <Phone className="size-4 text-[#F08344]" />
                   <span>{agent.phone}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <Mail className="size-4 text-slate-400" />
+                  <Mail className="size-4 text-[#F08344]" />
                   <span className="truncate">{agent.email}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <MapPin className="size-4 text-slate-400" />
+                  <MapPin className="size-4 text-[#F08344]" />
                   <span>{agent.location}</span>
                 </div>
               </div>
 
               {/* Performance Indicator */}
               {agent.id === topPerformer.id && (
-                <div className="mt-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg">
+                <div className="mt-4 p-3 bg-[#FEF0E8] border border-[#F9D5C2] rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Award className="size-4 text-yellow-600" />
-                    <span className="text-sm font-medium text-yellow-800">Top Performer</span>
+                    <Award className="size-4 text-[#F08344]" />
+                    <span className="text-sm font-medium text-[#D45A2A]">Top Performer</span>
                   </div>
                 </div>
               )}
 
               {/* Action Button */}
               <div className="mt-4 pt-4 border-t border-slate-200">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                <button className="w-full bg-[#F08344] hover:bg-[#E5672E] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                   View Profile
                 </button>
               </div>
@@ -220,11 +220,11 @@ export default function AgentsPage() {
                     <td className="py-4 px-6">
                       <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
                         agent.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
+                          ? 'bg-[#FEF0E8] text-[#D45A2A]' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
                         <div className={`w-2 h-2 rounded-full ${
-                          agent.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
+                          agent.status === 'active' ? 'bg-[#F08344]' : 'bg-gray-400'
                         }`}></div>
                         {agent.status === 'active' ? 'Active' : 'Inactive'}
                       </div>

@@ -40,7 +40,7 @@ export default function Reports() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
             <BarChart3 className="size-5 text-white" />
           </div>
           <div>
@@ -62,16 +62,61 @@ export default function Reports() {
               key={period.key}
               onClick={() => setSelectedPeriod(period.key)}
               variant={selectedPeriod === period.key ? 'primary' : 'secondary'}
-              className={selectedPeriod === period.key ? 'bg-blue-600 text-white' : ''}
+              className={selectedPeriod === period.key ? 
+                'bg-[#F08344] hover:bg-[#E5672E] text-white' : 
+                'bg-white text-[#F08344] border border-[#F08344] hover:bg-[#FEF0E8]'}
             >
-              <Calendar className="size-4 mr-2" />
+              <Calendar className="size-4 mr-2 text-[#F08344]" />
               {period.label}
             </Button>
           ))}
         </div>
       </div>
 
-    
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="p-6 border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
+              <BarChart3 className="size-6 text-[#F08344]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">
+                {currentData.reduce((sum, item) => sum + item.orders, 0)}
+              </p>
+              <p className="text-sm text-slate-600">Total Orders</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
+              <TrendingUp className="size-6 text-[#F08344]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">
+                ₹{currentData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}
+              </p>
+              <p className="text-sm text-slate-600">Total Revenue</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
+              <DollarSign className="size-6 text-[#F08344]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">
+                ₹{currentData.length > 0 ? Math.round(currentData.reduce((sum, item) => sum + item.revenue, 0) / currentData.reduce((sum, item) => sum + item.orders, 0)).toLocaleString() : '0'}
+              </p>
+              <p className="text-sm text-slate-600">Avg Order Value</p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       {/* Detailed Report */}
       <Card className="p-6 border-gray-200">

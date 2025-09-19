@@ -12,12 +12,10 @@ export default function TradersPage() {
         {data.map((t) => (
           <Card key={t.id}>
             <CardMedia src={t.image} alt={t.name} />
-            <CardHeader title={t.name} subtitle={t.category} action={<Badge color="green">Top rated</Badge>} />
+            <CardHeader title={t.name} subtitle={t.category} action={<Badge color="#F08344">Top rated</Badge>} />
           </Card>
         ))}
       </div>
     </section>
   )
 }
-
-
