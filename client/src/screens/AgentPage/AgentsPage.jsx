@@ -1,7 +1,10 @@
 import Badge from '../../components/ui/Badge'
+import { useState } from 'react'
+import AgentProfileModal from './AgentProfileModal'
 import { Users, TrendingUp, Award, Phone, Mail, MapPin } from 'lucide-react'
 
 export default function AgentsPage() {
+  const [selectedAgent, setSelectedAgent] = useState(null)
   const data = [
     { 
       id: 'a1', 
@@ -168,7 +171,7 @@ export default function AgentsPage() {
 
               {/* Action Button */}
               <div className="mt-4 pt-4 border-t border-slate-200">
-                <button className="w-full bg-[#F08344] hover:bg-[#E5672E] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                <button onClick={() => setSelectedAgent(agent)} className=" cursor-pointer w-full bg-[#F08344] hover:bg-[#E5672E] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                   View Profile
                 </button>
               </div>
@@ -236,6 +239,13 @@ export default function AgentsPage() {
           </div>
         </div>
       </div>
+      {selectedAgent && (
+        <AgentProfileModal
+          agent={selectedAgent}
+          topPerformer={topPerformer}
+          onClose={() => setSelectedAgent(null)}
+        />
+      )}
     </div>
   )
 }

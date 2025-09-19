@@ -9,7 +9,7 @@ import EmployeesPage from "../screens/EmployeesPage/EmployeesPage";
 import UsersPage from "../screens/UsersPage/UsersPage";
 import Dashboard from "../user/agents/dashboard/Dashboard";
 import Products from "../user/agents/dashboard/Products";
-import Orders from "../user/agents/dashboard/Orders";
+import AgentOrders from "../user/agents/dashboard/Orders";
 import PaymentReport from "../user/agents/dashboard/PaymentReport";
 import Profile from "../user/agents/dashboard/Profile";
 import Reports from "../user/agents/dashboard/Reports";
@@ -24,7 +24,9 @@ import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
 import SuperAdminLogin from "../pages/Login/components/SuperAdminLogin";
 import { hasRole } from "../lib/roles";
-import AdminOrders from "../features/orders/pages/AdminOrders";
+import OrdersScreen from "../screens/Orders/OrdersScreen";
+import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
+import ReportPage from "../screens/ReportPage/ReportPage";
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -132,13 +134,30 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="admin/orders"
+          path="orders"
           element={
             <ProtectedRoute requiredRole="superadmin">
-              <AdminOrders />
+              <OrdersScreen />
             </ProtectedRoute>
           }
         />
+           <Route
+          path="paymentreports"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <PaymentReports/>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="report"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+             <ReportPage/>
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* Agent Routes */}
         <Route
@@ -161,7 +180,7 @@ export default function AppRoutes() {
           path="agents/orders"
           element={
             <ProtectedRoute requiredRole="agent">
-              <Orders />
+              <AgentOrders />
             </ProtectedRoute>
           }
         />
