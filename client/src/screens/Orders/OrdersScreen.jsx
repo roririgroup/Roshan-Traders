@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../components/ui/Badge.jsx'
-import { ShoppingCart, ExternalLink } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import { getOrders, updateOrderStatus } from '../../store/ordersStore.js'
 import NotificationContainer from '../../components/ui/NotificationContainer.jsx'
 import OrderDetailsModal from '../../components/ui/OrderDetailsModal.jsx'
@@ -9,24 +9,20 @@ import FilterBar from '../../components/ui/FilterBar.jsx'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
-  const [outsourceOrders, setOutsourceOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState('orders')
-  const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  
-  const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
+
+  const { notifications, removeNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
   // Load orders from shared store
   useEffect(() => {
     const allOrders = getOrders()
-    // Separate orders: assume orders placed by current org are "Orders", others are "Outsource Orders"
+    // Only show orders placed by current org
     setOrders(allOrders.filter(order => order.customerName === 'Current Agent'))
-    setOutsourceOrders(allOrders.filter(order => order.customerName !== 'Current Agent'))
   }, [refreshTrigger])
 
   // Auto-refresh periodically to check for updates
@@ -37,27 +33,6 @@ export default function Orders() {
 
     return () => clearInterval(interval)
   }, [])
-
-  // Simulate new outsource order arrival
-  useEffect(() => {
-    const checkForNewOrders = () => {
-      const allOrders = getOrders()
-      const externalOrders = allOrders.filter(order => order.customerName !== 'Current Agent')
-      if (externalOrders.length > outsourceOrders.length) {
-        setNewOutsourceOrder(true)
-        // Show notification for new orders
-        const newOrders = externalOrders.slice(outsourceOrders.length)
-        newOrders.forEach(order => {
-          showOrderNotification(order)
-        })
-        setTimeout(() => setNewOutsourceOrder(false), 5000)
-      }
-      setOutsourceOrders(externalOrders)
-    }
-
-    const interval = setInterval(checkForNewOrders, 10000)
-    return () => clearInterval(interval)
-    }, [outsourceOrders.length, showOrderNotification])
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -132,13 +107,14 @@ export default function Orders() {
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Customer</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Customer Name</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Customer Type</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
           </thead>
@@ -245,45 +221,10 @@ export default function Orders() {
           </div>
         </div>
 
-        {/* New Outsource Order Notification */}
-        {newOutsourceOrder && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 animate-bounce-in">
-            <div className="flex items-center gap-2">
-              <ExternalLink className="size-5 text-yellow-600" />
-              <span className="text-yellow-800 font-medium">New outsource order received!</span>
-            </div>
-          </div>
-        )}
+
       </div>
 
-      {/* Tabs */}
-      <div className="mb-6">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'orders'
-                ? 'bg-[#F08344] text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Orders ({orders.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('outsource')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
-              activeTab === 'outsource'
-                ? 'bg-[#F08344] text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Outsource Orders ({outsourceOrders.length})
-            {newOutsourceOrder && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-            )}
-          </button>
-        </div>
-      </div>
+
 
       {/* Filters */}
       <FilterBar
@@ -305,7 +246,7 @@ export default function Orders() {
       />
 
       {/* Orders Table */}
-      {activeTab === 'orders' && renderOrderTable(
+      {renderOrderTable(
         orders
           .filter(o => (
             o.customerName.toLowerCase().includes(search.toLowerCase()) ||
@@ -314,29 +255,11 @@ export default function Orders() {
           .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
         , 'Orders')}
 
-      {/* Outsource Orders Table */}
-      {activeTab === 'outsource' && renderOrderTable(
-        outsourceOrders
-          .filter(o => (
-            o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-            String(o.id).includes(search)
-          ))
-          .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-        , 'Outsource Orders')}
-
-      {(activeTab === 'orders' && orders.length === 0) && (
+      {orders.length === 0 && (
         <div className="text-center py-12">
           <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
           <p className="text-slate-600">Orders will appear here once customers place them</p>
-        </div>
-      )}
-
-      {(activeTab === 'outsource' && outsourceOrders.length === 0) && (
-        <div className="text-center py-12">
-          <ExternalLink className="size-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">No outsource orders yet</h3>
-          <p className="text-slate-600">Outsource orders will appear here</p>
         </div>
       )}
     </div>
