@@ -1,7 +1,7 @@
 import Badge from '../../components/ui/Badge'
 import { useState } from 'react'
 import AgentProfileModal from './AgentProfileModal'
-import { Users, TrendingUp, Award, Phone, Mail, MapPin } from 'lucide-react'
+import { Users, TrendingUp, Award } from 'lucide-react'
 
 export default function AgentsPage() {
   const [selectedAgent, setSelectedAgent] = useState(null)
@@ -43,7 +43,7 @@ export default function AgentsPage() {
       id: 'a4', 
       name: 'Kanidurai', 
       referrals: 6, 
-      image: 'https://images.unsplash.com/photo-1494790108755-2616c9d08dd5?q=80&w=800&auto=format&fit=crop',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJdjXMNs33JT-tl_JKSqpVmwOLSikdjQiNNykHlj6OyIK4XqPGNb9XC9NJnhhRXZg6Dfc&usqp=CAU',
       phone: '+91 65432 10987',
       email: 'priya.verma@example.com',
       location: 'Kallilulam',
@@ -54,7 +54,6 @@ export default function AgentsPage() {
 
   const totalReferrals = data.reduce((sum, agent) => sum + agent.referrals, 0)
   const activeAgents = data.filter(agent => agent.status === 'active').length
-  const topPerformer = data.reduce((prev, current) => (prev.referrals > current.referrals) ? prev : current)
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
@@ -74,175 +73,87 @@ export default function AgentsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
-              <Users className="size-6 text-[#F08344]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900">{data.length}</p>
-              <p className="text-sm text-slate-600">Total Agents</p>
-            </div>
-          </div>
+          <p className="text-2xl font-bold text-slate-900">{data.length}</p>
+          <p className="text-sm text-slate-600">Total Agents</p>
         </div>
-
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
-              <TrendingUp className="size-6 text-[#F08344]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900">{totalReferrals}</p>
-              <p className="text-sm text-slate-600">Total Referrals</p>
-            </div>
-          </div>
+          <p className="text-2xl font-bold text-slate-900">{totalReferrals}</p>
+          <p className="text-sm text-slate-600">Total Referrals</p>
         </div>
-
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#FEF0E8] rounded-lg flex items-center justify-center">
-              <Award className="size-6 text-[#F08344]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900">{activeAgents}</p>
-              <p className="text-sm text-slate-600">Active Agents</p>
-            </div>
-          </div>
+          <p className="text-2xl font-bold text-slate-900">{activeAgents}</p>
+          <p className="text-sm text-slate-600">Active Agents</p>
         </div>
       </div>
 
-      {/* Agents Grid */}
+      {/* Agents Table (Only List View) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-900">Agent Directory</h2>
           <p className="text-sm text-slate-600 mt-1">View and manage all registered agents</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-          {data.map((agent) => (
-            <div key={agent.id} className="bg-slate-50 rounded-xl p-6 hover:shadow-md transition-all duration-200 border border-slate-200 hover:border-slate-300">
-              {/* Agent Header */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className="relative">
-                  <img 
-                    src={agent.image} 
-                    alt={agent.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm"
-                  />
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                    agent.status === 'active' ? 'bg-[#F08344]' : 'bg-gray-400'
-                  }`}></div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900 text-lg">{agent.name}</h3>
-                  <p className="text-sm text-slate-500">Joined {agent.joinDate}</p>
-                  <div className="mt-2">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Agent</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Contact</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Location</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Referrals</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((agent) => (
+                <tr key={agent.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={agent.image} 
+                        alt={agent.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-medium text-slate-900">{agent.name}</p>
+                        <p className="text-sm text-slate-500">Joined {agent.joinDate}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="space-y-1">
+                      <p className="text-sm text-slate-900">{agent.phone}</p>
+                      <p className="text-sm text-slate-500">{agent.email}</p>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-slate-600">{agent.location}</td>
+                  <td className="py-4 px-6">
                     <Badge variant={agent.referrals > 10 ? 'success' : agent.referrals > 5 ? 'warning' : 'default'}>
                       {agent.referrals} referrals
                     </Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Agent Details */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <Phone className="size-4 text-[#F08344]" />
-                  <span>{agent.phone}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <Mail className="size-4 text-[#F08344]" />
-                  <span className="truncate">{agent.email}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <MapPin className="size-4 text-[#F08344]" />
-                  <span>{agent.location}</span>
-                </div>
-              </div>
-
-              {/* Performance Indicator */}
-              {agent.id === topPerformer.id && (
-                <div className="mt-4 p-3 bg-[#FEF0E8] border border-[#F9D5C2] rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Award className="size-4 text-[#F08344]" />
-                    <span className="text-sm font-medium text-[#D45A2A]">Top Performer</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Button */}
-              <div className="mt-4 pt-4 border-t border-slate-200">
-                <button onClick={() => setSelectedAgent(agent)} className=" cursor-pointer w-full bg-[#F08344] hover:bg-[#E5672E] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-                  View Profile
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Table View (Optional - for larger screens) */}
-        <div className="hidden xl:block border-t border-slate-200">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="text-left py-4 px-6 font-medium text-slate-900">Agent</th>
-                  <th className="text-left py-4 px-6 font-medium text-slate-900">Contact</th>
-                  <th className="text-left py-4 px-6 font-medium text-slate-900">Location</th>
-                  <th className="text-left py-4 px-6 font-medium text-slate-900">Referrals</th>
-                  <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                      agent.status === 'active' 
+                        ? 'bg-[#FEF0E8] text-[#D45A2A]' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      <div className={`w-2 h-2 rounded-full ${
+                        agent.status === 'active' ? 'bg-[#F08344]' : 'bg-gray-400'
+                      }`}></div>
+                      {agent.status === 'active' ? 'Active' : 'Inactive'}
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {data.map((agent) => (
-                  <tr key={agent.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={agent.image} 
-                          alt={agent.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="font-medium text-slate-900">{agent.name}</p>
-                          <p className="text-sm text-slate-500">Joined {agent.joinDate}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="space-y-1">
-                        <p className="text-sm text-slate-900">{agent.phone}</p>
-                        <p className="text-sm text-slate-500">{agent.email}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-slate-600">{agent.location}</td>
-                    <td className="py-4 px-6">
-                      <Badge variant={agent.referrals > 10 ? 'success' : agent.referrals > 5 ? 'warning' : 'default'}>
-                        {agent.referrals} referrals
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                        agent.status === 'active' 
-                          ? 'bg-[#FEF0E8] text-[#D45A2A]' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        <div className={`w-2 h-2 rounded-full ${
-                          agent.status === 'active' ? 'bg-[#F08344]' : 'bg-gray-400'
-                        }`}></div>
-                        {agent.status === 'active' ? 'Active' : 'Inactive'}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+
       {selectedAgent && (
         <AgentProfileModal
           agent={selectedAgent}
-          topPerformer={topPerformer}
           onClose={() => setSelectedAgent(null)}
         />
       )}

@@ -4,8 +4,8 @@ export const manufacturersData = [
     name: 'RN Tiles',
     location: 'Morbi, Gujarat',
     establishedYear: 2010,
-    image: 'https://images.unsplash.com/photo-1581093458791-9d1f8f5b88f8?q=80&w=800&auto=format&fit=crop',
-    logo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=200&auto=format&fit=crop',
+    image: 'https://rntilesmachinery.com/wp-content/uploads/2025/08/LOGO-3.png',
+    logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzc-ItTtSkXM7hUA9mB3_lWbvZIw8L44HJEA&s',
     founder: {
       name: 'Rajesh Patel',
       experience: '15 years',
@@ -535,7 +535,7 @@ export const manufacturersData = [
     name: 'Premium Steel Works',
     location: 'Chennai, Tamil Nadu',
     establishedYear: 2015,
-    image: 'https://images.unsplash.com/photo-1581093458791-9d1f8f5b88f8?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=200&auto=format&fit=crop',
     founder: {
       name: 'Dr. Priya Sharma',
