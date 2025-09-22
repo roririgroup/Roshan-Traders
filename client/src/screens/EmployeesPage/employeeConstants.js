@@ -1,15 +1,15 @@
 // employeeConstants.js
 export const EMPLOYEE_STATUS_CONFIG = {
   Available: { 
-    className: "bg-green-100 text-green-800", 
+    color: "green", 
     label: "Available" 
   },
   "On Job": { 
-    className: "bg-amber-100 text-amber-800", 
+    color: "amber", 
     label: "On Job" 
   },
   Unavailable: { 
-    className: "bg-red-100 text-red-800", 
+    color: "red", 
     label: "Unavailable" 
   },
 };

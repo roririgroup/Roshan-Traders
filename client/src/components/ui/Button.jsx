@@ -1,16 +1,23 @@
-const base =
-  'inline-flex border-gray-200 cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed'
+const base = 'inline-flex border cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed'
 
 const variants = {
-  primary: 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring',
-  secondary: 'bg-secondary text-secondary-foreground border hover:bg-secondary/80 focus:ring-ring',
-  ghost: 'bg-transparent text-foreground hover:bg-accent focus:ring-ring',
-  danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-ring',
+  primary: 'bg-[#F08344] text-white border-[#F08344] hover:bg-[#E07533] focus:ring-[#F08344]/50',
+  outline: 'bg-transparent text-[#F08344] border-[#F08344] hover:bg-[#F08344] hover:text-white focus:ring-[#F08344]/50',
+  secondary: 'bg-secondary text-secondary-foreground border-gray-200 hover:bg-secondary/80 focus:ring-ring',
+  ghost: 'bg-transparent text-foreground border-transparent hover:bg-accent focus:ring-ring',
+  danger: 'bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 focus:ring-ring',
 }
 
-export default function Button({ variant = 'primary', className = '', children, type = 'button', ...props }) {
+export default function Button({ 
+  variant = 'primary', 
+  className = '', 
+  children, 
+  type = 'button', 
+  ...props 
+}) {
   const variantClass = variants[variant] || variants.primary
   const combined = `${base} ${variantClass} px-4 py-2 ${className}`.trim()
+  
   return (
     <button type={type} className={combined} {...props}>
       {children}
@@ -18,4 +25,6 @@ export default function Button({ variant = 'primary', className = '', children, 
   )
 }
 
-
+// Usage examples:
+// <Button onClick={onAddEmployee}>Add Employee</Button>
+// <Button variant="outline" onClick={onAddEmployee}>Add Employee</Button>

@@ -41,8 +41,8 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
             <h3 className="font-semibold text-gray-900 truncate">{name}</h3>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-gray-600">{role}</span>
-              <Badge
-                className={`text-xs ${statusConfig.className}`}
+              <Badge color={statusConfig.color}
+                className={`text-xs`}
                 aria-label={`Employment status: ${statusConfig.label}`}
               >
                 {statusConfig.label}
@@ -74,12 +74,14 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
             </Button>
           )}
 
-          <button
-            className="border border-gray-200 px-2 rounded-lg cursor-pointer hover:border-black hover:text-red-500"
-            onClick={() => onRemoveClick(id)}
-          >
-            Remove
-          </button>
+       <button
+  className="border border-gray-300 text-black px-3 py-1.5 rounded-lg cursor-pointer 
+             hover:bg-red-600 hover:text-white transition text-sm"
+  onClick={() => onRemoveClick(id)}
+>
+  Remove
+</button>
+
         </div>
       </div>
     </Card>
