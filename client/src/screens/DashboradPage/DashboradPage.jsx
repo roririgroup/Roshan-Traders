@@ -178,40 +178,7 @@ export default function SuperAdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-gray-900">⚡ Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 group">
-                <Package className="h-6 w-6 mb-2 text-blue-600" />
-                <span className="text-sm text-gray-700 group-hover:text-blue-700">
-                  Add Product
-                </span>
-              </button>
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:bg-green-50 hover:border-green-300 transition-all duration-200 group">
-                <Users className="h-6 w-6 mb-2 text-green-600" />
-                <span className="text-sm text-gray-700 group-hover:text-green-700">
-                  Create User
-                </span>
-              </button>
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:bg-yellow-50 hover:border-yellow-300 transition-all duration-200 group">
-                <CreditCard className="h-6 w-6 mb-2 text-yellow-600" />
-                <span className="text-sm text-gray-700 group-hover:text-yellow-700">
-                  Process Payment
-                </span>
-              </button>
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 group">
-                <FileText className="h-6 w-6 mb-2 text-red-600" />
-                <span className="text-sm text-gray-700 group-hover:text-red-700">
-                  Generate Report
-                </span>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
     </div>
   );
