@@ -8,16 +8,17 @@ const PaymentReports = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   // Sample payment data
-  const paymentData = [
-    { id: 'TXN001', customer: 'John Smith', amount: 1250.00, status: 'completed', date: '2024-09-19', method: 'Credit Card', reference: 'REF-2024-001' },
-    { id: 'TXN002', customer: 'Sarah Johnson', amount: 875.50, status: 'pending', date: '2024-09-18', method: 'Bank Transfer', reference: 'REF-2024-002' },
-    { id: 'TXN003', customer: 'Michael Brown', amount: 2100.75, status: 'completed', date: '2024-09-17', method: 'PayPal', reference: 'REF-2024-003' },
-    { id: 'TXN004', customer: 'Emily Davis', amount: 450.00, status: 'failed', date: '2024-09-16', method: 'Credit Card', reference: 'REF-2024-004' },
-    { id: 'TXN005', customer: 'David Wilson', amount: 3200.25, status: 'completed', date: '2024-09-15', method: 'Wire Transfer', reference: 'REF-2024-005' },
-    { id: 'TXN006', customer: 'Lisa Anderson', amount: 675.80, status: 'pending', date: '2024-09-14', method: 'Credit Card', reference: 'REF-2024-006' },
-    { id: 'TXN007', customer: 'Robert Taylor', amount: 1800.00, status: 'completed', date: '2024-09-13', method: 'Bank Transfer', reference: 'REF-2024-007' },
-    { id: 'TXN008', customer: 'Jennifer White', amount: 925.40, status: 'refunded', date: '2024-09-12', method: 'PayPal', reference: 'REF-2024-008' }
-  ];
+const paymentData = [
+  { id: 'TXN001', customer: 'John Smith', customerType: 'Agent', amount: 1250.00, status: 'completed', date: '2024-09-19', method: 'Credit Card', reference: 'REF-2024-001' },
+  { id: 'TXN002', customer: 'Sarah Johnson', customerType: 'Manufacturer', amount: 875.50, status: 'pending', date: '2024-09-18', method: 'Bank Transfer', reference: 'REF-2024-002' },
+  { id: 'TXN003', customer: 'Michael Brown', customerType: 'Agent', amount: 2100.75, status: 'completed', date: '2024-09-17', method: 'PayPal', reference: 'REF-2024-003' },
+  { id: 'TXN004', customer: 'Emily Davis', customerType: 'Manufacturer', amount: 450.00, status: 'failed', date: '2024-09-16', method: 'Credit Card', reference: 'REF-2024-004' },
+  { id: 'TXN005', customer: 'David Wilson', customerType: 'Agent', amount: 3200.25, status: 'completed', date: '2024-09-15', method: 'Wire Transfer', reference: 'REF-2024-005' },
+  { id: 'TXN006', customer: 'Lisa Anderson', customerType: 'Manufacturer', amount: 675.80, status: 'pending', date: '2024-09-14', method: 'Credit Card', reference: 'REF-2024-006' },
+  { id: 'TXN007', customer: 'Robert Taylor', customerType: 'Agent', amount: 1800.00, status: 'completed', date: '2024-09-13', method: 'Bank Transfer', reference: 'REF-2024-007' },
+  { id: 'TXN008', customer: 'Jennifer White', customerType: 'Manufacturer', amount: 925.40, status: 'refunded', date: '2024-09-12', method: 'PayPal', reference: 'REF-2024-008' }
+];
+
 
   // Summary statistics
   const summaryStats = useMemo(() => {
@@ -240,7 +241,9 @@ const PaymentReports = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{payment.customer}</div>
+                      <div className="text-xs text-gray-500">{payment.customerType}</div>
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-gray-900">${payment.amount.toLocaleString()}</div>
                     </td>
