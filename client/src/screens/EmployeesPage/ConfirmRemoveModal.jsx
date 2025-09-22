@@ -34,22 +34,21 @@ const ConfirmRemoveModal = ({ onClose, onConfirm }) => (
       </p>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <Button
-          variant="secondary"
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg"
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={onConfirm}
-          className="px-4 py-2 rounded-lg"
-        >
-          Remove
-        </Button>
-      </div>
+     <div className="flex justify-end gap-3">
+  <Button
+    onClick={onClose}
+    className="border border-gray-400 text-black px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition"
+  >
+    Cancel
+  </Button>
+  <Button
+    onClick={onConfirm}
+    className="border border-gray-400 text-black px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition"
+  >
+    Remove
+  </Button>
+</div>
+
     </div>
   </div>
 );

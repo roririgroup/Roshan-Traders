@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "../../components/ui/Button";
 
 const EmployeeHeader = ({ onAddEmployee }) => {
   return (
@@ -14,12 +15,11 @@ const EmployeeHeader = ({ onAddEmployee }) => {
           Manage and assign tasks to your team members
         </p>
       </div>
-      <button
-        className="border border-gray-300 p-2 rounded-lg cursor-pointer hover:border-black"
-        onClick={onAddEmployee}
+      <Button
+          onClick={onAddEmployee}
       >
         Add Employee
-      </button>
+      </Button>
     </header>
   );
 };

@@ -47,7 +47,7 @@ function RoleBasedRedirect() {
   }
 
   if (hasRole("superadmin")) {
-    return <Navigate to="/dashboard" replace />; // 👈 fixed
+    return <Navigate to="/dashboard" replace />;
   } else if (hasRole("manufacturer")) {
     return <Navigate to="/manufacturers/dashboard" replace />;
   } else if (hasRole("agent")) {
