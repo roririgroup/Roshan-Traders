@@ -2,13 +2,7 @@ import React from "react";
 import Button from '../../components/ui/Button';
 import Badge from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
-
-// Status config
-const EMPLOYEE_STATUS_CONFIG = {
-  Available: { color: "green", label: "Available" },
-  "On Job": { color: "amber", label: "On Job" },
-  Unavailable: { color: "red", label: "Unavailable" },
-};
+import { EMPLOYEE_STATUS_CONFIG } from "./employeeConstants"; // Import from new file
 
 const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
   const { id, name, role, status, image } = employee;
@@ -25,7 +19,7 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
         <div className="flex items-center gap-3">
           <div className="relative">
             <img
-              src={image}
+              src={image || "/placeholder-avatar.png"}
               alt={`${name} profile`}
               className="h-12 w-12 rounded-full object-cover border-2 border-gray-100"
               onError={handleImageError}
@@ -33,7 +27,11 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
             />
             <div
               className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
-                isAvailable ? "bg-green-500" : "bg-amber-500"
+                status === "Available"
+                  ? "bg-green-500"
+                  : status === "Unavailable"
+                  ? "bg-red-500"
+                  : "bg-amber-500"
               }`}
               aria-label={`Status: ${status}`}
             />
@@ -44,8 +42,7 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-gray-600">{role}</span>
               <Badge
-                color={statusConfig.color}
-                className="text-xs"
+                className={`text-xs ${statusConfig.className}`}
                 aria-label={`Employment status: ${statusConfig.label}`}
               >
                 {statusConfig.label}
@@ -55,16 +52,28 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
         </div>
 
         <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onAssign(id)}
-            disabled={!isAvailable || isLoading}
-            aria-label={`Assign tasks to ${name}`}
-            className="shrink-0"
-          >
-            {isLoading ? "Assigning..." : isAvailable ? "Assign" : "Busy"}
-          </Button>
+          {isAvailable ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onAssign(id)}
+              disabled={isLoading}
+              aria-label={`Assign tasks to ${name}`}
+              className="shrink-0"
+            >
+              {isLoading ? "Assigning..." : "Assign"}
+            </Button>
+          ) : (
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled
+              className="shrink-0"
+            >
+              Busy
+            </Button>
+          )}
+
           <button
             className="border border-gray-200 px-2 rounded-lg cursor-pointer hover:border-black hover:text-red-500"
             onClick={() => onRemoveClick(id)}
