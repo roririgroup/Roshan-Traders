@@ -11,5 +11,3 @@ export default function Badge({ children, color = 'gray' }) {
   }`
   return <span className={cls}>{children}</span>
 }
-
-

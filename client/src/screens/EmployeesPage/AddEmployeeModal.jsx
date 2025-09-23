@@ -129,5 +129,4 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
     </div>
   );
 };
-
 export default AddEmployeeModal;

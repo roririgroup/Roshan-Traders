@@ -52,6 +52,9 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
         </div>
 
         <div className="flex gap-2">
+         
+
+          {/* Assign/Busy Button */}
           {isAvailable ? (
             <Button
               variant="secondary"
@@ -74,14 +77,14 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
             </Button>
           )}
 
-       <button
-  className="border border-gray-300 text-black px-3 py-1.5 rounded-lg cursor-pointer 
-             hover:bg-red-600 hover:text-white transition text-sm"
-  onClick={() => onRemoveClick(id)}
->
-  Remove
-</button>
-
+          {/* Remove Button */}
+          <button
+            className="border border-gray-300 text-black px-3 py-1.5 rounded-lg cursor-pointer 
+                       hover:bg-red-600 hover:text-white transition text-sm"
+            onClick={() => onRemoveClick(id)}
+          >
+            Remove
+          </button>
         </div>
       </div>
     </Card>
