@@ -40,13 +40,12 @@ import { getManufacturerById } from '../manufactures';
 function StatCard({ icon, label, value, color, gradient }) {
   return (
     <div className={`bg-gradient-to-br ${gradient} rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2`}>
-  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-white/30 backdrop-blur-md shadow-md">
-    {icon}
-  </div>
-  <h3 className={`font-extrabold text-3xl tracking-tight ${color}`}>{value}</h3>
-  <p className={`text-sm font-medium ${color} opacity-80`}>{label}</p>
-</div>
-
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-white/30 backdrop-blur-md shadow-md">
+        {icon}
+      </div>
+      <h3 className={`font-extrabold text-3xl tracking-tight ${color}`}>{value}</h3>
+      <p className={`text-sm font-medium ${color} opacity-80`}>{label}</p>
+    </div>
   );
 }
 
@@ -60,7 +59,6 @@ function TabButton({ active, onClick, children }) {
           ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
           : 'bg-white/70 text-gray-600 hover:bg-white hover:text-blue-600 border border-gray-200'
       }`}
-      
     >
       {children}
     </button>
@@ -70,12 +68,12 @@ function TabButton({ active, onClick, children }) {
 // ActionButton Component
 function ActionButton({ icon, label, onClick, variant = 'primary' }) {
   const baseClasses = "flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-md";
-const variants = {
-  primary: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700",
-  secondary: "bg-white/90 text-gray-700 hover:bg-gray-100 border border-gray-200",
-  success: "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700",
-  outline: "bg-transparent text-blue-600 border-2 border-blue-500 hover:bg-blue-50"
-};
+  const variants = {
+    primary: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700",
+    secondary: "bg-white/90 text-gray-700 hover:bg-gray-100 border border-gray-200",
+    success: "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700",
+    outline: "bg-transparent text-blue-600 border-2 border-blue-500 hover:bg-blue-50"
+  };
   return (
     <button onClick={onClick} className={`${baseClasses} ${variants[variant]}`}>
       {icon}
@@ -87,7 +85,7 @@ const variants = {
 export default function ManufacturerDetailsPage() {
   const { manufacturerId } = useParams();
   const manufacturer = getManufacturerById(manufacturerId);
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = useState('orders'); // Set orders as default tab
   const [isFavorited, setIsFavorited] = useState(false);
 
   if (!manufacturer) {
@@ -112,6 +110,12 @@ export default function ManufacturerDetailsPage() {
       </div>
     );
   }
+
+  // Calculate order statistics
+  const totalOrders = manufacturer.orders ? manufacturer.orders.length : 0;
+  const completedOrders = manufacturer.orders ? manufacturer.orders.filter(order => order.status === 'completed').length : 0;
+  const inProgressOrders = manufacturer.orders ? manufacturer.orders.filter(order => order.status === 'in_progress').length : 0;
+  const pendingOrders = manufacturer.orders ? manufacturer.orders.filter(order => order.status === 'pending').length : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-800">
@@ -212,13 +216,7 @@ export default function ManufacturerDetailsPage() {
             color="text-blue-600"
             gradient="from-blue-50 to-blue-100"
           />
-          <StatCard
-            icon={<Users className="w-6 h-6 text-emerald-600" />}
-            label="Employees"
-            value={manufacturer.employees}
-            color="text-emerald-600"
-            gradient="from-emerald-50 to-emerald-100"
-          />
+          
           <StatCard
             icon={<TrendingUp className="w-6 h-6 text-purple-600" />}
             label="Annual Turnover"
@@ -226,6 +224,7 @@ export default function ManufacturerDetailsPage() {
             color="text-purple-600"
             gradient="from-purple-50 to-purple-100"
           />
+          
           <StatCard
             icon={<Globe className="w-6 h-6 text-amber-600" />}
             label="Export Countries"
@@ -233,12 +232,21 @@ export default function ManufacturerDetailsPage() {
             color="text-amber-600"
             gradient="from-amber-50 to-amber-100"
           />
+          
           <StatCard
             icon={<ShoppingCart className="w-6 h-6 text-indigo-600" />}
             label="Total Orders"
-            value={manufacturer.orders ? manufacturer.orders.length : 0}
+            value={totalOrders}
             color="text-indigo-600"
             gradient="from-indigo-50 to-indigo-100"
+          />
+          
+          <StatCard
+            icon={<Users className="w-6 h-6 text-green-600" />}
+            label="Team Size"
+            value={`${manufacturer.teamSize}+`}
+            color="text-green-600"
+            gradient="from-green-50 to-green-100"
           />
         </div>
 
@@ -309,31 +317,31 @@ export default function ManufacturerDetailsPage() {
               </div>
             </div>
 
-            {/* Company Highlights */}
+            {/* Order Statistics */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6">
+              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
                 <h3 className="text-xl font-bold text-white flex items-center">
-                  <Award className="w-5 h-5 mr-2" />
-                  Company Highlights
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  Order Statistics
                 </h3>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
-                  <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    <span className="text-gray-700">ISO 9001:2015 Certified</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Orders</span>
+                    <span className="font-bold text-indigo-600">{totalOrders}</span>
                   </div>
-                  <div className="flex items-center">
-                    <Shield className="w-5 h-5 text-blue-500 mr-3" />
-                    <span className="text-gray-700">Quality Assured Products</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Completed</span>
+                    <span className="font-bold text-green-600">{completedOrders}</span>
                   </div>
-                  <div className="flex items-center">
-                    <Clock className="w-5 h-5 text-purple-500 mr-3" />
-                    <span className="text-gray-700">Est. {manufacturer.established}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">In Progress</span>
+                    <span className="font-bold text-yellow-600">{inProgressOrders}</span>
                   </div>
-                  <div className="flex items-center">
-                    <Target className="w-5 h-5 text-orange-500 mr-3" />
-                    <span className="text-gray-700">Export to {manufacturer.exportCountries}+ Countries</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Pending</span>
+                    <span className="font-bold text-red-600">{pendingOrders}</span>
                   </div>
                 </div>
               </div>
@@ -346,6 +354,13 @@ export default function ManufacturerDetailsPage() {
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6">
                 <nav className="flex flex-wrap gap-3" aria-label="Tabs">
+                  <TabButton
+                    active={activeTab === 'orders'}
+                    onClick={() => setActiveTab('orders')}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Orders ({totalOrders})
+                  </TabButton>
                   <TabButton
                     active={activeTab === 'about'}
                     onClick={() => setActiveTab('about')}
@@ -367,17 +382,151 @@ export default function ManufacturerDetailsPage() {
                     <FileText className="w-5 h-5 mr-2" />
                     Certifications
                   </TabButton>
-                  <TabButton
-                    active={activeTab === 'orders'}
-                    onClick={() => setActiveTab('orders')}
-                  >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Orders ({manufacturer.orders ? manufacturer.orders.length : 0})
-                  </TabButton>
                 </nav>
               </div>
 
               <div className="p-8">
+                {activeTab === 'orders' && (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-gray-800 mb-2">Order Management</h3>
+                      <p className="text-gray-600">Track and manage all customer orders and their details</p>
+                    </div>
+                    
+                    {/* Order Statistics Cards */}
+                    <div className="grid md:grid-cols-4 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <ShoppingCart className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-blue-800 text-lg">{totalOrders}</h4>
+                        <p className="text-blue-600 text-sm">Total Orders</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
+                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <CheckCircle2 className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-green-800 text-lg">{completedOrders}</h4>
+                        <p className="text-green-600 text-sm">Completed</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 text-center">
+                        <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <Clock3 className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-yellow-800 text-lg">{inProgressOrders}</h4>
+                        <p className="text-yellow-600 text-sm">In Progress</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 text-center">
+                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <AlertCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-red-800 text-lg">{pendingOrders}</h4>
+                        <p className="text-red-600 text-sm">Pending</p>
+                      </div>
+                    </div>
+
+                    {/* Orders List */}
+                    <div className="space-y-4">
+                      {manufacturer.orders && manufacturer.orders.length > 0 ? (
+                        manufacturer.orders.map((order) => (
+                          <div
+                            key={order.id}
+                            className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300"
+                          >
+                            {/* Order Header */}
+                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200/50">
+                              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                    <ShoppingCart className="w-6 h-6 text-white" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-bold text-gray-800 text-lg">{order.id}</h4>
+                                    <p className="text-gray-600 text-sm">{order.orderDate}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <p className="font-bold text-gray-800 text-lg">₹{order.totalAmount.toLocaleString()}</p>
+                                    <p className="text-gray-600 text-sm">Total Amount</p>
+                                  </div>
+                                  <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                                    order.status === 'completed' 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : order.status === 'in_progress'
+                                      ? 'bg-yellow-100 text-yellow-800'
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {order.status === 'completed' ? 'Completed' : 
+                                     order.status === 'in_progress' ? 'In Progress' : 'Pending'}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Order Details */}
+                            <div className="p-6">
+                              <div className="grid lg:grid-cols-2 gap-6">
+                                {/* Customer Info */}
+                                <div className="space-y-4">
+                                  <h5 className="font-semibold text-gray-800 flex items-center">
+                                    <User className="w-5 h-5 mr-2 text-blue-500" />
+                                    Customer Information
+                                  </h5>
+                                  <div className="bg-gray-50 rounded-xl p-4">
+                                    <p className="font-medium text-gray-800">{order.customerName}</p>
+                                    <p className="text-gray-600 text-sm">{order.customerEmail}</p>
+                                    <div className="flex items-start mt-2">
+                                      <LocationIcon className="w-4 h-4 text-gray-400 mr-2 mt-1" />
+                                      <p className="text-gray-600 text-sm">{order.deliveryAddress}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Order Items */}
+                                <div className="space-y-4">
+                                  <h5 className="font-semibold text-gray-800 flex items-center">
+                                    <Package className="w-5 h-5 mr-2 text-green-500" />
+                                    Order Items
+                                  </h5>
+                                  <div className="space-y-3">
+                                    {order.items.map((item, index) => (
+                                      <div key={index} className="bg-gray-50 rounded-xl p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                          <h6 className="font-medium text-gray-800">{item.productName}</h6>
+                                          <span className="font-bold text-green-600">₹{item.totalPrice.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm text-gray-600">
+                                          <span>Quantity: {item.quantity.toLocaleString()}</span>
+                                          <span>Unit Price: ₹{item.unitPrice}</span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Order Notes */}
+                              {order.notes && (
+                                <div className="mt-4 bg-blue-50 rounded-xl p-4">
+                                  <h6 className="font-medium text-blue-800 mb-1">Special Notes</h6>
+                                  <p className="text-blue-700 text-sm">{order.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-12">
+                          <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Orders Found</h3>
+                          <p className="text-gray-500">This manufacturer doesn't have any orders yet.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === 'about' && (
                   <div className="space-y-8">
                     <div className="prose prose-lg max-w-none">
@@ -539,153 +688,6 @@ export default function ManufacturerDetailsPage() {
                     </div>
                   </div>
                 )}
-
-                {activeTab === 'orders' && (
-                  <div className="space-y-6">
-                    <div className="text-center mb-8">
-                      <h3 className="text-2xl font-bold text-gray-800 mb-2">Order Management</h3>
-                      <p className="text-gray-600">Track and manage all customer orders and their details</p>
-                    </div>
-                    
-                    {/* Order Statistics */}
-                    <div className="grid md:grid-cols-4 gap-4 mb-8">
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
-                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                          <ShoppingCart className="w-4 h-4 text-white" />
-                        </div>
-                        <h4 className="font-bold text-blue-800 text-lg">{manufacturer.orders ? manufacturer.orders.length : 0}</h4>
-                        <p className="text-blue-600 text-sm">Total Orders</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
-                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        </div>
-                        <h4 className="font-bold text-green-800 text-lg">
-                          {manufacturer.orders ? manufacturer.orders.filter(order => order.status === 'completed').length : 0}
-                        </h4>
-                        <p className="text-green-600 text-sm">Completed</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 text-center">
-                        <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                          <Clock3 className="w-4 h-4 text-white" />
-                        </div>
-                        <h4 className="font-bold text-yellow-800 text-lg">
-                          {manufacturer.orders ? manufacturer.orders.filter(order => order.status === 'in_progress').length : 0}
-                        </h4>
-                        <p className="text-yellow-600 text-sm">In Progress</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 text-center">
-                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                          <AlertCircle className="w-4 h-4 text-white" />
-                        </div>
-                        <h4 className="font-bold text-red-800 text-lg">
-                          {manufacturer.orders ? manufacturer.orders.filter(order => order.status === 'pending').length : 0}
-                        </h4>
-                        <p className="text-red-600 text-sm">Pending</p>
-                      </div>
-                    </div>
-
-                    {/* Orders List */}
-                    <div className="space-y-4">
-                      {manufacturer.orders && manufacturer.orders.length > 0 ? (
-                        manufacturer.orders.map((order) => (
-                          <div
-                            key={order.id}
-                            className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300"
-                          >
-                            {/* Order Header */}
-                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200/50">
-                              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                                    <ShoppingCart className="w-6 h-6 text-white" />
-                                  </div>
-                                  <div>
-                                    <h4 className="font-bold text-gray-800 text-lg">{order.id}</h4>
-                                    <p className="text-gray-600 text-sm">{order.orderDate}</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <div className="text-right">
-                                    <p className="font-bold text-gray-800 text-lg">₹{order.totalAmount.toLocaleString()}</p>
-                                    <p className="text-gray-600 text-sm">Total Amount</p>
-                                  </div>
-                                  <div className={`px-4 py-2 rounded-full text-sm font-medium ${
-                                    order.status === 'completed' 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : order.status === 'in_progress'
-                                      ? 'bg-yellow-100 text-yellow-800'
-                                      : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {order.status === 'completed' ? 'Completed' : 
-                                     order.status === 'in_progress' ? 'In Progress' : 'Pending'}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Order Details */}
-                            <div className="p-6">
-                              <div className="grid lg:grid-cols-2 gap-6">
-                                {/* Customer Info */}
-                                <div className="space-y-4">
-                                  <h5 className="font-semibold text-gray-800 flex items-center">
-                                    <User className="w-5 h-5 mr-2 text-blue-500" />
-                                    Customer Information
-                                  </h5>
-                                  <div className="bg-gray-50 rounded-xl p-4">
-                                    <p className="font-medium text-gray-800">{order.customerName}</p>
-                                    <p className="text-gray-600 text-sm">{order.customerEmail}</p>
-                                    <div className="flex items-start mt-2">
-                                      <LocationIcon className="w-4 h-4 text-gray-400 mr-2 mt-1" />
-                                      <p className="text-gray-600 text-sm">{order.deliveryAddress}</p>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Order Items */}
-                                <div className="space-y-4">
-                                  <h5 className="font-semibold text-gray-800 flex items-center">
-                                    <Package className="w-5 h-5 mr-2 text-green-500" />
-                                    Order Items
-                                  </h5>
-                                  <div className="space-y-3">
-                                    {order.items.map((item, index) => (
-                                      <div key={index} className="bg-gray-50 rounded-xl p-4">
-                                        <div className="flex justify-between items-start mb-2">
-                                          <h6 className="font-medium text-gray-800">{item.productName}</h6>
-                                          <span className="font-bold text-green-600">₹{item.totalPrice.toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm text-gray-600">
-                                          <span>Quantity: {item.quantity.toLocaleString()}</span>
-                                          <span>Unit Price: ₹{item.unitPrice}</span>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Order Notes */}
-                              {order.notes && (
-                                <div className="mt-4 bg-blue-50 rounded-xl p-4">
-                                  <h6 className="font-medium text-blue-800 mb-1">Special Notes</h6>
-                                  <p className="text-blue-700 text-sm">{order.notes}</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-12">
-                          <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Orders Found</h3>
-                          <p className="text-gray-500">This manufacturer doesn't have any orders yet.</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -694,4 +696,3 @@ export default function ManufacturerDetailsPage() {
     </div>
   );
 }
-
