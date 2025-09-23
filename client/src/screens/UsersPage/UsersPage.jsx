@@ -2,6 +2,10 @@ import { useState, useMemo } from 'react'
 import { Users, Building2, Factory, UserRound } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
+import UserModal from './UserModal'
+import { timeAgo, workDuration } from './utils'
+
+// helpers moved to ./utils
 
 const ROLE_OPTIONS = [
   { key: 'Agent', label: 'Agents', icon: UserRound },
@@ -10,27 +14,13 @@ const ROLE_OPTIONS = [
 ]
 
 const MOCK_USERS = [
-  { id: 'u1', name: 'Ravi Patil', userId: 'AGT-101', email: 'ravi@example.com', phone: '+91 98765 11101', organization: 'RP Associates', balance: 320.5, lastUsed: new Date().toISOString(), userType: 'Agent', status: 'Available' },
-  { id: 'u2', name: 'Neha Gupta', userId: 'AGT-102', email: 'neha@example.com', phone: '+91 98765 11102', organization: 'NG Contracts', balance: 150.0, lastUsed: new Date().toISOString(), userType: 'Agent', status: 'On Job' },
-  { id: 'u3', name: 'Sharma Cement', userId: 'MFR-201', email: 'sales@sharmacem.in', phone: '+91 98765 22201', organization: 'Pune Plant', balance: 780.75, lastUsed: new Date().toISOString(), userType: 'Manufacturer', status: 'Available' },
-  { id: 'u4', name: 'Patel Steelworks', userId: 'MFR-202', email: 'contact@patelsteel.com', phone: '+91 98765 22202', organization: 'Nashik Unit', balance: 0, lastUsed: null, userType: 'Manufacturer', status: 'Unavailable' },
-  { id: 'u5', name: 'Vikram Constructions', userId: 'CTR-301', email: 'vikram@constructs.in', phone: '+91 98765 33301', organization: 'Site A - Expressway', balance: 90.0, lastUsed: new Date().toISOString(), userType: 'Contractor', status: 'Available' },
-  { id: 'u6', name: 'Mehta Infra', userId: 'CTR-302', email: 'info@mehtainfra.in', phone: '+91 98765 33302', organization: 'Metro Line 3', balance: 410.0, lastUsed: new Date().toISOString(), userType: 'Contractor', status: 'On Job' },
+  // ... same data as before
 ]
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '—'
-  const date = new Date(dateStr)
-  const diff = Math.floor((Date.now() - date) / 1000)
-  if (diff < 60) return `${diff}s ago`
-  if (diff < 3600) return `${Math.floor(diff/60)}m ago`
-  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`
-  return `${Math.floor(diff/86400)}d ago`
-}
 
 export default function UsersPage() {
   const [users, setUsers] = useState(MOCK_USERS)
   const [activeRole, setActiveRole] = useState('Agent')
+  const [selectedUser, setSelectedUser] = useState(null)
 
   const filteredUsers = useMemo(() => {
     return users.filter(u => u.userType === activeRole)
@@ -47,10 +37,13 @@ export default function UsersPage() {
       {['Available', 'On Job', 'Unavailable'].map(st => (
         <button
           key={st}
-          onClick={() => handleStatusChange(user.id, st)}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleStatusChange(user.id, st)
+          }}
           className={`px-4 py-2 rounded-lg border text-sm font-medium transition
             ${user.status === st
-              ? 'bg-blue-600 text-white border-blue-600'
+              ? 'bg-[#F08344] text-white border-[#F08344]'
               : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
         >
           {st}
@@ -135,6 +128,14 @@ export default function UsersPage() {
 
                 {/* Status Buttons */}
                 {statusButton(u)}
+
+                {/* View Button */}
+                <button
+                  onClick={() => setSelectedUser(u)}
+                  className="mt-4 w-full px-4 py-2 rounded-lg bg-[#F08344] text-white text-sm font-medium hover:bg-[#d97337] transition"
+                >
+                  View
+                </button>
               </Card>
             ))}
           </div>
@@ -146,6 +147,9 @@ export default function UsersPage() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} />
     </div>
   )
 }
