@@ -35,39 +35,6 @@ const PageHeader = () => {
             Connect with world-class manufacturers specializing in premium stone products and architectural solutions
           </p>
           
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center shadow-inner">
-                  <Globe className="w-7 h-7 text-blue-400" />
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500 mb-2">50+</div>
-              <div className="text-white/70 font-medium">Countries Served</div>
-            </div>
-            
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-14 h-14 bg-emerald-500/20 rounded-xl flex items-center justify-center shadow-inner">
-                  <Users className="w-7 h-7 text-emerald-400" />
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-green-500 mb-2">2000+</div>
-              <div className="text-white/70 font-medium">Expert Employees</div>
-            </div>
-            
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-14 h-14 bg-amber-500/20 rounded-xl flex items-center justify-center shadow-inner">
-                  <Award className="w-7 h-7 text-amber-400" />
-                </div>
-              </div>
-              <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500 mb-2">25+</div>
-              <div className="text-white/70 font-medium">Years Experience</div>
-            </div>
-          </div>
-          
           {/* Additional Features */}
           <div className="mt-14 flex flex-wrap justify-center gap-6 text-white/80">
             <div className="flex items-center px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/15 transition">

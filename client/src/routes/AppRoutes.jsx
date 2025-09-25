@@ -27,6 +27,7 @@ import { hasRole } from "../lib/roles";
 import OrdersScreen from "../screens/Orders/OrdersScreen";
 import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
 import ReportPage from "../screens/ReportPage/ReportPage";
+import AgentDetailsPage from "../screens/AgentPage/AgentDetailsPage";
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -114,6 +115,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <AgentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="agents/:id"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <AgentDetailsPage />
             </ProtectedRoute>
           }
         />

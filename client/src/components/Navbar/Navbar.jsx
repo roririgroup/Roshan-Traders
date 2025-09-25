@@ -45,17 +45,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
         </div>
       </div>
 
-      {/* Center Section - Search Bar */}
-      <div className="hidden lg:flex flex-1 max-w-sm xl:max-w-md mx-4 xl:mx-8">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
-        </div>
-      </div>
+
 
       {/* Right Section */}
       <div className="flex items-center gap-1 sm:gap-3">

@@ -97,13 +97,7 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
         <nav className={`flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto ${
           isCollapsed && !mobile ? 'flex flex-col items-center' : ''
         }`}>
-          {(!isCollapsed || mobile) && (
-            <div className="mb-4 sm:mb-6">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 sm:px-4 mb-2 sm:mb-3">
-                Main Navigation
-              </p>
-            </div>
-          )}
+          
           {(MENU_CONFIG[role] || []).map((item) => {
             const Icon = item.icon
             return (
