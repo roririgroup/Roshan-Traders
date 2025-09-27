@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { MapPin, ArrowRight, Star, Users, Package, TrendingUp, Award, Globe, ShoppingCart, User } from 'lucide-react'
+import { MapPin, ArrowRight, Star, Package, TrendingUp, Award, Globe, ShoppingCart, User } from 'lucide-react'
 
 const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
   if (viewMode === 'list') {
@@ -61,17 +61,12 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
                   </p>
                 </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-5 gap-3 mb-6">
+                {/* Stats (removed Employees) */}
+                <div className="grid grid-cols-4 gap-3 mb-6">
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center hover:scale-105 transition">
                     <Package className="w-5 h-5 text-blue-600 mx-auto mb-1" />
                     <div className="text-lg font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{manufacturer.productsCount}</div>
                     <div className="text-xs text-blue-700 font-medium">Products</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 text-center hover:scale-105 transition">
-                    <Users className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-                    <div className="text-lg font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{manufacturer.employees}</div>
-                    <div className="text-xs text-emerald-700 font-medium">Employees</div>
                   </div>
                   <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 text-center hover:scale-105 transition">
                     <TrendingUp className="w-5 h-5 text-purple-600 mx-auto mb-1" />
@@ -168,17 +163,12 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
             )}
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          {/* Stats Grid (removed Employees) */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center hover:scale-105 transition">
               <Package className="w-4 h-4 text-blue-600 mx-auto mb-1" />
               <div className="text-lg font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{manufacturer.productsCount}</div>
               <div className="text-xs text-blue-700 font-medium">Products</div>
-            </div>
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 text-center hover:scale-105 transition">
-              <Users className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-              <div className="text-lg font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{manufacturer.employees}</div>
-              <div className="text-xs text-emerald-700 font-medium">Employees</div>
             </div>
             <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-3 text-center hover:scale-105 transition">
               <ShoppingCart className="w-4 h-4 text-indigo-600 mx-auto mb-1" />
