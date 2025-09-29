@@ -221,7 +221,7 @@ export default function Products() {
               })
               setShowAddForm(true)
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-Orange-600 hover:bg-Orange-700 text-white"
           >
             <Plus className="size-4 mr-2" />
             Add Product
@@ -319,7 +319,7 @@ export default function Products() {
                 </div>
                 <Button
                   onClick={() => openAddStockModal(product.id)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                  className="bg-Orange-600 hover:bg-Orange-700 text-white flex items-center gap-2"
                   size="sm"
                   title="Add Stock"
                 >
@@ -414,7 +414,7 @@ export default function Products() {
             </Button>
             <Button
               onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-Orange-600 hover:bg-Orange-700 text-white"
             >
               {editingProduct ? 'Update Product' : 'Add Product'}
             </Button>
@@ -438,7 +438,7 @@ export default function Products() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setShowAddStockModal(false)}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer" onClick={handleConfirmAddStock}>Add</Button>
+            <Button className="bg-Orange-600 hover:bg-Orange700 text-white cursor-pointer" onClick={handleConfirmAddStock}>Add</Button>
           </div>
         </div>
       </Modal>
