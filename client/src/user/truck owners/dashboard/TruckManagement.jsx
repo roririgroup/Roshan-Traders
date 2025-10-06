@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
-import { Truck, Plus, Edit, Trash2, Upload, AlertTriangle } from 'lucide-react'
+import { Edit, Trash2, Truck, Plus } from 'lucide-react'
 
 export default function TruckManagement() {
   const [trucks, setTrucks] = useState([
@@ -30,6 +29,7 @@ export default function TruckManagement() {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTruck, setEditingTruck] = useState(null)
+  const [viewingTruck, setViewingTruck] = useState(null)
   const [formData, setFormData] = useState({
     truckNo: '',
     type: '',
@@ -57,6 +57,10 @@ export default function TruckManagement() {
 
   const handleDelete = (id) => {
     setTrucks(trucks.filter(truck => truck.id !== id))
+  }
+
+  const handleView = (truck) => {
+    setViewingTruck(truck)
   }
 
   const handleSubmit = (e) => {
@@ -126,60 +130,71 @@ export default function TruckManagement() {
         </div>
       </div>
 
-      {/* Trucks List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trucks.map((truck) => (
-          <Card key={truck.id} className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900">{truck.truckNo}</h3>
-                <p className="text-sm text-slate-600">{truck.type} - {truck.capacity}</p>
-              </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                truck.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {truck.status}
-              </span>
-            </div>
-
-            <div className="space-y-2 mb-4">
-              <p className="text-sm"><strong>RC Details:</strong> {truck.rcDetails}</p>
-              <p className="text-sm"><strong>Next Service:</strong> {truck.nextService}</p>
-              <div className="flex items-center gap-1">
-                <AlertTriangle className="size-4 text-yellow-500" />
-                <span className="text-sm text-yellow-600">Service Reminder</span>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-2">Documents:</p>
-              <div className="flex flex-wrap gap-2">
-                {['RC Book', 'Insurance', 'Fitness Certificate', 'License', 'Aadhaar'].map((doc) => (
-                  <button
-                    key={doc}
-                    onClick={() => handleUploadClick(truck.id, doc)}
-                    className={`px-3 py-1 rounded text-xs flex items-center gap-1 ${
-                      truck.documents.includes(doc) ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Upload className="size-3" />
-                    {doc}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button onClick={() => handleEdit(truck)} variant="outline" size="sm">
-                <Edit className="size-4" />
-              </Button>
-              <Button onClick={() => handleDelete(truck.id)} variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                <Trash2 className="size-4" />
-              </Button>
-            </div>
-          </Card>
-        ))}
+      {/* Trucks List as Table */}
+      <div className="overflow-x-auto bg-white rounded shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Truck Number</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">RC Details</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Next Service</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {trucks.map((truck) => (
+              <tr key={truck.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-center">{truck.truckNo}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">{truck.type}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">{truck.capacity}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">{truck.rcDetails}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    truck.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {truck.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">{truck.nextService}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <div className="flex justify-center gap-2">
+                    <Button onClick={() => handleView(truck)} variant="outline" size="sm">
+                      View
+                    </Button>
+                    <Button onClick={() => handleEdit(truck)} variant="outline" size="sm">
+                      <Edit className="size-4" />
+                    </Button>
+                    <Button onClick={() => handleDelete(truck.id)} variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {/* View Documents Modal */}
+      <Modal isOpen={viewingTruck !== null} onClose={() => setViewingTruck(null)}>
+        <h2 className="text-xl font-bold mb-4">Documents for {viewingTruck?.truckNo}</h2>
+        <div className="space-y-2">
+          {viewingTruck?.documents.map((doc) => (
+            <div key={doc} className="flex items-center justify-between p-2 border rounded">
+              <span>{doc}</span>
+              <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-800">Uploaded</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-end mt-4">
+          <Button onClick={() => setViewingTruck(null)} variant="outline">
+            Close
+          </Button>
+        </div>
+      </Modal>
 
       {/* Add/Edit Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
