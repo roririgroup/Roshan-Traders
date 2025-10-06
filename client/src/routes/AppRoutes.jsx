@@ -30,6 +30,7 @@ import OrdersScreen from "../screens/Orders/OrdersScreen";
 import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
 import ReportPage from "../screens/ReportPage/ReportPage";
 import AgentDetailsPage from "../screens/AgentPage/AgentDetailsPage";
+import Signup from "../pages/signup/signup";
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -41,6 +42,13 @@ function ProtectedRoute({ children, requiredRole = null }) {
     return <Navigate to="/" replace />;
   }
   
+  return children;
+}
+
+function PublicRoute({ children }) {
+  if (isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
   return children;
 }
 
@@ -68,8 +76,30 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/user/login" element={<UserLogin />} />
-      <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+      <Route 
+        path="/user/login" 
+        element={
+          <PublicRoute>
+            <UserLogin />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/superadmin/login" 
+        element={
+          <PublicRoute>
+            <SuperAdminLogin />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/signup" 
+        element={
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        } 
+      />
 
       {/* Protected Routes with Layout */}
       <Route
@@ -156,7 +186,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-           <Route
+        <Route
           path="paymentreports"
           element={
             <ProtectedRoute requiredRole="superadmin">
@@ -164,7 +194,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-         <Route
+        <Route
           path="report"
           element={
             <ProtectedRoute requiredRole="superadmin">
@@ -172,7 +202,6 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
 
         {/* Agent Routes */}
         <Route
@@ -224,7 +253,7 @@ export default function AppRoutes() {
           }
         />
 
-        {/* Manufacturer Dashboard Routes - Accessible only to manufacturers */}
+        {/* Manufacturer Dashboard Routes */}
         <Route
           path="manufacturers/dashboard"
           element={
