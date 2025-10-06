@@ -6,6 +6,7 @@ import NotificationContainer from '../../../components/ui/NotificationContainer'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
 import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar'
+import { getCurrentUser } from '../../../lib/auth'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -24,9 +25,10 @@ export default function Orders() {
   // Load orders from shared store
   useEffect(() => {
     const allOrders = getOrders()
-    // Separate orders: assume orders placed by manufacture are "Orders", others are "Outsource Orders"
-    setOrders(allOrders.filter(order => order.customerName === 'Current Agent'))
-    setOutsourceOrders(allOrders.filter(order => order.customerName !== 'Current Agent'))
+    const user = getCurrentUser()
+    // Separate orders: orders placed by current user are "Orders", others are "Outsource Orders"
+    setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
+    setOutsourceOrders(allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id))
   }, [refreshTrigger])
 
   // Auto-refresh every 5 seconds to check for new orders
@@ -42,7 +44,8 @@ export default function Orders() {
   useEffect(() => {
     const checkForNewOrders = () => {
       const allOrders = getOrders()
-      const externalOrders = allOrders.filter(order => order.customerName !== 'Current Agent')
+      const user = getCurrentUser()
+      const externalOrders = allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id)
       if (externalOrders.length > outsourceOrders.length) {
         setNewOutsourceOrder(true)
         // Show notification for new orders
@@ -135,7 +138,6 @@ export default function Orders() {
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Customer</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>

@@ -6,6 +6,7 @@ import NotificationContainer from '../../components/ui/NotificationContainer.jsx
 import OrderDetailsModal from '../../components/ui/OrderDetailsModal.jsx'
 import { useNotifications } from '../../lib/notifications.jsx'
 import FilterBar from '../../components/ui/FilterBar.jsx'
+import { getCurrentUser, isSuperAdmin } from '../../lib/auth.js'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -21,8 +22,14 @@ export default function Orders() {
   // Load orders from shared store
   useEffect(() => {
     const allOrders = getOrders()
-    // Only show orders placed by current org
-    setOrders(allOrders.filter(order => order.customerName === 'Current Agent'))
+    const user = getCurrentUser()
+    if (isSuperAdmin()) {
+      // Super Admin sees all orders
+      setOrders(allOrders)
+    } else {
+      // Others see only their own orders
+      setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
+    }
   }, [refreshTrigger])
 
   // Auto-refresh periodically to check for updates
@@ -107,14 +114,14 @@ export default function Orders() {
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Customer Name</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Customer Type</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order BY</th>
+
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
           </thead>
