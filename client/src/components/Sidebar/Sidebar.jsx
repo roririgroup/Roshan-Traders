@@ -3,7 +3,8 @@ import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp,  Fi
 import { logout } from '../../lib/auth'
 import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
-import { black } from '../../../public/lottie/lottie'
+
+const black = '/lottie/Roshan_black.png'
 
 const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
 const active = ({ isActive }) =>
@@ -49,7 +50,10 @@ const MENU_CONFIG = {
     { to: '/truck owners/profile', label: 'Profile', icon: User },
   ],
   driver: [
-    { to: '/drivers', label: 'Drivers', icon: User },
+    { to: '/drivers', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
+    { to: '/drivers/earnings', label: 'Earnings', icon: DollarSign },
+    { to: '/drivers/profile', label: 'Profile', icon: User },
   ],
 }
 
