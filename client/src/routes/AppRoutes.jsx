@@ -20,6 +20,8 @@ import Payments from "../user/manufactures/dashboard/PaymentReport";
 import Employees from "../user/manufactures/dashboard/Employees";
 import ManufacturerReports from "../user/manufactures/dashboard/Reports";
 import ManufacturerProfile from "../user/manufactures/dashboard/Profile";
+import TruckOwner from "../user/truck owners/TruckOwner";
+import Driver from "../user/drivers/Driver";
 import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
 import SuperAdminLogin from "../pages/Login/components/SuperAdminLogin";
@@ -53,6 +55,10 @@ function RoleBasedRedirect() {
     return <Navigate to="/manufacturers/dashboard" replace />;
   } else if (hasRole("agent")) {
     return <Navigate to="/agents/dashboard" replace />;
+  } else if (hasRole("truckOwner")) {
+    return <Navigate to="/truck owners" replace />;
+  } else if (hasRole("driver")) {
+    return <Navigate to="/drivers" replace />;
   }
 
   return <Navigate to="/user/login" replace />;
@@ -272,6 +278,26 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Truck Owner Routes */}
+        <Route
+          path="truck owners/*"
+          element={
+            <ProtectedRoute requiredRole="truckOwner">
+              <TruckOwner />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Driver Routes */}
+        <Route
+          path="drivers/*"
+          element={
+            <ProtectedRoute requiredRole="driver">
+              <Driver />
             </ProtectedRoute>
           }
         />
