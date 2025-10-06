@@ -40,11 +40,22 @@ const MENU_CONFIG = {
     { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
     { to: '/manufacturers/profile', label: 'Profile', icon: User },
   ],
+  truckowner: [
+    { to: '/truck owners/dashboard', label: 'Dashboard', icon: Truck },
+    { to: '/truck owners/driver-management', label: 'Driver Management', icon: Users },
+    { to: '/truck owners/truck-management', label: 'Truck Management', icon: Truck },
+    { to: '/truck owners/trips', label: 'Trips', icon: Package },
+    { to: '/truck owners/payments', label: 'Payments', icon: DollarSign },
+    { to: '/truck owners/profile', label: 'Profile', icon: User },
+  ],
+  driver: [
+    { to: '/drivers', label: 'Drivers', icon: User },
+  ],
 }
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const role = getCurrentUserRole()
-  // Removed the unused menuItems variable
+  console.log("Sidebar role:", role) // Debug log for role
   
   return (
     <>
