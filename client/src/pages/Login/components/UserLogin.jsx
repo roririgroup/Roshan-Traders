@@ -107,25 +107,27 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4 ">
               <div>
-              <div className="grid grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
   {[
-    { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
-    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
-    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
-    { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
+    { value: 'agent', label: 'Agent', icon: <User className="w-5 h-5" /> },
+    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-5 h-5" /> },
+    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
+    { value: 'driver', label: 'Driver', icon: <Wrench className="w-5 h-5" /> }
   ].map((type) => (
     <button
       key={type.value}
       type="button"
       onClick={() => setUserType(type.value)}
-      className={`py-3 px-4 cursor-pointer rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors border ${
+      className={`flex flex-col items-center justify-center h-16 w-24 rounded-xl border text-sm font-medium transition-all ${
         userType === type.value
-          ? 'bg-indigo-100 text-indigo-700 border-indigo-300'
+          ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
       }`}
     >
-      {type.icon}
-      {type.label}
+      <div className="flex flex-col items-center gap-2">
+        {type.icon}
+        <span>{type.label}</span>
+      </div>
     </button>
   ))}
 </div>
