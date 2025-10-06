@@ -26,7 +26,9 @@ const loadOrders = () => {
           totalAmount: 57500,
           status: 'pending',
           orderDate: '2024-01-15T10:30:00Z',
-          deliveryAddress: '123 Main St, Mumbai, Maharashtra'
+          deliveryAddress: '123 Main St, Mumbai, Maharashtra',
+          confirmedBy: null,
+          assignedBy: null
         },
         {
           id: 2,
@@ -37,7 +39,9 @@ const loadOrders = () => {
           totalAmount: 8000,
           status: 'confirmed',
           orderDate: '2024-01-14T14:20:00Z',
-          deliveryAddress: '456 Oak Ave, Delhi, NCR'
+          deliveryAddress: '456 Oak Ave, Delhi, NCR',
+          confirmedBy: { id: 'super-admin-1', role: 'superadmin' },
+          assignedBy: null
         },
         {
           id: 3,
@@ -49,7 +53,9 @@ const loadOrders = () => {
           totalAmount: 29000,
           status: 'pending',
           orderDate: '2024-01-13T09:15:00Z',
-          deliveryAddress: '789 Pine Rd, Bangalore, Karnataka'
+          deliveryAddress: '789 Pine Rd, Bangalore, Karnataka',
+          confirmedBy: null,
+          assignedBy: { id: 'super-admin-1', role: 'superadmin' }
         }
       ]
       nextOrderId = 4
@@ -88,7 +94,9 @@ export const addOrder = (orderData) => {
     totalAmount: orderData.quantity * orderData.price,
     status: 'pending',
     orderDate: new Date().toISOString(),
-    deliveryAddress: 'Default Address' // In a real app, this would come from user profile
+    deliveryAddress: 'Default Address', // In a real app, this would come from user profile
+    confirmedBy: null,
+    assignedBy: user?.role === 'superadmin' ? { id: user.id, role: user.role } : null
   }
   orders.push(newOrder)
   saveOrders()

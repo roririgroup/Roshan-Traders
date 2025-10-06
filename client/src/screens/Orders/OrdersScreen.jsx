@@ -116,7 +116,6 @@ export default function Orders() {
             <tr>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order BY</th>
-
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>

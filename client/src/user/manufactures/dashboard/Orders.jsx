@@ -16,6 +16,7 @@ export default function Orders() {
   const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
+  const [isOutsourceOrder, setIsOutsourceOrder] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -30,6 +31,10 @@ export default function Orders() {
     setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
     setOutsourceOrders(allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id))
   }, [refreshTrigger])
+
+  // Removed Confirm and Reject buttons as per user request
+
+  // Removed Confirm and Reject buttons as per user request
 
   // Auto-refresh every 5 seconds to check for new orders
   useEffect(() => {
@@ -138,12 +143,12 @@ export default function Orders() {
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order BY</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -181,32 +186,7 @@ export default function Orders() {
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress}
                 </td>
-                <td className="py-4 px-6">
-                  {order.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleConfirmOrder(order.id)
-                        }}
-                        className="px-3 py-1 bg-[#F08344] text-white rounded-lg text-sm hover:bg-[#e0763a] transition-colors cursor-pointer"
-                        disabled={isLoading}
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleRejectOrder(order.id)
-                        }}
-                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors cursor-pointer"
-                        disabled={isLoading}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </td>
+              
               </tr>
             ))}
           </tbody>
@@ -263,16 +243,7 @@ export default function Orders() {
       {/* Tabs */}
       <div className="mb-6">
         <div className="flex gap-2">
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'orders'
-                ? 'bg-[#F08344] text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Orders ({orders.length})
-          </button>
+         
           <button
             onClick={() => setActiveTab('outsource')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
