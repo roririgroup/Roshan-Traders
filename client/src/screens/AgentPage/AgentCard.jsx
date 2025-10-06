@@ -82,7 +82,7 @@ const AgentCard = ({ agent, onEdit, onRemove }) => {
   onClick={() => onRemove(id)}
   className="flex items-center gap-1 text-xs"
 >
-  <Trash className="h-4 w-4 text-red-500" /> 
+  <Trash className="h-4 w-4"/> 
 </Button>
 
         </div>
