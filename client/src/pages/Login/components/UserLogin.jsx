@@ -107,27 +107,29 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4 ">
               <div>
-              <div className="grid grid-cols-4 gap-2 ml-25 ">
-                {[
-                  { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
-                  { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
-                  { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
-                  { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setUserType(type.value)}
-                    className={`py-2 px-3 cursor-pointer rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${userType === type.value
-                        ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                  >
-                    {type.icon}
-                    {type.label}
-                  </button>
-                ))}
-              </div>
+              <div className="grid grid-cols-4 gap-4 mt-4">
+  {[
+    { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
+    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
+    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
+    { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
+  ].map((type) => (
+    <button
+      key={type.value}
+      type="button"
+      onClick={() => setUserType(type.value)}
+      className={`py-3 px-4 cursor-pointer rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors border ${
+        userType === type.value
+          ? 'bg-indigo-100 text-indigo-700 border-indigo-300'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+      }`}
+    >
+      {type.icon}
+      {type.label}
+    </button>
+  ))}
+</div>
+
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
