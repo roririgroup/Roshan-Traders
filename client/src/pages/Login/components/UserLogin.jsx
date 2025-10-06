@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useNavigate, Navigate,Link } from 'react-router-dom'
 import { loginUser, isAuthenticated } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
 
@@ -19,36 +19,69 @@ export default function UserLogin() {
     return <Navigate to="/" replace />
   }
 
+  // Function to handle phone number input with validation
+  const handlePhoneChange = (e) => {
+    const input = e.target.value
+    
+    // Remove all non-digit characters
+    const digitsOnly = input.replace(/\D/g, '')
+    
+    // Limit to 10 digits
+    if (digitsOnly.length <= 10) {
+      setPhone(digitsOnly)
+    }
+  }
+
+   // Function to handle OTP input with validation
+  const handleOtpChange = (e) => {
+    const input = e.target.value
+    
+    // Remove all non-digit characters
+    const digitsOnly = input.replace(/\D/g, '')
+    
+    // Limit to 4 digits
+    if (digitsOnly.length <= 4) {
+      setOtp(digitsOnly)
+    }
+  }
+
   function handleSubmit(e) {
-  e.preventDefault()
-  if (!phone || !otp) {
-    setError('Please enter both mobile number and OTP')
-    return
-  }
+    e.preventDefault()
+    
+    // Validate phone number length
+    if (phone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number')
+      return
+    }
+    
+    if (!phone || !otp) {
+      setError('Please enter both mobile number and OTP')
+      return
+    }
 
-  setIsLoading(true)
-  setError('')
+    setIsLoading(true)
+    setError('')
 
-  const res = loginUser({ phone, otp, userType })
-  if (!res.success) {
-    setError(res.error || 'Login failed')
-    setIsLoading(false)
-    return
-  }
+    const res = loginUser({ phone, otp, userType })
+    if (!res.success) {
+      setError(res.error || 'Login failed')
+      setIsLoading(false)
+      return
+    }
 
-  // Redirect based on userType
-  if (userType === 'agent') {
-    navigate('/agents/dashboard')
-  } else if (userType === 'manufacturer') {
-    navigate('/manufacturers')
-  } else if (userType === 'truckOwner') {
-    navigate('/truck owners')
-  } else if (userType === 'driver') {
-    navigate('/drivers')
-  } else {
-    navigate('/')
+    // Redirect based on userType
+    if (userType === 'agent') {
+      navigate('/agents/dashboard')
+    } else if (userType === 'manufacturer') {
+      navigate('/manufacturers')
+    } else if (userType === 'truckOwner') {
+      navigate('/truck owners')
+    } else if (userType === 'driver') {
+      navigate('/drivers')
+    } else {
+      navigate('/')
+    }
   }
-}
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center relative ">
@@ -108,12 +141,23 @@ export default function UserLogin() {
                     inputMode="tel"
                     autoComplete="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
                     className="w-40 pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400 "
                     placeholder="98765 43210"
                     required
                   />
                 </div>
+                {phone.length > 0 && phone.length < 10 && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {10 - phone.length} digits remaining
+                  </p>
+                )}
+                {phone.length === 10 && (
+                  <p className="text-xs text-green-500 mt-1">
+                    ✓ Valid mobile number
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">OTP</label>
@@ -124,14 +168,23 @@ export default function UserLogin() {
                     pattern="[0-9]*"
                     autoComplete="one-time-code"
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
+                    onChange={handleOtpChange}
                     className="w-full rounded-xl border pl-10 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200 placeholder:text-gray-400"
                     placeholder="Enter OTP (any 4+ digits)"
                     required
                   />
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
-                
+                  {otp.length > 0 && otp.length < 4 && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {4 - otp.length} digits remaining
+                    </p>
+                )}
+                {otp.length === 4 && (
+                  <p className="text-xs text-green-500 mt-1">
+                    ✓ Valid OTP
+                  </p>
+                )}
               </div>
 
               {error && (
@@ -148,7 +201,20 @@ export default function UserLogin() {
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
+               <div className="mt-6 text-center text-sm">
+              <p>
+      Not a member?{" "}
+      <button 
+        onClick={() => navigate('/signup')}
+        className="text-yellow-500 font-semibold hover:underline"
+      >
+        Signup now
+      </button>
+    </p>
+              
+            </div>
             </form>
+            
 
             <p className="text-xs text-gray-500 text-center mt-4">
               By continuing you agree to our <span className="underline underline-offset-2 ">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.
