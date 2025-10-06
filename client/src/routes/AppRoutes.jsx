@@ -30,7 +30,8 @@ import OrdersScreen from "../screens/Orders/OrdersScreen";
 import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
 import ReportPage from "../screens/ReportPage/ReportPage";
 import AgentDetailsPage from "../screens/AgentPage/AgentDetailsPage";
-import Signup from "../pages/Sign Up/Signup"; 
+import Signup from "../pages/signup/signup";
+import SignUpApprovalPage from "../screens/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -47,7 +48,7 @@ function ProtectedRoute({ children, requiredRole = null }) {
 
 function PublicRoute({ children }) {
   if (isAuthenticated()) {
-    return <RoleBasedRedirect />;
+    return <Navigate to="/" replace />;
   }
   return children;
 }
@@ -77,14 +78,6 @@ export default function AppRoutes() {
     <Routes>
       {/* Public Routes */}
       <Route 
-        path="/signup" 
-        element={
-          <PublicRoute>
-            <Signup />
-          </PublicRoute>
-        } 
-      />
-      <Route 
         path="/user/login" 
         element={
           <PublicRoute>
@@ -97,6 +90,14 @@ export default function AppRoutes() {
         element={
           <PublicRoute>
             <SuperAdminLogin />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/signup" 
+        element={
+          <PublicRoute>
+            <Signup />
           </PublicRoute>
         } 
       />
@@ -202,6 +203,15 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        {/* ✅ Added SignUp Approval Route */}
+        <Route
+          path="signup-approval"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <SignUpApprovalPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Agent Routes */}
         <Route
@@ -253,7 +263,7 @@ export default function AppRoutes() {
           }
         />
 
-        {/* Manufacturer Dashboard Routes - Accessible only to manufacturers */}
+        {/* Manufacturer Dashboard Routes */}
         <Route
           path="manufacturers/dashboard"
           element={

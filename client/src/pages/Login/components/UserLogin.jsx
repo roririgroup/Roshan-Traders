@@ -19,36 +19,92 @@ export default function UserLogin() {
     return <Navigate to="/" replace />
   }
 
+  // Check if user is approved
+  const checkUserApproval = (phone) => {
+    try {
+      // Check approved users
+      const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+      const approvedUser = approvedUsers.find(user => user.phone === phone && user.role?.toLowerCase() === userType);
+      
+      if (approvedUser) {
+        return { approved: true, user: approvedUser };
+      }
+
+      // Check pending users
+      const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+      const pendingUser = pendingUsers.find(user => user.phone === phone && user.role?.toLowerCase() === userType);
+      
+      if (pendingUser) {
+        return { approved: false, status: 'pending', user: pendingUser };
+      }
+
+      // Check rejected users
+      const rejectedUsers = JSON.parse(localStorage.getItem('rejectedUsers') || '[]');
+      const rejectedUser = rejectedUsers.find(user => user.phone === phone && user.role?.toLowerCase() === userType);
+      
+      if (rejectedUser) {
+        return { approved: false, status: 'rejected', user: rejectedUser };
+      }
+
+      return { approved: false, status: 'not_found' };
+    } catch (error) {
+      console.error('Error checking user approval:', error);
+      return { approved: false, status: 'error' };
+    }
+  }
+
   function handleSubmit(e) {
-  e.preventDefault()
-  if (!phone || !otp) {
-    setError('Please enter both mobile number and OTP')
-    return
+    e.preventDefault()
+    if (!phone || !otp) {
+      setError('Please enter both mobile number and OTP')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    // First check if user is approved
+    const approvalCheck = checkUserApproval(phone);
+    
+    if (!approvalCheck.approved) {
+      if (approvalCheck.status === 'pending') {
+        setError('Your account is pending approval. Please wait for admin approval.')
+      } else if (approvalCheck.status === 'rejected') {
+        setError('Your account registration was rejected. Please contact administrator.')
+      } else if (approvalCheck.status === 'not_found') {
+        setError('Account not found. Please sign up first.')
+      } else {
+        setError('Account verification failed. Please try again.')
+      }
+      setIsLoading(false)
+      return
+    }
+
+    // If approved, proceed with login
+    const res = loginUser({ phone, otp, userType })
+    if (!res.success) {
+      setError(res.error || 'Login failed')
+      setIsLoading(false)
+      return
+    }
+
+    // Redirect based on userType
+    if (userType === 'agent') {
+      navigate('/agents/dashboard')
+    } else if (userType === 'manufacturer') {
+      navigate('/manufacturers/dashboard')
+    } else if (userType === 'truckOwner') {
+      navigate('/truck owners')
+    } else if (userType === 'driver') {
+      navigate('/drivers')
+    } else {
+      navigate('/')
+    }
   }
 
-  setIsLoading(true)
-  setError('')
-
-  const res = loginUser({ phone, otp, userType })
-  if (!res.success) {
-    setError(res.error || 'Login failed')
-    setIsLoading(false)
-    return
+  const handleSignUp = () => {
+    navigate('/signup')
   }
-
-  // Redirect based on userType
-  if (userType === 'agent') {
-    navigate('/agents/dashboard')
-  } else if (userType === 'manufacturer') {
-    navigate('/manufacturers')
-  } else if (userType === 'truckOwner') {
-    navigate('/truck owners')
-  } else if (userType === 'driver') {
-    navigate('/drivers')
-  } else {
-    navigate('/')
-  }
-}
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center relative ">
@@ -60,42 +116,43 @@ export default function UserLogin() {
       <div className="mx-auto max-w-6xl px-4 py-8 w-200">
         <div className="flex rounded-2xl border bg-white shadow-xl overflow-hidden">
           <div className="flex flex-col justify-between rounded-l-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 text-white">
-            
-              <div className="items-center gap- mt-10 ml-5">
-                <img src={white} alt="Roshan Traders" className="h-13 w-35" />
-              </div>
-              <DotLottieReact src={truck3} loop autoplay style={{ width: 260, height: 260 }} />
+            <div className="items-center gap- mt-10 ml-5">
+              <img src={white} alt="Roshan Traders" className="h-13 w-35" />
+            </div>
+            <DotLottieReact src={truck3} loop autoplay style={{ width: 260, height: 260 }} />
           </div>
           <div className="p-6 sm:p-8">
             <div className="mb-6 ">
-              <h1 className="text-2xl font-semibold tracking-tight  text-center mr-3">User Login</h1>
-              <p className="mt-1 text-sm text-gray-600  ml-23">Sign in with your mobile number and OTP</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-center mr-3">User Login</h1>
+              <p className="mt-1 text-sm text-gray-600 text-center">Sign in with your mobile number and OTP</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 ">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-              <div className="grid grid-cols-4 gap-2 ml-25 ">
-                {[
-                  { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
-                  { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
-                  { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
-                  { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setUserType(type.value)}
-                    className={`py-2 px-3 cursor-pointer rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${userType === type.value
-                        ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
+                    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
+                    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
+                    { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
+                  ].map((type) => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() => setUserType(type.value)}
+                      className={`py-2 px-3 cursor-pointer rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${
+                        userType === type.value
+                          ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
-                  >
-                    {type.icon}
-                    {type.label}
-                  </button>
-                ))}
+                    >
+                      {type.icon}
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
                 <div className="relative flex rounded-xl border bg-white focus-within:ring-2 focus-within:ring-indigo-200">
@@ -107,12 +164,13 @@ export default function UserLogin() {
                     autoComplete="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-40 pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400 "
+                    className="w-40 pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
                     placeholder="98765 43210"
                     required
                   />
                 </div>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">OTP</label>
                 <div className="relative">
@@ -129,7 +187,6 @@ export default function UserLogin() {
                   />
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
-                
               </div>
 
               {error && (
@@ -146,10 +203,26 @@ export default function UserLogin() {
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
+
+              <div className="mt-6 text-center text-sm">
+                <p>
+                  Not a member?{" "}
+                  <button 
+                    type="button"
+                    onClick={handleSignUp}
+                    className="text-indigo-600 font-semibold hover:underline hover:text-indigo-700 cursor-pointer"
+                  >
+                    Sign up now
+                  </button>
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  After sign up, wait for admin approval to login
+                </p>
+              </div>
             </form>
 
             <p className="text-xs text-gray-500 text-center mt-4">
-              By continuing you agree to our <span className="underline underline-offset-2 ">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.
+              By continuing you agree to our <span className="underline underline-offset-2">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.
             </p>
           </div>
         </div>
