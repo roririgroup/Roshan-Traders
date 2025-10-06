@@ -5,7 +5,7 @@ import Button from '../../../components/ui/Button'
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { truck3, white } from '../../../../public/lottie/lottie';
-import { User, Factory, Wrench, Phone, Key, Loader2 } from 'lucide-react'
+import { User, Factory, Wrench, Phone, Key, Loader2, Truck } from 'lucide-react'
 
 export default function UserLogin() {
   const navigate = useNavigate()
@@ -41,7 +41,11 @@ export default function UserLogin() {
     navigate('/agents/dashboard')
   } else if (userType === 'manufacturer') {
     navigate('/manufacturers')
-  }else {
+  } else if (userType === 'truckOwner') {
+    navigate('/truck owners')
+  } else if (userType === 'driver') {
+    navigate('/drivers')
+  } else {
     navigate('/')
   }
 }
@@ -70,10 +74,12 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4 ">
               <div>
-              <div className="grid grid-cols-3 gap-2 ml-25 ">
+              <div className="grid grid-cols-4 gap-2 ml-25 ">
                 {[
                   { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
                   { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
+                  { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
+                  { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
                 ].map((type) => (
                   <button
                     key={type.value}
