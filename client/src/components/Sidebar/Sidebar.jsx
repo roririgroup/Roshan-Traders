@@ -51,7 +51,7 @@ const MENU_CONFIG = {
   ],
   driver: [
     { to: '/drivers', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/drivers/trip-details', label: 'Trip Details', icon: Truck },
+    { to: '/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
     { to: '/drivers/earnings', label: 'Earnings', icon: DollarSign },
     { to: '/drivers/profile', label: 'Profile', icon: User },
   ],
