@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useNavigate, Navigate,Link } from 'react-router-dom'
 import { loginUser, isAuthenticated } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
 
@@ -146,7 +146,20 @@ export default function UserLogin() {
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
+               <div className="mt-6 text-center text-sm">
+              <p>
+      Not a member?{" "}
+      <button 
+        onClick={() => navigate('/signup')}
+        className="text-yellow-500 font-semibold hover:underline"
+      >
+        Signup now
+      </button>
+    </p>
+              
+            </div>
             </form>
+            
 
             <p className="text-xs text-gray-500 text-center mt-4">
               By continuing you agree to our <span className="underline underline-offset-2 ">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.
