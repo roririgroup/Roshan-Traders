@@ -19,36 +19,69 @@ export default function UserLogin() {
     return <Navigate to="/" replace />
   }
 
+  // Function to handle phone number input with validation
+  const handlePhoneChange = (e) => {
+    const input = e.target.value
+    
+    // Remove all non-digit characters
+    const digitsOnly = input.replace(/\D/g, '')
+    
+    // Limit to 10 digits
+    if (digitsOnly.length <= 10) {
+      setPhone(digitsOnly)
+    }
+  }
+
+   // Function to handle OTP input with validation
+  const handleOtpChange = (e) => {
+    const input = e.target.value
+    
+    // Remove all non-digit characters
+    const digitsOnly = input.replace(/\D/g, '')
+    
+    // Limit to 4 digits
+    if (digitsOnly.length <= 4) {
+      setOtp(digitsOnly)
+    }
+  }
+
   function handleSubmit(e) {
-  e.preventDefault()
-  if (!phone || !otp) {
-    setError('Please enter both mobile number and OTP')
-    return
-  }
+    e.preventDefault()
+    
+    // Validate phone number length
+    if (phone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number')
+      return
+    }
+    
+    if (!phone || !otp) {
+      setError('Please enter both mobile number and OTP')
+      return
+    }
 
-  setIsLoading(true)
-  setError('')
+    setIsLoading(true)
+    setError('')
 
-  const res = loginUser({ phone, otp, userType })
-  if (!res.success) {
-    setError(res.error || 'Login failed')
-    setIsLoading(false)
-    return
-  }
+    const res = loginUser({ phone, otp, userType })
+    if (!res.success) {
+      setError(res.error || 'Login failed')
+      setIsLoading(false)
+      return
+    }
 
-  // Redirect based on userType
-  if (userType === 'agent') {
-    navigate('/agents/dashboard')
-  } else if (userType === 'manufacturer') {
-    navigate('/manufacturers')
-  } else if (userType === 'truckOwner') {
-    navigate('/truck owners')
-  } else if (userType === 'driver') {
-    navigate('/drivers')
-  } else {
-    navigate('/')
+    // Redirect based on userType
+    if (userType === 'agent') {
+      navigate('/agents/dashboard')
+    } else if (userType === 'manufacturer') {
+      navigate('/manufacturers')
+    } else if (userType === 'truckOwner') {
+      navigate('/truck owners')
+    } else if (userType === 'driver') {
+      navigate('/drivers')
+    } else {
+      navigate('/')
+    }
   }
-}
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center relative ">
@@ -74,27 +107,29 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4 ">
               <div>
-              <div className="grid grid-cols-4 gap-2 ml-25 ">
-                {[
-                  { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
-                  { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
-                  { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
-                  { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setUserType(type.value)}
-                    className={`py-2 px-3 cursor-pointer rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${userType === type.value
-                        ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                  >
-                    {type.icon}
-                    {type.label}
-                  </button>
-                ))}
-              </div>
+              <div className="grid grid-cols-4 gap-4 mt-4">
+  {[
+    { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
+    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
+    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
+    { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
+  ].map((type) => (
+    <button
+      key={type.value}
+      type="button"
+      onClick={() => setUserType(type.value)}
+      className={`py-3 px-4 cursor-pointer rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors border ${
+        userType === type.value
+          ? 'bg-indigo-100 text-indigo-700 border-indigo-300'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+      }`}
+    >
+      {type.icon}
+      {type.label}
+    </button>
+  ))}
+</div>
+
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
@@ -106,12 +141,23 @@ export default function UserLogin() {
                     inputMode="tel"
                     autoComplete="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
                     className="w-40 pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400 "
                     placeholder="98765 43210"
                     required
                   />
                 </div>
+                {phone.length > 0 && phone.length < 10 && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {10 - phone.length} digits remaining
+                  </p>
+                )}
+                {phone.length === 10 && (
+                  <p className="text-xs text-green-500 mt-1">
+                    ✓ Valid mobile number
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">OTP</label>
@@ -122,14 +168,23 @@ export default function UserLogin() {
                     pattern="[0-9]*"
                     autoComplete="one-time-code"
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
+                    onChange={handleOtpChange}
                     className="w-full rounded-xl border pl-10 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200 placeholder:text-gray-400"
                     placeholder="Enter OTP (any 4+ digits)"
                     required
                   />
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
-                
+                  {otp.length > 0 && otp.length < 4 && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {4 - otp.length} digits remaining
+                    </p>
+                )}
+                {otp.length === 4 && (
+                  <p className="text-xs text-green-500 mt-1">
+                    ✓ Valid OTP
+                  </p>
+                )}
               </div>
 
               {error && (
