@@ -3,9 +3,11 @@ export const manufacturersData = [
     id: 'rn-tiles',
     name: 'RN Tiles',
     location: 'Morbi, Gujarat',
-    establishedYear: 2010,
+    specialization: 'Ceramic Tiles',
+    established: 2010,
     image: 'https://rntilesmachinery.com/wp-content/uploads/2025/08/LOGO-3.png',
     logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzc-ItTtSkXM7hUA9mB3_lWbvZIw8L44HJEA&s',
+    rating: 4.8,
     founder: {
       name: 'Rajesh Patel',
       experience: '15 years',
@@ -20,7 +22,7 @@ export const manufacturersData = [
     contact: {
       phone: '+91 98765 43210',
       email: 'info@rntiles.com',
-      website: 'www.rntiles.com',
+      website: 'rntiles.com',
       address: 'Plot 45, GIDC Industrial Estate, Morbi - 363641, Gujarat'
     },
     products: [
@@ -131,15 +133,21 @@ export const manufacturersData = [
         deliveryAddress: 'Tech Park, Bangalore - 560001',
         notes: 'Awaiting payment confirmation'
       }
-    ]
+    ],
+    productsCount: 3,
+    turnover: '₹50 Crores',
+    exportCountries: 15,
+    teamSize: 150
   },
   {
     id: 'isr',
     name: 'ISR',
     location: 'Nashik, Maharashtra',
-    establishedYear: 2008,
+    specialization: 'Steel Sheets',
+    established: 2008,
     image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=200&auto=format&fit=crop',
+    rating: 4.6,
     founder: {
       name: 'Israil Ahmed Khan',
       experience: '18 years',
@@ -153,14 +161,14 @@ export const manufacturersData = [
     },
     contact: {
       phone: '+91 97654 32109',
-      email: 'sales@steelmaxsheets.com',
-      website: 'www.steelmaxsheets.com',
+      email: 'sales@isr.com',
+      website: 'isr.com',
       address: 'MIDC Industrial Area, Ambad, Nashik - 422010, Maharashtra'
     },
     products: [
       {
         id: 'p4',
-        name: 'Galvanized Steel Sheets',
+        name: 'Galvanized    Sheets',
         category: 'Steel Sheets',
         thickness: ['0.5mm', '0.7mm', '1.0mm', '1.2mm'],
         grades: ['SGCC', 'DX51D', 'S350GD'],
@@ -246,15 +254,21 @@ export const manufacturersData = [
         deliveryAddress: 'Factory Area, Chennai - 600001',
         notes: 'Custom cutting required'
       }
-    ]
+    ],
+    productsCount: 3,
+    turnover: '₹75 Crores',
+    exportCountries: 8,
+    teamSize: 200
   },
   {
     id: 'mss',
     name: 'MSS',
     location: 'Pune, Maharashtra',
-    establishedYear: 2012,
+    specialization: 'Bricks & Blocks',
+    established: 2012,
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
+    rating: 4.4,
     founder: {
       name: 'Gosal Singh Rathore',
       experience: '12 years',
@@ -268,8 +282,8 @@ export const manufacturersData = [
     },
     contact: {
       phone: '+91 98234 56789',
-      email: 'orders@alphabricks.com',
-      website: 'www.alphabricks.com',
+      email: 'orders@mss.com',
+      website: 'mss.com',
       address: 'Survey No. 123, Chakan Industrial Area, Pune - 410501, Maharashtra'
     },
     products: [
@@ -387,15 +401,21 @@ export const manufacturersData = [
         deliveryAddress: 'Village Development, Satara - 415001',
         notes: 'Government housing scheme'
       }
-    ]
+    ],
+    productsCount: 3,
+    turnover: '₹25 Crores',
+    exportCountries: 3,
+    teamSize: 80
   },
   {
     id: 'rks',
     name: 'RKS',
     location: 'Pune, Maharashtra',
-    establishedYear: 2012,
+    specialization: 'Construction Materials',
+    established: 2012,
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
+    rating: 4.3,
     founder: {
       name: 'Chellaya Reddy',
       experience: '12 years',
@@ -409,13 +429,13 @@ export const manufacturersData = [
     },
     contact: {
       phone: '+91 98234 56789',
-      email: 'orders@alphabricks.com',
-      website: 'www.alphabricks.com',
+      email: 'orders@rks.com',
+      website: 'rks.com',
       address: 'Survey No. 123, Chakan Industrial Area, Pune - 410501, Maharashtra'
     },
     products: [
       {
-        id: 'p7',
+        id: 'p10',
         name: 'Clay Bricks',
         category: 'Bricks',
         types: ['Common Bricks', 'Facing Bricks', 'Engineering Bricks'],
@@ -424,26 +444,17 @@ export const manufacturersData = [
         image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop'
       },
       {
-        id: 'p8',
+        id: 'p11',
         name: 'Fly Ash Bricks',
         category: 'Bricks',
         types: ['Standard', 'High Strength', 'Lightweight'],
         sizes: ['230x110x70mm', '230x110x100mm'],
         priceRange: '₹3-6 per piece',
         image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop'
-      },
-      {
-        id: 'p9',
-        name: 'Concrete Blocks',
-        category: 'Blocks',
-        types: ['Solid', 'Hollow', 'AAC Blocks'],
-        sizes: ['400x200x200mm', '600x200x200mm'],
-        priceRange: '₹25-45 per piece',
-        image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=400&auto=format&fit=crop'
       }
     ],
     specializations: ['Eco-Friendly Products', 'Custom Sizes', 'Bulk Supply'],
-    description: 'Quality brick manufacturer focused on sustainable and eco-friendly building materials. Specializes in clay bricks, fly ash bricks, and concrete blocks for residential and commercial construction.',
+    description: 'Quality brick manufacturer focused on sustainable and eco-friendly building materials. Specializes in clay bricks and fly ash bricks for residential and commercial construction.',
     achievements: [
       'Green Building Material Award 2023',
       'Quality Certification 2022',
@@ -451,7 +462,7 @@ export const manufacturersData = [
     ],
     orders: [
       {
-        id: 'ORD-006',
+        id: 'ORD-009',
         customerName: 'Eco Builders Ltd.',
         customerEmail: 'orders@ecobuilders.com',
         orderDate: '2024-01-12',
@@ -459,14 +470,14 @@ export const manufacturersData = [
         totalAmount: 350000,
         items: [
           {
-            productId: 'p7',
+            productId: 'p10',
             productName: 'Clay Bricks',
             quantity: 50000,
             unitPrice: 6,
             totalPrice: 300000
           },
           {
-            productId: 'p8',
+            productId: 'p11',
             productName: 'Fly Ash Bricks',
             quantity: 10000,
             unitPrice: 5,
@@ -475,68 +486,22 @@ export const manufacturersData = [
         ],
         deliveryAddress: 'Green Valley, Pune - 411001',
         notes: 'Eco-friendly construction project'
-      },
-      {
-        id: 'ORD-007',
-        customerName: 'Urban Developers',
-        customerEmail: 'procurement@urbandevelopers.com',
-        orderDate: '2024-01-22',
-        status: 'in_progress',
-        totalAmount: 180000,
-        items: [
-          {
-            productId: 'p9',
-            productName: 'Concrete Blocks',
-            quantity: 4000,
-            unitPrice: 35,
-            totalPrice: 140000
-          },
-          {
-            productId: 'p7',
-            productName: 'Clay Bricks',
-            quantity: 10000,
-            unitPrice: 6,
-            totalPrice: 60000
-          }
-        ],
-        deliveryAddress: 'Commercial Complex, Mumbai - 400001',
-        notes: 'High-rise building project'
-      },
-      {
-        id: 'ORD-008',
-        customerName: 'Rural Housing Corp.',
-        customerEmail: 'orders@ruralhousing.com',
-        orderDate: '2024-01-28',
-        status: 'pending',
-        totalAmount: 120000,
-        items: [
-          {
-            productId: 'p8',
-            productName: 'Fly Ash Bricks',
-            quantity: 20000,
-            unitPrice: 5,
-            totalPrice: 100000
-          },
-          {
-            productId: 'p9',
-            productName: 'Concrete Blocks',
-            quantity: 500,
-            unitPrice: 35,
-            totalPrice: 17500
-          }
-        ],
-        deliveryAddress: 'Village Development, Satara - 415001',
-        notes: 'Government housing scheme'
       }
-    ]
+    ],
+    productsCount: 2,
+    turnover: '₹25 Crores',
+    exportCountries: 3,
+    teamSize: 80
   },
   {
     id: 'premium-steel',
     name: 'Premium Steel Works',
     location: 'Chennai, Tamil Nadu',
-    establishedYear: 2015,
+    specialization: 'Steel Products',
+    established: 2015,
     image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=200&auto=format&fit=crop',
+    rating: 4.7,
     founder: {
       name: 'Dr. Priya Sharma',
       experience: '10 years',
@@ -551,7 +516,7 @@ export const manufacturersData = [
     contact: {
       phone: '+91 98765 12345',
       email: 'info@premiumsteel.com',
-      website: 'www.premiumsteel.com',
+      website: 'premiumsteel.com',
       address: 'Industrial Area, Chennai - 600001, Tamil Nadu'
     },
     products: [
@@ -572,15 +537,21 @@ export const manufacturersData = [
       'Best Quality Supplier 2022',
       'Export Achievement Award 2021'
     ],
-    orders: []
+    orders: [],
+    productsCount: 1,
+    turnover: '₹40 Crores',
+    exportCountries: 12,
+    teamSize: 120
   },
   {
     id: 'green-construction',
     name: 'Green Construction Materials',
     location: 'Bangalore, Karnataka',
-    establishedYear: 2018,
+    specialization: 'Sustainable Materials',
+    established: 2018,
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
+    rating: 4.5,
     founder: {
       name: 'Arjun Kumar Mehta',
       experience: '8 years',
@@ -595,7 +566,7 @@ export const manufacturersData = [
     contact: {
       phone: '+91 87654 32109',
       email: 'contact@greenconstruction.com',
-      website: 'www.greenconstruction.com',
+      website: 'greenconstruction.com',
       address: 'Tech Park, Bangalore - 560001, Karnataka'
     },
     products: [
@@ -616,23 +587,42 @@ export const manufacturersData = [
       'Sustainability Excellence 2022',
       'Environmental Impact Award 2021'
     ],
-    orders: []
+    orders: [],
+    productsCount: 1,
+    turnover: '₹18 Crores',
+    exportCountries: 5,
+    teamSize: 65
   }
-]
+];
 
 export const getManufacturerById = (id) => {
-  return manufacturersData.find(manufacturer => manufacturer.id === id)
+  return manufacturersData.find(manufacturer => manufacturer.id === id);
 }
 
 export const getAllManufacturers = () => {
-  return manufacturersData.map(({ id, name, location, products, image, companyInfo, orders }) => ({
+  return manufacturersData.map(({ 
+    id, 
+    name, 
+    location, 
+    products, 
+    image, 
+    companyInfo, 
+    orders,
+    specialization,
+    established,
+    rating 
+  }) => ({
     id,
     name,
     location,
+    specialization,
+    established,
+    rating,
     productsCount: products.length,
     ordersCount: orders ? orders.length : 0,
     image,
     turnover: companyInfo.annualTurnover,
-    employees: companyInfo.employees
-  }))
+    employees: companyInfo.employees,
+    exportCountries: companyInfo.exportCountries
+  }));
 }
