@@ -31,6 +31,7 @@ import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
 import ReportPage from "../screens/ReportPage/ReportPage";
 import AgentDetailsPage from "../screens/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
+import SignUpApprovalPage from "../screens/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -199,6 +200,15 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
              <ReportPage/>
+            </ProtectedRoute>
+          }
+        />
+        {/* ✅ Added SignUp Approval Route */}
+        <Route
+          path="signup-approval"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <SignUpApprovalPage />
             </ProtectedRoute>
           }
         />
