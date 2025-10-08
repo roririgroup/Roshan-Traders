@@ -1,42 +1,38 @@
 import { useState, useEffect } from 'react'
-import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink } from 'lucide-react'
-import { getOrders, updateOrderStatus } from '../../../store/ordersStore'
-import NotificationContainer from '../../../components/ui/NotificationContainer'
-import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
+import Badge from '../../../components/ui/Badge.jsx'
+import { ShoppingCart } from 'lucide-react'
+import { getOrders, updateOrderStatus } from '../../../store/ordersStore.js'
+import NotificationContainer from '../../../components/ui/NotificationContainer.jsx'
+import OrderDetailsModal from '../../../components/ui/OrderDetailsModal.jsx'
 import { useNotifications } from '../../../lib/notifications.jsx'
-import FilterBar from '../../../components/ui/FilterBar'
-import { getCurrentUser } from '../../../lib/auth'
+import FilterBar from '../../../components/ui/FilterBar.jsx'
+import { getCurrentUser, isSuperAdmin } from '../../../lib/auth.js'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
-  const [outsourceOrders, setOutsourceOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState('orders')
-  const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
-  const [isOutsourceOrder, setIsOutsourceOrder] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  
-  const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
+
+  const { notifications, removeNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
   // Load orders from shared store
   useEffect(() => {
     const allOrders = getOrders()
     const user = getCurrentUser()
-    // Separate orders: orders placed by current user are "Orders", others are "Outsource Orders"
-    setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
-    setOutsourceOrders(allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id))
+    if (isSuperAdmin()) {
+      // Super Admin sees all orders
+      setOrders(allOrders)
+    } else {
+      // Others see only their own orders
+      setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
+    }
   }, [refreshTrigger])
 
-  // Removed Confirm and Reject buttons as per user request
-
-  // Removed Confirm and Reject buttons as per user request
-
-  // Auto-refresh every 5 seconds to check for new orders
+  // Auto-refresh periodically to check for updates
   useEffect(() => {
     const interval = setInterval(() => {
       setRefreshTrigger(prev => prev + 1)
@@ -44,28 +40,6 @@ export default function Orders() {
 
     return () => clearInterval(interval)
   }, [])
-
-  // Simulate new outsource order arrival
-  useEffect(() => {
-    const checkForNewOrders = () => {
-      const allOrders = getOrders()
-      const user = getCurrentUser()
-      const externalOrders = allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id)
-      if (externalOrders.length > outsourceOrders.length) {
-        setNewOutsourceOrder(true)
-        // Show notification for new orders
-        const newOrders = externalOrders.slice(outsourceOrders.length)
-        newOrders.forEach(order => {
-          showOrderNotification(order)
-        })
-        setTimeout(() => setNewOutsourceOrder(false), 5000) // Hide notification after 5 seconds
-      }
-      setOutsourceOrders(externalOrders)
-    }
-
-    const interval = setInterval(checkForNewOrders, 10000) // Check every 10 seconds
-    return () => clearInterval(interval)
-    }, [outsourceOrders.length, showOrderNotification])
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -102,7 +76,6 @@ export default function Orders() {
   const handleConfirmOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'confirmed')
       setRefreshTrigger(prev => prev + 1)
@@ -119,7 +92,6 @@ export default function Orders() {
   const handleRejectOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'rejected')
       setRefreshTrigger(prev => prev + 1)
@@ -149,6 +121,7 @@ export default function Orders() {
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +159,32 @@ export default function Orders() {
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress}
                 </td>
-              
+                <td className="py-4 px-6">
+                  {order.status === 'pending' && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleConfirmOrder(order.id)
+                        }}
+                        className="px-3 py-1 bg-[#F08344] text-white rounded-lg text-sm hover:bg-[#e0763a] transition-colors cursor-pointer"
+                        disabled={isLoading}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRejectOrder(order.id)
+                        }}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors cursor-pointer"
+                        disabled={isLoading}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -229,36 +227,10 @@ export default function Orders() {
           </div>
         </div>
 
-        {/* New Outsource Order Notification */}
-        {newOutsourceOrder && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 animate-bounce-in">
-            <div className="flex items-center gap-2">
-              <ExternalLink className="size-5 text-yellow-600" />
-              <span className="text-yellow-800 font-medium">New outsource order received!</span>
-            </div>
-          </div>
-        )}
+
       </div>
 
-      {/* Tabs */}
-      <div className="mb-6">
-        <div className="flex gap-2">
-         
-          <button
-            onClick={() => setActiveTab('outsource')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
-              activeTab === 'outsource'
-                ? 'bg-[#F08344] text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Outsource Orders ({outsourceOrders.length})
-            {newOutsourceOrder && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-            )}
-          </button>
-        </div>
-      </div>
+
 
       {/* Filters */}
       <FilterBar
@@ -280,7 +252,7 @@ export default function Orders() {
       />
 
       {/* Orders Table */}
-      {activeTab === 'orders' && renderOrderTable(
+      {renderOrderTable(
         orders
           .filter(o => (
             o.customerName.toLowerCase().includes(search.toLowerCase()) ||
@@ -289,31 +261,15 @@ export default function Orders() {
           .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
         , 'Orders')}
 
-      {/* Outsource Orders Table */}
-      {activeTab === 'outsource' && renderOrderTable(
-        outsourceOrders
-          .filter(o => (
-            o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-            String(o.id).includes(search)
-          ))
-          .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-        , 'Outsource Orders')}
-
-      {(activeTab === 'orders' && orders.length === 0) && (
+      {orders.length === 0 && (
         <div className="text-center py-12">
           <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
           <p className="text-slate-600">Orders will appear here once customers place them</p>
         </div>
       )}
-
-      {(activeTab === 'outsource' && outsourceOrders.length === 0) && (
-        <div className="text-center py-12">
-          <ExternalLink className="size-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">No outsource orders yet</h3>
-          <p className="text-slate-600">Outsource orders will appear here</p>
-        </div>
-      )}
     </div>
   )
 }
+
+

@@ -61,7 +61,7 @@ export function isAuthenticated() {
 // Helper function to check if user is super admin
 export function isSuperAdmin() {
   const user = getCurrentUser();
-  return Boolean(user && user.role === "superAdmin");
+  return Boolean(user && user.role === "superadmin");
 }
 
 // Helper function to check user role
