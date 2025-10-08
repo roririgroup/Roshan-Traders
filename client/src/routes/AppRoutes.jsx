@@ -32,6 +32,7 @@ import ReportPage from "../user/superadmin/ReportPage/ReportPage";
 import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
 import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
+import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -144,6 +145,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <CompaniesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <ProductsPage />
             </ProtectedRoute>
           }
         />

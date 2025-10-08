@@ -14,16 +14,17 @@ const active = ({ isActive }) =>
 
 const MENU_CONFIG = {
  superadmin: [
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }, 
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
     { to: '/agents', label: 'Agents', icon: UserRound },
     { to: '/companies', label: 'Companies', icon: Building2 },
     { to: '/employees', label: 'Employees', icon: Gift },
+    { to: '/products', label: 'Products', icon: Package },
     { to: '/users', label: 'Users', icon: Users },
     { to: '/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/paymentreports', label: 'Payment Reports', icon: CreditCard },
     { to: '/report', label: 'Reports', icon: FileText },
-    { to: '/signup-approval', label: 'SignUp Approval', icon: UserCheck }, 
+    { to: '/signup-approval', label: 'SignUp Approval', icon: UserCheck },
   ],
   agent: [
     { to: '/agents/dashboard', label: 'Dashboard', icon: TrendingUp },
