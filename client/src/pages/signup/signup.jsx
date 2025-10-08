@@ -32,7 +32,27 @@ const Signup = () => {
     }
 
     setError("");
-    console.log("Form submitted:", formData);
+
+    // Create user object with additional fields
+    const userData = {
+      id: Date.now().toString(), // Simple ID generation
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.contact, // Changed from 'contact' to 'phone' to match approval page
+      address: formData.address,
+      role: formData.role,
+      password: formData.password, // Note: In real app, hash this!
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log("Form submitted:", userData);
+
+    // Store in localStorage for approval
+    const existingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+    const updatedUsers = [...existingUsers, userData];
+    localStorage.setItem('pendingUsers', JSON.stringify(updatedUsers));
 
     setSuccess(true);
     setTimeout(() => {
@@ -46,7 +66,7 @@ const Signup = () => {
       {/* Success Popup */}
       {success && (
         <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-semibold px-6 py-3 rounded-lg shadow-lg animate-bounce z-10">
-          ✅ Account Created Successfully!
+          ✅ Registration Submitted Successfully! Waiting for admin approval.
         </div>
       )}
 
@@ -75,6 +95,9 @@ const Signup = () => {
             <h1 className="text-2xl font-bold text-gray-900">
               Create Account
             </h1>
+            <p className="text-sm text-gray-600 mt-2">
+              Your account will be activated after admin approval
+            </p>
           </div>
 
           <form
@@ -171,6 +194,7 @@ const Signup = () => {
                 value={formData.role}
                 onChange={handleChange}
                 className="w-full h-9 border border-gray-300 rounded-lg px-3 text-sm focus:outline-none focus:border-[#555] transition-all"
+                required
               >
                 <option value="">Select Role</option>
                 <option value="Agent">Agent</option>
@@ -222,7 +246,7 @@ const Signup = () => {
               type="submit"
               className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2"
             >
-              Create Account
+              Submit for Approval
             </button>
           </form>
 
