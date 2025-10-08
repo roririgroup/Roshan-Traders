@@ -3,6 +3,8 @@ import PageHeader from './components/PageHeader';
 import ManufacturerCard from './ManufactureCard';
 import CallToAction from './components/CallToAction';
 import { getAllManufacturers } from './manufactures';
+import AddManufacturesModal from './components/AddManufacturesModal'; 
+import Button from '../../components/ui/Button';
 import {
   Search,
   Filter,
@@ -14,14 +16,24 @@ import {
   Award,
   Box,
   Building,
+  Plus
 } from 'lucide-react';
 
 export default function ManufacturersPage() {
-  const manufacturers = getAllManufacturers();
+  const [manufacturers, setManufacturers] = useState(getAllManufacturers());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('rating');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Function to handle adding new manufacturer
+  const handleAddManufacturer = (newManufacturer) => {
+    // Add the new manufacturer to the list
+    setManufacturers(prev => [newManufacturer, ...prev]);
+    // You can also add API call here to save to backend
+    console.log('New manufacturer added:', newManufacturer);
+  };
 
   // Filter and sort manufacturers
   const filteredManufacturers = manufacturers
@@ -148,6 +160,15 @@ export default function ManufacturersPage() {
               <TrendingUp className="w-4 h-4 text-green-500" />
               <span>Growing Network</span>
             </div>
+             <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-[#F08344] hover:bg-[#D45A2A] text-white"
+              >
+                <Plus className="size-4 mr-2" />
+                Add Manufacturer
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -196,7 +217,14 @@ export default function ManufacturersPage() {
             </div>
           </div>
         )}
-
+        
+        {/* Add Manufacturer Modal */}
+        <AddManufacturesModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={handleAddManufacturer}
+        />
+        
         {/* Call to Action */}
         <CallToAction />
       </div>
