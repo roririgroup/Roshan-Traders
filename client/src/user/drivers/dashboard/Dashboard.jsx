@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
-import { MapPin, Truck, Clock, Calendar, Route } from 'lucide-react'
+import { MapPin, Truck, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import DeliveryDetailsModal from './DeliveryDetailsModal'
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
-    assignedTrips: 3,
-    upcomingDeliveries: 2,
-    todayDistance: 450,
-    todayEarnings: 8500,
+    totalDeliveries: 10,
+    inTransit: 2,
+    completed: 7,
+    pending: 1,
     currentTrip: {
       from: 'Chennai',
       to: 'Bangalore',
@@ -17,6 +18,39 @@ export default function Dashboard() {
     }
   })
 
+  const [deliveries, setDeliveries] = useState([
+    {
+      id: 'ORD001',
+      pickup: 'Warehouse A, Chennai',
+      drop: 'Store B, Bangalore',
+      status: 'Pending',
+      product: 'Electronics',
+      customer: 'ABC Corp',
+      customerPhone: '+91 9876543210'
+    },
+    {
+      id: 'ORD002',
+      pickup: 'Factory X, Mumbai',
+      drop: 'Retail Y, Delhi',
+      status: 'In Transit',
+      product: 'Clothing',
+      customer: 'XYZ Ltd',
+      customerPhone: '+91 9876543211'
+    },
+    {
+      id: 'ORD003',
+      pickup: 'Depot Z, Pune',
+      drop: 'Outlet W, Hyderabad',
+      status: 'Completed',
+      product: 'Furniture',
+      customer: 'PQR Inc',
+      customerPhone: '+91 9876543212'
+    }
+  ])
+
+  const [selectedDelivery, setSelectedDelivery] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   // Mock data - replace with API calls
   useEffect(() => {
     // Fetch stats from API
@@ -24,28 +58,28 @@ export default function Dashboard() {
 
   const statCards = [
     {
-      title: 'Assigned Trips',
-      value: stats.assignedTrips,
+      title: 'Total Deliveries',
+      value: stats.totalDeliveries,
       icon: Truck,
       color: 'bg-blue-500'
     },
     {
-      title: 'Upcoming Deliveries',
-      value: stats.upcomingDeliveries,
-      icon: Calendar,
-      color: 'bg-green-500'
-    },
-    {
-      title: "Today's Distance",
-      value: `${stats.todayDistance} km`,
-      icon: Route,
+      title: 'In Transit',
+      value: stats.inTransit,
+      icon: Truck,
       color: 'bg-yellow-500'
     },
     {
-      title: "Today's Earnings",
-      value: `₹${stats.todayEarnings.toLocaleString()}`,
-      icon: Clock,
-      color: 'bg-purple-500'
+      title: 'Completed',
+      value: stats.completed,
+      icon: CheckCircle,
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Pending',
+      value: stats.pending,
+      icon: AlertCircle,
+      color: 'bg-red-500'
     }
   ]
 
@@ -123,7 +157,7 @@ export default function Dashboard() {
       </Card>
 
       {/* Quick Actions */}
-      <Card className="p-6">
+      <Card className="p-6 mb-6">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 flex items-center gap-3">
@@ -149,6 +183,64 @@ export default function Dashboard() {
           </button>
         </div>
       </Card>
+
+      {/* Deliveries Table */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Recent Deliveries</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-slate-700 uppercase bg-slate-50">
+              <tr>
+                <th className="px-6 py-3">Order ID</th>
+                <th className="px-6 py-3">Pickup</th>
+                <th className="px-6 py-3">Drop</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deliveries.map((delivery) => (
+                <tr key={delivery.id} className="bg-white border-b hover:bg-slate-50">
+                  <td className="px-6 py-4 font-medium text-slate-900">{delivery.id}</td>
+                  <td className="px-6 py-4 text-slate-700">{delivery.pickup}</td>
+                  <td className="px-6 py-4 text-slate-700">{delivery.drop}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      delivery.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                      delivery.status === 'In Transit' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {delivery.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => {
+                        setSelectedDelivery(delivery)
+                        setIsModalOpen(true)
+                      }}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Delivery Details Modal */}
+      {isModalOpen && selectedDelivery && (
+        <DeliveryDetailsModal
+          delivery={selectedDelivery}
+          onClose={() => setIsModalOpen(false)}
+          onUpdateStatus={(id, status) => {
+            setDeliveries(deliveries.map(d => d.id === id ? { ...d, status } : d))
+          }}
+        />
+      )}
     </div>
   )
 }

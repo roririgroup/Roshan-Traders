@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { Factory, Building2, Store, UserRound, Users, LogOut, X, TrendingUp,  FileText, CreditCard, Package, LayoutDashboard, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
+import { Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X, TrendingUp,  FileText, CreditCard, Package, LayoutDashboard, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
 import { logout } from '../../lib/auth'
 import { getCurrentUserRole } from '../../lib/roles'
 import Button from '../ui/Button'
-import { black } from '../../../public/lottie/lottie'
+
+const black = '/lottie/Roshan_black.png'
 
 const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
 const active = ({ isActive }) =>
@@ -12,7 +13,7 @@ const active = ({ isActive }) =>
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`
 
 const MENU_CONFIG = {
-  superadmin: [
+ superadmin: [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }, 
     { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
     { to: '/agents', label: 'Agents', icon: UserRound },
@@ -22,6 +23,7 @@ const MENU_CONFIG = {
     { to: '/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/paymentreports', label: 'Payment Reports', icon: CreditCard },
     { to: '/report', label: 'Reports', icon: FileText },
+    { to: '/signup-approval', label: 'SignUp Approval', icon: UserCheck }, 
   ],
   agent: [
     { to: '/agents/dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -49,7 +51,10 @@ const MENU_CONFIG = {
     { to: '/truck owners/profile', label: 'Profile', icon: User },
   ],
   driver: [
-    { to: '/drivers', label: 'Drivers', icon: User },
+    { to: '/drivers', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
+    { to: '/drivers/earnings', label: 'Earnings', icon: DollarSign },
+    { to: '/drivers/profile', label: 'Profile', icon: User },
   ],
 }
 
