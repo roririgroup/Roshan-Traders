@@ -238,20 +238,20 @@ const Signup = () => {
 
             {/* Error Message */}
             {error && (
-              <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+              <p className="text-red-500 text-sm text-center ">{error}</p>
             )}
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2"
+              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 "
             >
               Submit for Approval
             </button>
           </form>
 
           {/* Login Link */}
-          <p className="mt-2 text-gray-600 text-center text-sm">
+          <p className=" text-gray-600 text-center text-sm">
             Already have an account?{" "}
             <span
               onClick={() => navigate("/user/login")}

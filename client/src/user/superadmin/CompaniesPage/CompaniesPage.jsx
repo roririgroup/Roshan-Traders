@@ -359,7 +359,7 @@
 //                   </div>
 //                 </div>
                 
-<<<<<<< HEAD:client/src/screens/CompaniesPage/CompaniesPage.jsx
+// <<<<<<< HEAD:client/src/screens/CompaniesPage/CompaniesPage.jsx
 //                 {/* Fixed Footer */}
 //                 <div className="border-t bg-gray-50 p-4 sm:p-6 flex-shrink-0">
 //                   <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
@@ -384,29 +384,29 @@
 //     </div>
 //   );
 // }
-=======
-                {/* Fixed Footer */}
-                <div className="border-t bg-gray-50 p-4 sm:p-6 flex-shrink-0">
-                  <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-                    <Button 
-                      variant="outline" 
-                      onClick={handleCloseModal}
-                      className="order-2 sm:order-1"
-                    >
-                      Close
-                    </Button>
-                    <Button className="order-1 sm:order-2">
-                      <ExternalLink size={16} className="mr-2" />
-                      Request Quote
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
->>>>>>> 0f93206ea86996bde79f3275a61cb23628f8977d:client/src/user/superadmin/CompaniesPage/CompaniesPage.jsx
+// =======
+//                 {/* Fixed Footer */}
+//                 <div className="border-t bg-gray-50 p-4 sm:p-6 flex-shrink-0">
+//                   <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+//                     <Button 
+//                       variant="outline" 
+//                       onClick={handleCloseModal}
+//                       className="order-2 sm:order-1"
+//                     >
+//                       Close
+//                     </Button>
+//                     <Button className="order-1 sm:order-2">
+//                       <ExternalLink size={16} className="mr-2" />
+//                       Request Quote
+//                     </Button>
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+// >>>>>>> 0f93206ea86996bde79f3275a61cb23628f8977d:client/src/user/superadmin/CompaniesPage/CompaniesPage.jsx
