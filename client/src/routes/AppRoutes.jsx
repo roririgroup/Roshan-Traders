@@ -3,7 +3,7 @@ import DashboardLayout from "../screens/DashboardLayout";
 import DashboradPage from "../screens/DashboradPage/DashboradPage";
 import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
-import CompaniesPage from "../screens/CompaniesPage/CompaniesPage";
+// import CompaniesPage from "../screens/CompaniesPage/CompaniesPage";
 import AgentsPage from "../screens/AgentPage/AgentsPage";
 import EmployeesPage from "../screens/EmployeesPage/EmployeesPage";
 import UsersPage from "../screens/UsersPage/UsersPage";
@@ -138,14 +138,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="companies"
           element={
             <ProtectedRoute requiredRole="superadmin">
               <CompaniesPage />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="agents"
           element={
