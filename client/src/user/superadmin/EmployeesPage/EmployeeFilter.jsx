@@ -1,5 +1,5 @@
 import React from "react";
-import Button from '../../components/ui/Button';
+import Button from '../../../components/ui/Button';
 
 const EmployeeFilter = ({ currentFilter, onFilterChange }) => {
   const filterOptions = ["All", "Available", "On Job", "Unavailable"];

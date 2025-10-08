@@ -1,5 +1,5 @@
 import { X, Phone, Mail, MapPin, Award } from 'lucide-react'
-import Badge from '../../components/ui/Badge'
+import Badge from '../../../components/ui/Badge'
 
 export default function AgentProfileModal({ agent, topPerformer, onClose }) {
   if (!agent) return null

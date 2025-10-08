@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import Button from "../../components/ui/Button";
+import React, { useState, useEffect } from "react";
+import Button from "../../../components/ui/Button";
 import { X } from "lucide-react";
 
-const AddAgentsModal = ({ onClose, onAdd }) => {
+const EditAgentModal = ({ agent, onClose, onSave }) => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -10,8 +10,22 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
     location: "",
     status: "active",
     referrals: 0,
-    image: "", // store base64 string or URL
+    image: "",
   });
+
+  useEffect(() => {
+    if (agent) {
+      setForm({
+        name: agent.name || "",
+        phone: agent.phone || "",
+        email: agent.email || "",
+        location: agent.location || "",
+        status: agent.status || "active",
+        referrals: agent.referrals || 0,
+        image: agent.image || "",
+      });
+    }
+  }, [agent]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,18 +45,14 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newAgent = {
-      id: `a_${Date.now()}`,
+    const updatedAgent = {
+      ...agent,
       ...form,
       image:
         form.image ||
         "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop",
-      joinDate: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      }),
     };
-    onAdd(newAgent);
+    onSave(updatedAgent);
     onClose();
   };
 
@@ -52,9 +62,9 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
         {/* Header */}
         <div className="bg-[#F08344] px-5 py-3 flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-white">Add New Agent</h3>
+            <h3 className="text-lg font-semibold text-white">Edit Agent</h3>
             <p className="text-white/90 text-xs mt-1">
-              Fill in the details below to add a new agent
+              Update the details below
             </p>
           </div>
           <button
@@ -205,7 +215,7 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
               variant="primary"
               className="px-4 py-2 text-sm"
             >
-              Add Agent
+              Save Changes
             </Button>
           </div>
         </form>
@@ -214,4 +224,4 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
   );
 };
 
-export default AddAgentsModal;
+export default EditAgentModal;

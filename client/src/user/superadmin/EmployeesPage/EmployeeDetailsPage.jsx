@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, User, Briefcase } from 'lucide-react';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
+import Button from '../../../components/ui/Button';
+import Badge from '../../../components/ui/Badge';
 import { EMPLOYEE_STATUS_CONFIG } from './employeeConstants';
 
 const EmployeeDetailsPage = () => {

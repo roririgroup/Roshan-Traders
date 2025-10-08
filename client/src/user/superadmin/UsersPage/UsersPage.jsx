@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Users, Building2, Factory, UserRound } from 'lucide-react'
-import { Card } from '../../components/ui/Card'
-import Badge from '../../components/ui/Badge'
+import { Card } from '../../../components/ui/Card'
+import Badge from '../../../components/ui/Badge'
 
 const ROLE_OPTIONS = [
   { key: 'Agent', label: 'Agents', icon: UserRound },
