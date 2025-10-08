@@ -1,5 +1,5 @@
-import Badge from '../../components/ui/Badge'
-import Button from '../../components/ui/Button'
+import Badge from '../../../components/ui/Badge'
+import Button from '../../../components/ui/Button'
 import { Users, TrendingUp, Award, Plus } from 'lucide-react'
 import { useState } from 'react'
 import AddAgentsModal from './AddAgentsModal'

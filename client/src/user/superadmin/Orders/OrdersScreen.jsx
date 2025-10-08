@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import Badge from '../../components/ui/Badge.jsx'
+import Badge from '../../../components/ui/Badge.jsx'
 import { ShoppingCart } from 'lucide-react'
-import { getOrders, updateOrderStatus } from '../../store/ordersStore.js'
-import NotificationContainer from '../../components/ui/NotificationContainer.jsx'
-import OrderDetailsModal from '../../components/ui/OrderDetailsModal.jsx'
-import { useNotifications } from '../../lib/notifications.jsx'
-import FilterBar from '../../components/ui/FilterBar.jsx'
-import { getCurrentUser, isSuperAdmin } from '../../lib/auth.js'
+import { getOrders, updateOrderStatus } from '../../../store/ordersStore.js'
+import NotificationContainer from '../../../components/ui/NotificationContainer.jsx'
+import OrderDetailsModal from '../../../components/ui/OrderDetailsModal.jsx'
+import { useNotifications } from '../../../lib/notifications.jsx'
+import FilterBar from '../../../components/ui/FilterBar.jsx'
+import { getCurrentUser, isSuperAdmin } from '../../../lib/auth.js'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])

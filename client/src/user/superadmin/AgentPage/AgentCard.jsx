@@ -1,7 +1,7 @@
 import React from "react";
-import Button from '../../components/ui/Button';
-import Badge from "../../components/ui/Badge";
-import { Card } from "../../components/ui/Card";
+import Button from '../../../components/ui/Button';
+import Badge from "../../../components/ui/Badge";
+import { Card } from "../../../components/ui/Card";
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil, Trash } from "lucide-react"; // 👈 icons
 
