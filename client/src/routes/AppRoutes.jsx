@@ -35,6 +35,7 @@ import Signup from "../pages/signup/signup";
 import Landing from "../pages/landing";
 
 import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
+import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
 
 
 function ProtectedRoute({ children, requiredRole = null }) {
@@ -154,6 +155,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         /> */}
+        <Route
+          path="products"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <ProductsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="agents"
           element={
