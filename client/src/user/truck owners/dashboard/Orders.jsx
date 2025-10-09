@@ -44,7 +44,7 @@ export default function Orders() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
-            <p className="text-slate-600">Manage customer orders and track their status</p>
+            <p className="text-slate-600">Manage your truck orders and track their status</p>
           </div>
         </div>
       </div>
@@ -75,7 +75,6 @@ export default function Orders() {
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Customer</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Date</th>
@@ -107,9 +106,6 @@ export default function Orders() {
                       ))}
                     </div>
                   </td>
-                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
-                    ₹{order.totalAmount.toLocaleString()}
-                  </td>
                   <td className="py-4 px-6">
                     {getStatusBadge(order.status)}
                   </td>
@@ -135,7 +131,7 @@ export default function Orders() {
         <div className="text-center py-12">
           <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
-          <p className="text-slate-600">Orders will appear here once customers place them</p>
+          <p className="text-slate-600">Orders will appear here once you have truck orders</p>
         </div>
       )}
     </div>
