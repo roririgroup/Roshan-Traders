@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import Button from "../../components/ui/Button";
+import React, { useState } from "react";
+import Button from "../../../components/ui/Button";
 import { X } from "lucide-react";
 
-const EditAgentModal = ({ agent, onClose, onSave }) => {
+const AddManufacturesModal = ({ isOpen, onClose, onAdd }) => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -10,22 +10,23 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
     location: "",
     status: "active",
     referrals: 0,
-    image: "",
+    image: "", // store base64 string or URL
   });
 
-  useEffect(() => {
-    if (agent) {
+  // Reset form when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
       setForm({
-        name: agent.name || "",
-        phone: agent.phone || "",
-        email: agent.email || "",
-        location: agent.location || "",
-        status: agent.status || "active",
-        referrals: agent.referrals || 0,
-        image: agent.image || "",
+        name: "",
+        phone: "",
+        email: "",
+        location: "",
+        status: "active",
+        referrals: 0,
+        image: "",
       });
     }
-  }, [agent]);
+  }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,17 +45,31 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    const updatedAgent = {
-      ...agent,
-      ...form,
-      image:
-        form.image ||
-        "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop",
-    };
-    onSave(updatedAgent);
-    onClose();
+  e.preventDefault();
+  const newManufacturer = {
+    id: `m_${Date.now()}`,
+    name: form.name,
+    phone: form.phone,
+    email: form.email,
+    location: form.location,
+    status: form.status,
+    image: form.image || "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop",
+    joinDate: new Date().toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    }),
+    // Add these required properties for ManufacturerCard
+    rating: 4.5, // Default rating
+    productsCount: 0, // Default products count
+    specialization: "General", // Default specialization
+    description: "New manufacturer", // Default description
   };
+  onAdd(newManufacturer);
+  onClose();
+};
+
+  // Don't render if not open
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
@@ -62,9 +77,9 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
         {/* Header */}
         <div className="bg-[#F08344] px-5 py-3 flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-white">Edit Agent</h3>
+            <h3 className="text-lg font-semibold text-white">Add New Manufacturer</h3>
             <p className="text-white/90 text-xs mt-1">
-              Update the details below
+              Fill in the details below to add a new Manufacturer
             </p>
           </div>
           <button
@@ -89,7 +104,7 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
             <input
               type="text"
               name="name"
-              placeholder="Enter agent name"
+              placeholder="Enter manufacturer name"
               value={form.name}
               onChange={handleChange}
               className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-md px-3 py-2 text-sm outline-none"
@@ -145,38 +160,6 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
             />
           </div>
 
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-md px-3 py-2 text-sm outline-none bg-white"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          {/* Referrals */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Referrals
-            </label>
-            <input
-              type="number"
-              name="referrals"
-              placeholder="Enter number of referrals"
-              value={form.referrals}
-              onChange={handleChange}
-              className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-md px-3 py-2 text-sm outline-none"
-              min="0"
-            />
-          </div>
-
           {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -215,7 +198,7 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
               variant="primary"
               className="px-4 py-2 text-sm"
             >
-              Save Changes
+              Add Manufacturer
             </Button>
           </div>
         </form>
@@ -224,4 +207,4 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
   );
 };
 
-export default EditAgentModal;
+export default AddManufacturesModal;

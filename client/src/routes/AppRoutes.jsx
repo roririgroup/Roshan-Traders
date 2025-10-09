@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import DashboardLayout from "../screens/DashboardLayout";
-import DashboradPage from "../screens/DashboradPage/DashboradPage";
+import DashboardLayout from "../user/superadmin/DashboardLayout";
+import DashboradPage from "../user/superadmin/DashboradPage/DashboradPage";
 import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
-import CompaniesPage from "../screens/CompaniesPage/CompaniesPage";
-import AgentsPage from "../screens/AgentPage/AgentsPage";
-import EmployeesPage from "../screens/EmployeesPage/EmployeesPage";
-import UsersPage from "../screens/UsersPage/UsersPage";
+// import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
+import AgentsPage from "../user/superadmin/AgentPage/AgentsPage";
+import EmployeesPage from "../user/superadmin/EmployeesPage/EmployeesPage";
+import UsersPage from "../user/superadmin/UsersPage/UsersPage";
 import Dashboard from "../user/agents/dashboard/Dashboard";
 import Products from "../user/agents/dashboard/Products";
 import AgentOrders from "../user/agents/dashboard/Orders";
@@ -26,13 +26,17 @@ import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
 import SuperAdminLogin from "../pages/Login/components/SuperAdminLogin";
 import { hasRole } from "../lib/roles";
-import OrdersScreen from "../screens/Orders/OrdersScreen";
-import PaymentReports from "../screens/PaymentReportPage/PaymentReports";
-import ReportPage from "../screens/ReportPage/ReportPage";
-import AgentDetailsPage from "../screens/AgentPage/AgentDetailsPage";
+import OrdersScreen from "../user/superadmin/Orders/OrdersScreen";
+import PaymentReports from "../user/superadmin/PaymentReportPage/PaymentReports";
+import ReportPage from "../user/superadmin/ReportPage/ReportPage";
+import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
+
 import SignUpApprovalPage from "../screens/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
 import Landing from "../pages/landing";
+
+import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
+
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -143,14 +147,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="companies"
           element={
             <ProtectedRoute requiredRole="superadmin">
               <CompaniesPage />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="agents"
           element={

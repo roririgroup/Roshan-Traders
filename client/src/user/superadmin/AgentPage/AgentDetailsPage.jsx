@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, Award, TrendingUp, DollarSign, Package } from 'lucide-react';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
+import Button from '../../../components/ui/Button';
+import Badge from '../../../components/ui/Badge';
 
 const AgentDetailsPage = () => {
   const { id } = useParams();

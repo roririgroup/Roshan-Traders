@@ -6,66 +6,71 @@ import NotificationContainer from '../../../components/ui/NotificationContainer'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
 import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar'
-import { getCurrentUser } from '../../../lib/auth'
+import { getCurrentUser } from '../../../lib/auth' // ✅ FIXED: uncommented import
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [outsourceOrders, setOutsourceOrders] = useState([])
+  const [yourOrders, setYourOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState('orders')
+  const [activeTab, setActiveTab] = useState('your-orders')
   const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
-  const [isOutsourceOrder, setIsOutsourceOrder] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  
+
   const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
-  // Load orders from shared store
-  useEffect(() => {
-    const allOrders = getOrders()
-    const user = getCurrentUser()
-    // Separate orders: orders placed by current user are "Orders", others are "Outsource Orders"
-    setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
-    setOutsourceOrders(allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id))
-  }, [refreshTrigger])
+  // ✅ Load orders from store
+ useEffect(() => {
+  const allOrders = getOrders()
+  const user = getCurrentUser()
+  
+  // Your orders: all orders placed by current user
+  const yourOrdersList = allOrders.filter(order => 
+    order.userInfo?.id === user?.id
+  )
+  
+  // Outsource orders: all orders NOT placed by current user
+  const outsourceOrdersList = allOrders.filter(order => 
+    order.userInfo?.id !== user?.id
+  )
+  
+  setYourOrders(yourOrdersList)
+  setOutsourceOrders(outsourceOrdersList)
+}, [refreshTrigger])
 
-  // Removed Confirm and Reject buttons as per user request
 
-  // Removed Confirm and Reject buttons as per user request
-
-  // Auto-refresh every 5 seconds to check for new orders
+  // ✅ Auto-refresh orders every 5s
   useEffect(() => {
     const interval = setInterval(() => {
       setRefreshTrigger(prev => prev + 1)
     }, 5000)
-
     return () => clearInterval(interval)
   }, [])
 
-  // Simulate new outsource order arrival
+  // ✅ Detect new outsource orders
   useEffect(() => {
     const checkForNewOrders = () => {
       const allOrders = getOrders()
-      const user = getCurrentUser()
-      const externalOrders = allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id)
-      if (externalOrders.length > outsourceOrders.length) {
+      const otherOrders = allOrders.filter(order => order.orderType !== 'product')
+
+      if (otherOrders.length > outsourceOrders.length) {
         setNewOutsourceOrder(true)
-        // Show notification for new orders
-        const newOrders = externalOrders.slice(outsourceOrders.length)
+        const newOrders = otherOrders.slice(outsourceOrders.length)
         newOrders.forEach(order => {
           showOrderNotification(order)
         })
-        setTimeout(() => setNewOutsourceOrder(false), 5000) // Hide notification after 5 seconds
+        setTimeout(() => setNewOutsourceOrder(false), 5000)
       }
-      setOutsourceOrders(externalOrders)
+      setOutsourceOrders(otherOrders)
     }
 
-    const interval = setInterval(checkForNewOrders, 10000) // Check every 10 seconds
+    const interval = setInterval(checkForNewOrders, 10000)
     return () => clearInterval(interval)
-    }, [outsourceOrders.length, showOrderNotification])
+  }, [outsourceOrders.length, showOrderNotification])
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -75,6 +80,8 @@ export default function Orders() {
         return <Badge variant="success">Confirmed</Badge>
       case 'shipped':
         return <Badge variant="info">Shipped</Badge>
+      case 'rejected':
+        return <Badge variant="error">Rejected</Badge>
       default:
         return <Badge variant="default">{status}</Badge>
     }
@@ -102,7 +109,6 @@ export default function Orders() {
   const handleConfirmOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'confirmed')
       setRefreshTrigger(prev => prev + 1)
@@ -119,7 +125,6 @@ export default function Orders() {
   const handleRejectOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'rejected')
       setRefreshTrigger(prev => prev + 1)
@@ -133,17 +138,73 @@ export default function Orders() {
     }
   }
 
-  const renderOrderTable = (orderList, title) => (
+  // ✅ Table for "Your Orders"
+  const renderYourOrdersTable = (orderList) => (
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
       <div className="p-4 border-b border-slate-200">
-        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Your Product Orders</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Order BY</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Product Name</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Quantity</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Unit Price</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orderList.map((order) => (
+              <tr 
+                key={order.id} 
+                className="border-b border-slate-100 hover:bg-slate-50 transition-colors group cursor-pointer"
+                onClick={() => handleOrderClick(order)}
+              >
+                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
+                  #{order.id}
+                </td>
+                <td className="py-4 px-6 text-slate-900 group-hover:text-[#F08344] transition-colors">
+                  {order.items?.[0]?.name || 'Product'}
+                </td>
+                <td className="py-4 px-6 text-slate-900">
+                  {order.items?.[0]?.quantity || 0}
+                </td>
+                <td className="py-4 px-6 text-slate-900">
+                  ₹{order.items?.[0]?.price?.toLocaleString() || '0'}
+                </td>
+                <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
+                  ₹{order.totalAmount?.toLocaleString() || '0'}
+                </td>
+                <td className="py-4 px-6">
+                  {getStatusBadge(order.status)}
+                </td>
+                <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
+                  {new Date(order.orderDate).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
+  // ✅ Table for Outsource Orders
+  const renderOutsourceOrdersTable = (orderList) => (
+    <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+      <div className="p-4 border-b border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-900">Outsource Orders</h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order By</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
@@ -155,7 +216,7 @@ export default function Orders() {
             {orderList.map((order) => (
               <tr 
                 key={order.id} 
-                className="border-b border-slate-100 hover:bg-slate-50 transition-colors  group"
+                className="border-b border-slate-100 hover:bg-slate-50 transition-colors group cursor-pointer"
                 onClick={() => handleOrderClick(order)}
               >
                 <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
@@ -166,7 +227,7 @@ export default function Orders() {
                 </td>
                 <td className="py-4 px-6">
                   <div className="space-y-1">
-                    {order.items.map((item, index) => (
+                    {order.items?.map((item, index) => (
                       <div key={index} className="text-sm">
                         <span className="font-medium text-slate-900">{item.name}</span>
                         <span className="text-slate-600"> (Qty: {item.quantity})</span>
@@ -175,7 +236,7 @@ export default function Orders() {
                   </div>
                 </td>
                 <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
-                  ₹{order.totalAmount.toLocaleString()}
+                  ₹{order.totalAmount?.toLocaleString() || '0'}
                 </td>
                 <td className="py-4 px-6">
                   {getStatusBadge(order.status)}
@@ -184,9 +245,8 @@ export default function Orders() {
                   {new Date(order.orderDate).toLocaleDateString()}
                 </td>
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
-                  {order.deliveryAddress}
+                  {order.deliveryAddress || 'N/A'}
                 </td>
-              
               </tr>
             ))}
           </tbody>
@@ -197,14 +257,12 @@ export default function Orders() {
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
-      {/* Notifications */}
-      <NotificationContainer 
+      <NotificationContainer
         notifications={notifications}
         onRemove={removeNotification}
         onNotificationClick={handleNotificationClick}
       />
 
-      {/* Order Details Modal */}
       <OrderDetailsModal
         isOpen={isOrderModalOpen}
         onClose={() => {
@@ -217,7 +275,6 @@ export default function Orders() {
         isLoading={isLoading}
       />
 
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
@@ -229,9 +286,8 @@ export default function Orders() {
           </div>
         </div>
 
-        {/* New Outsource Order Notification */}
         {newOutsourceOrder && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 animate-bounce-in">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
             <div className="flex items-center gap-2">
               <ExternalLink className="size-5 text-yellow-600" />
               <span className="text-yellow-800 font-medium">New outsource order received!</span>
@@ -240,10 +296,18 @@ export default function Orders() {
         )}
       </div>
 
-      {/* Tabs */}
       <div className="mb-6">
         <div className="flex gap-2">
-         
+          <button
+            onClick={() => setActiveTab('your-orders')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'your-orders'
+                ? 'bg-[#F08344] text-white'
+                : 'bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Your Orders ({yourOrders.length})
+          </button>
           <button
             onClick={() => setActiveTab('outsource')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
@@ -260,7 +324,6 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Filters */}
       <FilterBar
         search={search}
         onSearchChange={setSearch}
@@ -279,39 +342,37 @@ export default function Orders() {
         }]}
       />
 
-      {/* Orders Table */}
-      {activeTab === 'orders' && renderOrderTable(
-        orders
+      {activeTab === 'your-orders' && yourOrders.length > 0 && renderYourOrdersTable(
+        yourOrders
           .filter(o => (
-            o.customerName.toLowerCase().includes(search.toLowerCase()) ||
+            (o.items?.[0]?.name?.toLowerCase().includes(search.toLowerCase())) ||
             String(o.id).includes(search)
           ))
           .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-        , 'Orders')}
+      )}
 
-      {/* Outsource Orders Table */}
-      {activeTab === 'outsource' && renderOrderTable(
+      {activeTab === 'outsource' && outsourceOrders.length > 0 && renderOutsourceOrdersTable(
         outsourceOrders
           .filter(o => (
-            o.customerName.toLowerCase().includes(search.toLowerCase()) ||
+            o.customerName?.toLowerCase().includes(search.toLowerCase()) ||
             String(o.id).includes(search)
           ))
           .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-        , 'Outsource Orders')}
+      )}
 
-      {(activeTab === 'orders' && orders.length === 0) && (
+      {activeTab === 'your-orders' && yourOrders.length === 0 && (
         <div className="text-center py-12">
           <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
-          <p className="text-slate-600">Orders will appear here once customers place them</p>
+          <p className="text-slate-600">Orders you place from products will appear here</p>
         </div>
       )}
 
-      {(activeTab === 'outsource' && outsourceOrders.length === 0) && (
+      {activeTab === 'outsource' && outsourceOrders.length === 0 && (
         <div className="text-center py-12">
           <ExternalLink className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No outsource orders yet</h3>
-          <p className="text-slate-600">Outsource orders will appear here</p>
+          <p className="text-slate-600">Customer orders will appear here</p>
         </div>
       )}
     </div>

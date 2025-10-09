@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Button from "../../components/ui/Button";
+import Button from "../../../components/ui/Button";
 import { X } from "lucide-react";
 
 const AddAgentsModal = ({ onClose, onAdd }) => {

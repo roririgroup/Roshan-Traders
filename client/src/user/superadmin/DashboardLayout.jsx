@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
-import Sidebar from '../components/Sidebar/Sidebar'
-import Navbar from '../components/Navbar/Navbar'
-import { getStoredTheme, setStoredTheme, applyTheme } from '../lib/theme'
+import Sidebar from '../../components/Sidebar/Sidebar'
+import Navbar from '../../components/Navbar/Navbar'
+import { getStoredTheme, setStoredTheme, applyTheme } from '../../lib/theme'
 
 export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
