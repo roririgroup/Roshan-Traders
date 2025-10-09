@@ -32,7 +32,7 @@ import ReportPage from "../user/superadmin/ReportPage/ReportPage";
 import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
 
-import Landing from "../pages/landing";
+// Landing page removed. Root will redirect based on auth/role.
 
 import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
 import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
@@ -81,8 +81,8 @@ function RoleBasedRedirect() {
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Landing Page as Default */}
-      <Route path="/" element={<Landing />} />
+  {/* Root: redirect users based on auth/role */}
+  <Route path="/" element={<RoleBasedRedirect />} />
 
       {/* Public Routes */}
       <Route
