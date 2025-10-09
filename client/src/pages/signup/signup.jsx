@@ -250,6 +250,9 @@ const Signup = () => {
             
             <button
               type="submit"
+
+              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 "
+
               className="w-full h-8 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 "
             >
               Submit for Approval
@@ -257,7 +260,11 @@ const Signup = () => {
           </form>
 
           {/* Login Link */}
+
+          <p className=" text-gray-600 text-center text-sm">
+
           <p className=" text-gray-600 text-center text-sm mt-2">
+
             Already have an account?{" "}
             <span
               onClick={() => navigate("/user/login")}
