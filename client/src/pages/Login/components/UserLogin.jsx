@@ -9,8 +9,8 @@ import { User, Factory, Wrench, Phone, Key, Loader2, Truck } from 'lucide-react'
 
 export default function UserLogin() {
   const navigate = useNavigate()
-  const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
+  const [phone, setPhone] = useState('9876543210') // Default phone number
+  const [otp, setOtp] = useState('1234') // Default OTP
   const [userType, setUserType] = useState('agent')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -18,8 +18,6 @@ export default function UserLogin() {
   if (isAuthenticated()) {
     return <Navigate to="/" replace />
   }
-
-
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -31,7 +29,7 @@ export default function UserLogin() {
     setIsLoading(true)
     setError('')
 
-    // Proceed with login
+    // Direct login without any verification
     const res = loginUser({ phone, otp, userType })
     if (!res.success) {
       setError(res.error || 'Login failed')
@@ -39,19 +37,15 @@ export default function UserLogin() {
       return
     }
 
-    // Store user data in localStorage
-    const userData = { phone, userType }
-    localStorage.setItem('userData', JSON.stringify(userData))
-
     // Redirect based on userType
     if (userType === 'agent') {
       navigate('/agents/dashboard')
     } else if (userType === 'manufacturer') {
       navigate('/manufacturers/dashboard')
     } else if (userType === 'truckOwner') {
-      navigate('/truck-owners')
+      navigate('/truck-owners/dashboard')
     } else if (userType === 'driver') {
-      navigate('/drivers')
+      navigate('/drivers/dashboard')
     } else {
       navigate('/')
     }
@@ -79,11 +73,11 @@ export default function UserLogin() {
           <div className="p-6 sm:p-8">
             <div className="mb-6 ">
               <h1 className="text-2xl font-semibold tracking-tight text-center mr-3">User Login</h1>
-              <p className="mt-1 text-sm text-gray-600 text-center">Sign in with your mobile number and OTP</p>
+              <p className="mt-1 text-sm text-gray-600 text-center">Use default credentials to login instantly</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              
+              <div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
   {[
     { value: 'agent', label: 'Agent', icon: <User className="w-5 h-5" /> },
@@ -109,7 +103,7 @@ export default function UserLogin() {
   ))}
 </div>
 
-                {/* <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-2">
                   {[
                     { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
                     { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
@@ -132,7 +126,7 @@ export default function UserLogin() {
                   ))}
                 </div>
 
-              </div> */}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
@@ -145,11 +139,14 @@ export default function UserLogin() {
                     autoComplete="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-40 pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
-                    placeholder="98765 43210"
+                    className="w-full pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
+                    placeholder="Enter mobile number"
                     required
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Default: 9876543210
+                </p>
               </div>
 
               <div>
@@ -163,11 +160,14 @@ export default function UserLogin() {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     className="w-full rounded-xl border pl-10 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200 placeholder:text-gray-400"
-                    placeholder="Enter OTP (any 4+ digits)"
+                    placeholder="Enter OTP"
                     required
                   />
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Default: 1234 (or any OTP will work)
+                </p>
               </div>
 
               {error && (
@@ -182,13 +182,13 @@ export default function UserLogin() {
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? 'Logging in...' : 'Login Instantly'}
               </Button>
 
               <div className="mt-6 text-center text-sm">
                 <p>
                   Not a member?{" "}
-                  <button
+                  <button 
                     type="button"
                     onClick={handleSignUp}
                     className="text-indigo-600 font-semibold hover:underline hover:text-indigo-700 cursor-pointer"
@@ -196,8 +196,17 @@ export default function UserLogin() {
                     Sign up now
                   </button>
                 </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  For demo purposes, you can login with any credentials
+                </p>
               </div>
             </form>
+
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-xs text-blue-700 text-center">
+                <strong>Demo Instructions:</strong> Just click "Login Instantly" with default values or enter any phone number and OTP
+              </p>
+            </div>
 
             <p className="text-xs text-gray-500 text-center mt-4">
               By continuing you agree to our <span className="underline underline-offset-2">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.

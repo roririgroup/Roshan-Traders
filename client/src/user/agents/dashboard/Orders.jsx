@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, CheckCircle, Clock, Truck } from 'lucide-react'
 import { getOrders } from '../../../store/ordersStore'
 import FilterBar from '../../../components/ui/FilterBar'
 
@@ -10,14 +10,17 @@ export default function Orders() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
+  // Load orders from shared store
   useEffect(() => {
     setOrders(getOrders())
   }, [refreshTrigger])
 
+  // Auto-refresh every 5 seconds to check for new orders
   useEffect(() => {
     const interval = setInterval(() => {
       setRefreshTrigger(prev => prev + 1)
     }, 5000)
+
     return () => clearInterval(interval)
   }, [])
 
@@ -78,7 +81,6 @@ export default function Orders() {
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Date</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
               </tr>
             </thead>
@@ -115,11 +117,6 @@ export default function Orders() {
                   </td>
                   <td className="py-4 px-6 text-slate-600 hover:text-[#F08344] transition-colors">
                     {new Date(order.orderDate).toLocaleDateString()}
-                  </td>
-                  <td className="py-4 px-6 text-slate-600 hover:text-[#F08344] transition-colors">
-                    {order.deliveryDate
-                      ? new Date(order.deliveryDate).toLocaleDateString()
-                      : '—'}
                   </td>
                   <td className="py-4 px-6 text-slate-600 max-w-xs truncate hover:text-[#F08344] transition-colors">
                     {order.deliveryAddress}
