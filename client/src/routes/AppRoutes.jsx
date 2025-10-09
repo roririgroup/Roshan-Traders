@@ -32,7 +32,6 @@ import ReportPage from "../user/superadmin/ReportPage/ReportPage";
 import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
 
-import SignUpApprovalPage from "../screens/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
 import Landing from "../pages/landing";
 
 import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
