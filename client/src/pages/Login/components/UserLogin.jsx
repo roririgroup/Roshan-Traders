@@ -19,39 +19,7 @@ export default function UserLogin() {
     return <Navigate to="/" replace />
   }
 
-  // Check if user is approved
-  const checkUserApproval = (phone) => {
-    try {
-      // Check approved users
-      const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
-      const approvedUser = approvedUsers.find(user => user.phone === phone && user.role?.toLowerCase() === userType);
-      
-      if (approvedUser) {
-        return { approved: true, user: approvedUser };
-      }
 
-      // Check pending users
-      const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-      const pendingUser = pendingUsers.find(user => user.phone === phone && user.role?.toLowerCase() === userType);
-      
-      if (pendingUser) {
-        return { approved: false, status: 'pending', user: pendingUser };
-      }
-
-      // Check rejected users
-      const rejectedUsers = JSON.parse(localStorage.getItem('rejectedUsers') || '[]');
-      const rejectedUser = rejectedUsers.find(user => user.phone === phone && user.role?.toLowerCase() === userType);
-      
-      if (rejectedUser) {
-        return { approved: false, status: 'rejected', user: rejectedUser };
-      }
-
-      return { approved: false, status: 'not_found' };
-    } catch (error) {
-      console.error('Error checking user approval:', error);
-      return { approved: false, status: 'error' };
-    }
-  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -63,24 +31,7 @@ export default function UserLogin() {
     setIsLoading(true)
     setError('')
 
-    // First check if user is approved
-    const approvalCheck = checkUserApproval(phone);
-    
-    if (!approvalCheck.approved) {
-      if (approvalCheck.status === 'pending') {
-        setError('Your account is pending approval. Please wait for admin approval.')
-      } else if (approvalCheck.status === 'rejected') {
-        setError('Your account registration was rejected. Please contact administrator.')
-      } else if (approvalCheck.status === 'not_found') {
-        setError('Account not found. Please sign up first.')
-      } else {
-        setError('Account verification failed. Please try again.')
-      }
-      setIsLoading(false)
-      return
-    }
-
-    // If approved, proceed with login
+    // Proceed with login
     const res = loginUser({ phone, otp, userType })
     if (!res.success) {
       setError(res.error || 'Login failed')
@@ -88,13 +39,17 @@ export default function UserLogin() {
       return
     }
 
+    // Store user data in localStorage
+    const userData = { phone, userType }
+    localStorage.setItem('userData', JSON.stringify(userData))
+
     // Redirect based on userType
     if (userType === 'agent') {
       navigate('/agents/dashboard')
     } else if (userType === 'manufacturer') {
       navigate('/manufacturers/dashboard')
     } else if (userType === 'truckOwner') {
-      navigate('/truck owners')
+      navigate('/truck-owners')
     } else if (userType === 'driver') {
       navigate('/drivers')
     } else {
@@ -208,16 +163,13 @@ export default function UserLogin() {
               <div className="mt-6 text-center text-sm">
                 <p>
                   Not a member?{" "}
-                  <button 
+                  <button
                     type="button"
                     onClick={handleSignUp}
                     className="text-indigo-600 font-semibold hover:underline hover:text-indigo-700 cursor-pointer"
                   >
                     Sign up now
                   </button>
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  After sign up, wait for admin approval to login
                 </p>
               </div>
             </form>
