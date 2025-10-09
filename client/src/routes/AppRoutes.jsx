@@ -32,6 +32,7 @@ import ReportPage from "../screens/ReportPage/ReportPage";
 import AgentDetailsPage from "../screens/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
 import SignUpApprovalPage from "../screens/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
+import Landing from "../pages/landing";
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -59,15 +60,15 @@ function RoleBasedRedirect() {
   }
 
   if (hasRole("superadmin")) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard/dashboard" replace />;
   } else if (hasRole("manufacturer")) {
-    return <Navigate to="/manufacturers/dashboard" replace />;
+    return <Navigate to="/dashboard/manufacturers/dashboard" replace />;
   } else if (hasRole("agent")) {
-    return <Navigate to="/agents/dashboard" replace />;
+    return <Navigate to="/dashboard/agents/dashboard" replace />;
   } else if (hasRole("truckOwner")) {
-    return <Navigate to="/truck owners" replace />;
+    return <Navigate to="/dashboard/truck owners" replace />;
   } else if (hasRole("driver")) {
-    return <Navigate to="/drivers" replace />;
+    return <Navigate to="/dashboard/drivers" replace />;
   }
 
   return <Navigate to="/user/login" replace />;
@@ -76,35 +77,38 @@ function RoleBasedRedirect() {
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Landing Page as Default */}
+      <Route path="/" element={<Landing />} />
+
       {/* Public Routes */}
-      <Route 
-        path="/user/login" 
+      <Route
+        path="/user/login"
         element={
           <PublicRoute>
             <UserLogin />
           </PublicRoute>
-        } 
+        }
       />
-      <Route 
-        path="/superadmin/login" 
+      <Route
+        path="/superadmin/login"
         element={
           <PublicRoute>
             <SuperAdminLogin />
           </PublicRoute>
-        } 
+        }
       />
-      <Route 
-        path="/signup" 
+      <Route
+        path="/signup"
         element={
           <PublicRoute>
             <Signup />
           </PublicRoute>
-        } 
+        }
       />
 
       {/* Protected Routes with Layout */}
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <DashboardLayout />
