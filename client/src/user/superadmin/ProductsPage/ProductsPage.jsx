@@ -1,65 +1,34 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import { Edit, Trash2, ShoppingCart, Star, Users, Package, CreditCard, Truck, RotateCcw } from 'lucide-react'
 
-const sampleProducts = [
-  {
-    id: 1,
-    name: 'Red Bricks',
-    qualityRating: 4.5,
-    priceAmount: 500,
-    offer: '10% off',
-    buyersCount: 150,
-    returnExchange: true,
-    cashOnDelivery: true,
-    paymentOptions: ['UPI', 'Card'],
-    description: 'High-quality red bricks for construction projects.',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop'
-  },
-  {
-    id: 2,
-    name: 'Flooring Tiles',
-    qualityRating: 4.8,
-    priceAmount: 1200,
-    offer: '15% off',
-    buyersCount: 89,
-    returnExchange: true,
-    cashOnDelivery: true,
-    paymentOptions: ['UPI', 'Card'],
-    description: 'Premium ceramic flooring tiles for modern interiors.',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop'
-  },
-  {
-    id: 3,
-    name: 'Construction Soil',
-    qualityRating: 4.2,
-    priceAmount: 300,
-    offer: '5% off',
-    buyersCount: 200,
-    returnExchange: false,
-    cashOnDelivery: true,
-    paymentOptions: ['Card'],
-    description: 'High-grade construction soil for building foundations.',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop'
-  },
-  {
-    id: 4,
-    name: 'Timber Wood',
-    qualityRating: 4.6,
-    priceAmount: 800,
-    offer: '12% off',
-    buyersCount: 67,
-    returnExchange: true,
-    cashOnDelivery: false,
-    paymentOptions: ['UPI', 'Card'],
-    description: 'Premium quality timber wood for construction and furniture.',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop'
-  },
-]
+const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState(sampleProducts)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`)
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data)
+      } else {
+        console.error('Failed to fetch products')
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showOrderModal, setShowOrderModal] = useState(false)
@@ -143,7 +112,7 @@ export default function ProductsPage() {
     setShowAddModal(true)
   }
 
-  const handleAddSubmit = (e) => {
+  const handleAddSubmit = async (e) => {
     e.preventDefault()
     // Validation
     const newErrors = {}
@@ -157,30 +126,55 @@ export default function ProductsPage() {
       return
     }
 
-    // Add new product
-    const newProduct = {
-      id: Math.max(...products.map(p => p.id)) + 1,
-      ...addForm,
-      priceAmount: parseFloat(addForm.priceAmount),
-      buyersCount: parseInt(addForm.buyersCount) || 0
-    }
+    try {
+      const payload = {
+        name: addForm.name,
+        category: 'General', // Default category
+        priceRange: addForm.priceAmount.toString(),
+        imageUrl: addForm.image,
+        manufacturerId: 'default-manufacturer', // Default manufacturer
+        qualityRating: addForm.qualityRating,
+        offer: addForm.offer,
+        buyersCount: parseInt(addForm.buyersCount) || 0,
+        returnExchange: addForm.returnExchange,
+        cashOnDelivery: addForm.cashOnDelivery,
+        paymentOptions: addForm.paymentOptions,
+        description: addForm.description
+      }
 
-    setProducts([...products, newProduct])
-    setShowAddModal(false)
-    setAddForm({
-      name: '',
-      qualityRating: 4.0,
-      priceAmount: '',
-      offer: '',
-      buyersCount: 0,
-      returnExchange: false,
-      cashOnDelivery: false,
-      paymentOptions: [],
-      description: '',
-      image: ''
-    })
-    setAddErrors({})
-    alert('Product added successfully!')
+      const response = await fetch(`${API_BASE_URL}/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+
+      if (response.ok) {
+        const newProduct = await response.json()
+        setProducts([...products, newProduct])
+        setShowAddModal(false)
+        setAddForm({
+          name: '',
+          qualityRating: 4.0,
+          priceAmount: '',
+          offer: '',
+          buyersCount: 0,
+          returnExchange: false,
+          cashOnDelivery: false,
+          paymentOptions: [],
+          description: '',
+          image: ''
+        })
+        setAddErrors({})
+        alert('Product added successfully!')
+      } else {
+        alert('Failed to add product')
+      }
+    } catch (error) {
+      console.error('Error adding product:', error)
+      alert('Error adding product')
+    }
   }
 
   const handleEditProduct = (product) => {
@@ -200,7 +194,7 @@ export default function ProductsPage() {
     setShowEditModal(true)
   }
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault()
     // Validation
     const newErrors = {}
@@ -214,35 +208,59 @@ export default function ProductsPage() {
       return
     }
 
-    // Update product
-    const updatedProducts = products.map(product =>
-      product.id === editingProduct.id
-        ? {
-            ...product,
-            ...editForm,
-            priceAmount: parseFloat(editForm.priceAmount),
-            buyersCount: parseInt(editForm.buyersCount) || 0
-          }
-        : product
-    )
+    try {
+      const payload = {
+        name: editForm.name,
+        category: editingProduct.category || 'General',
+        priceRange: editForm.priceAmount.toString(),
+        imageUrl: editForm.image,
+        manufacturerId: editingProduct.manufacturerId || 'default-manufacturer',
+        qualityRating: editForm.qualityRating,
+        offer: editForm.offer,
+        buyersCount: parseInt(editForm.buyersCount) || 0,
+        returnExchange: editForm.returnExchange,
+        cashOnDelivery: editForm.cashOnDelivery,
+        paymentOptions: editForm.paymentOptions,
+        description: editForm.description
+      }
 
-    setProducts(updatedProducts)
-    setShowEditModal(false)
-    setEditingProduct(null)
-    setEditForm({
-      name: '',
-      qualityRating: 4.0,
-      priceAmount: '',
-      offer: '',
-      buyersCount: 0,
-      returnExchange: false,
-      cashOnDelivery: false,
-      paymentOptions: [],
-      description: '',
-      image: ''
-    })
-    setEditErrors({})
-    alert('Product updated successfully!')
+      const response = await fetch(`${API_BASE_URL}/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+
+      if (response.ok) {
+        const updatedProduct = await response.json()
+        const updatedProducts = products.map(product =>
+          product.id === editingProduct.id ? updatedProduct : product
+        )
+        setProducts(updatedProducts)
+        setShowEditModal(false)
+        setEditingProduct(null)
+        setEditForm({
+          name: '',
+          qualityRating: 4.0,
+          priceAmount: '',
+          offer: '',
+          buyersCount: 0,
+          returnExchange: false,
+          cashOnDelivery: false,
+          paymentOptions: [],
+          description: '',
+          image: ''
+        })
+        setEditErrors({})
+        alert('Product updated successfully!')
+      } else {
+        alert('Failed to update product')
+      }
+    } catch (error) {
+      console.error('Error updating product:', error)
+      alert('Error updating product')
+    }
   }
 
   const handlePaymentOptionChange = (option) => {
@@ -261,9 +279,23 @@ export default function ProductsPage() {
     }
   }
 
-  const handleDelete = (productId) => {
+  const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter(p => p.id !== productId))
+      try {
+        const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+          method: 'DELETE'
+        })
+
+        if (response.ok) {
+          setProducts(products.filter(p => p.id !== productId))
+          alert('Product deleted successfully!')
+        } else {
+          alert('Failed to delete product')
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error)
+        alert('Error deleting product')
+      }
     }
   }
 
@@ -303,7 +335,7 @@ export default function ProductsPage() {
                 <span className="text-sm text-gray-600 ml-1">{product.qualityRating}</span>
               </div>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl font-bold text-[#F08344]">₹{product.priceAmount}</span>
+                <span className="text-2xl font-bold text-[#F08344]">₹{product.priceRange}</span>
                 <span className="text-sm text-green-600 font-medium">{product.offer}</span>
               </div>
               <div className="flex items-center text-sm text-gray-600 mb-4">

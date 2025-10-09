@@ -169,54 +169,39 @@ export default function Profile() {
         </Card>
 
         {/* Documents */}
-        {/* Documents */}
-<Card className="p-6 lg:col-span-2">
-  <h2 className="text-xl font-semibold text-slate-900 mb-6">Documents</h2>
+        <Card className="p-6 lg:col-span-2">
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Documents</h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    {[
-      { name: 'Aadhaar', key: 'aadhaar' },
-      { name: 'PAN Card', key: 'pan' },
-      { name: 'GST Certificate', key: 'gst' },
-      { name: 'Driving License', key: 'license' }
-    ].map((doc) => (
-      <div key={doc.key} className="border rounded-lg p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-medium text-slate-900">{doc.name}</h3>
-          <span
-            className={`px-2 py-1 rounded text-xs ${
-              documents[doc.key] === 'Uploaded'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}
-          >
-            {documents[doc.key]}
-          </span>
-        </div>
-
-        {/* Hidden file input */}
-        <input
-          type="file"
-          ref={fileInputRefs[doc.key]}
-          onChange={(e) => handleFileChange(e, doc.key)}
-          className="hidden"
-          accept=".pdf,.jpg,.jpeg,.png"
-        />
-
-        <Button
-          onClick={() => handleUploadClick(doc.key)}
-          variant="outline"
-          size="sm"
-          className="w-full"
-          disabled={documents[doc.key] === 'Uploaded'}
-        >
-          <Upload className="size-4 mr-2" />
-          {documents[doc.key] === 'Uploaded' ? 'Uploaded' : 'Upload'}
-        </Button>
-      </div>
-    ))}
-  </div>
-</Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { name: 'Aadhaar', key: 'aadhaar' },
+              { name: 'PAN Card', key: 'pan' },
+              { name: 'GST Certificate', key: 'gst' },
+              { name: 'Driving License', key: 'license' }
+            ].map((doc) => (
+              <div key={doc.key} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-slate-900">{doc.name}</h3>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    documents[doc.key] === 'Uploaded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {documents[doc.key]}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => handleUploadClick(doc.key)}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={documents[doc.key] === 'Uploaded'}
+                >
+                  <Upload className="size-4 mr-2" />
+                  {documents[doc.key] === 'Uploaded' ? 'Uploaded' : 'Upload'}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
     </div>
   )

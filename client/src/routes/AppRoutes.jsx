@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "../user/superadmin/DashboardLayout";
 import DashboradPage from "../user/superadmin/DashboradPage/DashboradPage";
-import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
-import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
-// import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
+import ManufacturersPage from "../user/superadmin/Manufactures/ManufacturesPage";
+import ManufacturerDetailsPage from "../user/superadmin/Manufactures/components/ManufacturesDetailsPage";
+import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
 import AgentsPage from "../user/superadmin/AgentPage/AgentsPage";
 import EmployeesPage from "../user/superadmin/EmployeesPage/EmployeesPage";
 import UsersPage from "../user/superadmin/UsersPage/UsersPage";
@@ -31,12 +31,8 @@ import PaymentReports from "../user/superadmin/PaymentReportPage/PaymentReports"
 import ReportPage from "../user/superadmin/ReportPage/ReportPage";
 import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
-
-// Landing page removed. Root will redirect based on auth/role.
-
 import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
 import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
-
 
 function ProtectedRoute({ children, requiredRole = null }) {
   if (!isAuthenticated()) {
@@ -64,15 +60,15 @@ function RoleBasedRedirect() {
   }
 
   if (hasRole("superadmin")) {
-    return <Navigate to="/dashboard/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   } else if (hasRole("manufacturer")) {
-    return <Navigate to="/dashboard/manufacturers/dashboard" replace />;
+    return <Navigate to="/manufacturers/dashboard" replace />;
   } else if (hasRole("agent")) {
-    return <Navigate to="/dashboard/agents/dashboard" replace />;
+    return <Navigate to="/agents/dashboard" replace />;
   } else if (hasRole("truckOwner")) {
-    return <Navigate to="/dashboard/truck owners" replace />;
+    return <Navigate to="/truck owners" replace />;
   } else if (hasRole("driver")) {
-    return <Navigate to="/dashboard/drivers" replace />;
+    return <Navigate to="/drivers" replace />;
   }
 
   return <Navigate to="/user/login" replace />;
@@ -81,38 +77,35 @@ function RoleBasedRedirect() {
 export default function AppRoutes() {
   return (
     <Routes>
-  {/* Root: redirect users based on auth/role */}
-  <Route path="/" element={<RoleBasedRedirect />} />
-
       {/* Public Routes */}
-      <Route
-        path="/user/login"
+      <Route 
+        path="/user/login" 
         element={
           <PublicRoute>
             <UserLogin />
           </PublicRoute>
-        }
+        } 
       />
-      <Route
-        path="/superadmin/login"
+      <Route 
+        path="/superadmin/login" 
         element={
           <PublicRoute>
             <SuperAdminLogin />
           </PublicRoute>
-        }
+        } 
       />
-      <Route
-        path="/signup"
+      <Route 
+        path="/signup" 
         element={
           <PublicRoute>
             <Signup />
           </PublicRoute>
-        }
+        } 
       />
 
       {/* Protected Routes with Layout */}
       <Route
-        path="/dashboard"
+        path="/"
         element={
           <ProtectedRoute>
             <DashboardLayout />
@@ -147,14 +140,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="companies"
           element={
             <ProtectedRoute requiredRole="superadmin">
               <CompaniesPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route
           path="products"
           element={
