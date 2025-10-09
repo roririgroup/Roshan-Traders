@@ -46,6 +46,7 @@ const MENU_CONFIG = {
     { to: '/truck owners/dashboard', label: 'Dashboard', icon: Truck },
     { to: '/truck owners/driver-management', label: 'Driver Management', icon: Users },
     { to: '/truck owners/truck-management', label: 'Truck Management', icon: Truck },
+    { to: '/truck owners/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/truck owners/trips', label: 'Trips', icon: Package },
     { to: '/truck owners/payments', label: 'Payments', icon: DollarSign },
     { to: '/truck owners/profile', label: 'Profile', icon: User },
