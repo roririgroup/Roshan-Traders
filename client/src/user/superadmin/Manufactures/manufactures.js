@@ -447,7 +447,6 @@ export const getManufacturerById = (id) => {
   return manufacturersData.find(manufacturer => manufacturer.id === id);
 }
 
-// Function to get all manufacturers (summary view)
 export const getAllManufacturers = () => {
   return manufacturersData.map(({ 
     id, 
@@ -475,6 +474,7 @@ export const getAllManufacturers = () => {
     exportCountries: companyInfo.exportCountries
   }));
 }
+
 
 // Function to get product details by manufacturer ID and product ID
 export const getProductDetails = (manufacturerId, productId) => {
