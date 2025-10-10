@@ -12,7 +12,6 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
     referrals: 0,
     image: "", // store base64 string or URL
   });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: name === 'referrals' ? Number(value) || 0 : value });

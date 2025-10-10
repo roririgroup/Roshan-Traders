@@ -1,0 +1,144 @@
+[33mf39b614[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mNathiya[m[33m, [m[1;31morigin/Nathiya[m[33m)[m Merge remote-tracking branch 'origin/master' into Nathiya
+[33ma030892[m Refactor user service and database connection
+[33mb9d3b12[m Merge pull request #47 from roririgroup/sujin
+[33mc0b5658[m[33m ([m[1;31morigin/sujin[m[33m)[m all commit
+[33m4f12c2e[m stage commit
+[33mc9b145c[m Merge pull request #46 from roririgroup/hulk-Nambi
+[33m3ff1090[m[33m ([m[1;31morigin/hulk-Nambi[m[33m)[m Add Orders component with order management and filtering functionality
+[33m4e16ebb[m Merge pull request #45 from roririgroup/Arumugams
+[33m4656ff9[m clint
+[33mc2f4a36[m Merge pull request #44 from roririgroup/hulk-Nambi
+[33m14dca30[m commit
+[33md9efa27[m lading page
+[33mbafd9ab[m Merge pull request #43 from roririgroup/hulk-Nambi
+[33m3e8140b[m commit
+[33m3d7ba27[m Merge pull request #42 from roririgroup/Nathiya
+[33m7c0c8fa[m Merge pull request #41 from roririgroup/Parath
+[33m4db94f0[m[33m ([m[1;31morigin/Parath[m[33m)[m Refactor Signup component button styles and clean up unused imports in AppRoutes
+[33m568bcd4[m Merge pull request #40 from roririgroup/Arumugams
+[33mec74103[m Merge branch 'master' into Arumugams
+[33m28f4a03[m landing page
+[33m12b4cc4[m Merge pull request #39 from roririgroup/ganesh
+[33m63aec15[m[33m ([m[1;31morigin/ganesh[m[33m)[m Merge branch 'master' into ganesh
+[33m9bf06cc[m order
+[33mab1bfa6[m Merge pull request #38 from roririgroup/hulk-Nambi
+[33m601ad99[m commit
+[33mf144a95[m commit
+[33ma9516ad[m Add Superadmin Products Management Feature with UI and Modals
+[33mac8504f[m Merge pull request #37 from roririgroup/Herwin
+[33m4ac3857[m[33m ([m[1;31morigin/Herwin[m[33m)[m roshan
+[33m5ff03c2[m Roshan
+[33m8a52501[m Merge pull request #36 from roririgroup/hulk-Nambi
+[33ma0e9179[m commit
+[33m28c3b62[m non
+[33m36f2067[m Merge pull request #35 from roririgroup/sujin
+[33m83192ba[m commit
+[33m446e08b[m non
+[33mc3e0545[m Merge pull request #33 from roririgroup/hulk-Nambi
+[33ma18acbb[m Merge branch 'master' into hulk-Nambi
+[33ma1cc3e4[m companies
+[33m0f93206[m Merge pull request #34 from roririgroup/Nathiya
+[33mb399193[m feat: Add ReportPage, SignUpApprovalPage, TradersPage, and UsersPage components
+[33m5d6a647[m Merge pull request #32 from roririgroup/sujin
+[33m25a7f57[m Merge pull request #31 from roririgroup/Parath
+[33mde6eb97[m Merge branch 'master' into Parath
+[33m9041061[m Enhance Driver Dashboard: Add Delivery Trips page, update stats cards, and implement Delivery Details modal with proof upload functionality
+[33mcfcc2f3[m Merge pull request #30 from roririgroup/Arumugams
+[33m24bdb86[m order
+[33m077e2da[m Merge pull request #29 from roririgroup/Nathiya
+[33m5e18729[m TruckManagement page table work
+[33m9cd4727[m commit
+[33mfbc6012[m commit
+[33m036a09a[m commit
+[33m9160352[m commit
+[33m849c9fe[m Merge pull request #28 from roririgroup/ganesh
+[33m10bdc45[m signup
+[33me47f8a9[m signup image
+[33md6f1532[m Merge pull request #27 from roririgroup/hulk-Nambi
+[33mb6802ec[m k
+[33m3b4adda[m k
+[33m2fa232c[m Merge pull request #26 from roririgroup/Nathiya
+[33mb6f3528[m Refactor DriverManagement component to use a table layout for displaying driver data, add delete and view functionality, and implement status update with reason modal.
+[33m645f3e9[m Merge pull request #25 from roririgroup/Herwin
+[33m28c00c0[m Roshan
+[33m414d8e4[m Roshan
+[33md2f3d5b[m comkt
+[33ma921ab7[m Merge pull request #24 from roririgroup/ganesh
+[33m9d0f108[m signup
+[33m3bd4ab0[m orders
+[33m8bdc475[m Update sidebar configuration for driver role to include relevant menu items
+[33m2605c25[m  clear lottie page warnings
+[33me4df19a[m Added .gitignore
+[33mec3b740[m commit
+[33m2a1bc77[m Merge branch 'master' of https://github.com/roririgroup/Roshan-Traders
+[33mc93a689[m Title name change
+[33m1412bf6[m Roshan
+[33mfad1247[m Merge pull request #23 from roririgroup/Nathiya
+[33m1f1dddc[m Truck owners and Drivers Dashboard
+[33m85c6eb8[m Truck owners and Drivers Dashboard
+[33m37ca183[m chenges commit
+[33mb6ff36f[m[33m ([m[1;32mmaster[m[33m)[m Merge pull request #22 from roririgroup/hulk-Nambi
+[33mc78fd4e[m superadmin
+[33m70a7802[m commit
+[33mc14c77c[m Merge pull request #21 from roririgroup/hulk-Nambi
+[33mab5f010[m superadmin
+[33m32f801c[m Merge pull request #20 from roririgroup/hulk-Nambi
+[33m40d1984[m superadmin
+[33m7bfe358[m superadmin
+[33m9f08059[m Merge pull request #19 from roririgroup/Arumugam
+[33m0012221[m[33m ([m[1;31morigin/Arumugam[m[33m)[m UI changed for this pages
+[33m9feee72[m user page UI changed
+[33m165e746[m Merge pull request #18 from roririgroup/Arumugam
+[33m8c41da7[m removed some unwanted  section
+[33m2da41a8[m `Refactor EmployeeCard component and related constants for improved code organization and consistency.`
+[33mad0a65b[m Merge pull request #17 from roririgroup/captainamerica1
+[33m0f1dcfa[m agent, payment report, report, orders
+[33m0252296[m employee and user
+[33m98a5fb2[m Merge pull request #16 from roririgroup/hulk-Nambi
+[33mb25e5b1[m commit
+[33m0f272a4[m commit
+[33m66e85da[m Merge pull request #15 from roririgroup/captainamerica1
+[33mdb70ef9[m employee and user
+[33mb670c16[m Merge pull request #14 from roririgroup/sujin
+[33m8d3194c[m Refactor UI components to use consistent color scheme and improve styling.
+[33m4706916[m commit
+[33m867fcd5[m Merge pull request #12 from roririgroup/sujin
+[33m790781a[m commit changes
+[33m3508007[m Merge pull request #13 from roririgroup/captainamerica1
+[33me1b9c63[m fix buges
+[33mb2c05ff[m commit changes
+[33m24c5eb8[m feat: Add Payment Report, Products, Profile, and Reports components
+[33mfda88a6[m commit
+[33mbddfea6[m Merge pull request #11 from roririgroup/Arumugam
+[33m0ade1c6[m[33m ([m[1;31morigin/Arumugam-Parat-Nathiya-Kalyani[m[33m)[m fix ui in manufactures
+[33m24d4154[m refactor: update CompaniesPage to display construction material manufacturers and their products
+[33m9fd105e[m commit
+[33mc57eeeb[m commit
+[33m0c9f16f[m commit
+[33maa96f47[m Merge pull request #10 from roririgroup/captainamerica1
+[33mbb48509[m login page
+[33m9807ab5[m login page
+[33m825d66e[m Merge pull request #9 from roririgroup/captainamerica1
+[33m213f093[m Merge branch 'master' of https://github.com/roririgroup/Roshan-Traders into captainamerica1
+[33m2ad96a9[m commit
+[33m6b80ccf[m Manufactures and Agent
+[33m53dce8f[m login page
+[33me8a1677[m Merge pull request #8 from roririgroup/sujin
+[33m253304d[m Merge pull request #4 from roririgroup/hulk-Nambi
+[33ma3e4bf6[m commit'
+[33mdd0487b[m manufacturer pages and sidebar creating
+[33mc367da8[m Merge pull request #7 from roririgroup/captainamerica1
+[33m3e727b2[m commit
+[33m559e6d5[m Merge pull request #5 from roririgroup/CaptainAmerica
+[33m9d7c21f[m[33m ([m[1;31morigin/CaptainAmerica[m[33m)[m commit
+[33m579df8b[m Manufactures Dashboard
+[33mbf18464[m Agent Dashboard
+[33me4e6e86[m login page
+[33m00d4111[m agent comit
+[33m2c004e1[m Merge pull request #3 from roririgroup/rahul
+[33mb4cb74e[m[33m ([m[1;31morigin/rahul[m[33m)[m login page
+[33m1dacffb[m Merge pull request #2 from roririgroup/rahul
+[33m36b1881[m login page
+[33m5f38034[m Merge pull request #1 from roririgroup/rahul
+[33m0a4524d[m login page
+[33mee197c4[m create project

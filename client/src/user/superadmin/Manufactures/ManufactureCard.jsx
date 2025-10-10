@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { MapPin, ArrowRight, Star, Package, TrendingUp, Award, Globe, ShoppingCart, User } from 'lucide-react'
+import { MapPin, ArrowRight, Star, Package, TrendingUp, Award, Globe, ShoppingCart, User, Edit, Trash2 } from 'lucide-react'
 
-const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
+const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete }) => {
   if (viewMode === 'list') {
     return (
       <Link 
@@ -92,10 +92,26 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
                     <span>•</span>
                     <span>Verified Partner</span>
                   </div>
-                  <button className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 font-medium text-sm transition flex items-center">
-                    <span>View Details</span>
-                    <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-200" />
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onEdit(manufacturer); }}
+                      className="p-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-700 transition"
+                      title="Edit"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onDelete(manufacturer.id); }}
+                      className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <button className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 font-medium text-sm transition flex items-center">
+                      <span>View Details</span>
+                      <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-200" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -193,13 +209,29 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid' }) => {
             </div>
           </div>
 
-          {/* Action Button */}
+          {/* Action Buttons */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-            <span className="text-sm text-gray-500">View detailed profile</span>
-            <button className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 font-medium text-sm transition flex items-center">
-              <span>Explore</span>
-              <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-200" />
-            </button>
+            <span className="text-sm text-gray-500">Actions</span>
+            <div className="flex space-x-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(manufacturer); }}
+                className="p-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-700 transition"
+                title="Edit"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(manufacturer.id); }}
+                className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 font-medium text-sm transition flex items-center">
+                <span>Explore</span>
+                <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-200" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

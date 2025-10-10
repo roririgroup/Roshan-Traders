@@ -3,6 +3,7 @@ import PageHeader from './components/PageHeader';
 import ManufacturerCard from './ManufactureCard';
 import CallToAction from './components/CallToAction';
 import AddManufacturerModal from './components/AddManufacturerModal';
+import EditManufacturerModal from './components/EditManufacturerModal';
 import {
   Search,
   Filter,
@@ -24,6 +25,8 @@ export default function ManufacturersPage() {
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('rating');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedManufacturer, setSelectedManufacturer] = useState(null);
 
   useEffect(() => {
     fetchManufacturers();
@@ -122,6 +125,68 @@ export default function ManufacturersPage() {
     } catch (error) {
       console.error('Error adding manufacturer:', error);
       alert(`Failed to add manufacturer: ${error.message}`);
+    }
+  };
+
+  const handleEdit = async (manufacturer) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturer.id}`);
+      if (response.ok) {
+        const fullManufacturer = await response.json();
+        setSelectedManufacturer(fullManufacturer);
+        setIsEditModalOpen(true);
+      } else {
+        alert('Failed to fetch manufacturer details');
+      }
+    } catch (error) {
+      console.error('Error fetching manufacturer:', error);
+      alert('Error fetching manufacturer details');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this manufacturer?')) {
+      try {
+        const response = await fetch(`http://localhost:7700/api/manufacturers/${id}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          alert('Manufacturer deleted successfully!');
+          fetchManufacturers();
+        } else {
+          alert('Failed to delete manufacturer');
+        }
+      } catch (error) {
+        console.error('Error deleting manufacturer:', error);
+        alert('Error deleting manufacturer');
+      }
+    }
+  };
+
+  const handleEditManufacturer = async (id, payload) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update manufacturer');
+      }
+
+      const result = await response.json();
+      alert('Manufacturer updated successfully!');
+
+      setIsEditModalOpen(false);
+      setSelectedManufacturer(null);
+      fetchManufacturers();
+    } catch (error) {
+      console.error('Error updating manufacturer:', error);
+      alert(`Failed to update manufacturer: ${error.message}`);
     }
   };
 
@@ -247,6 +312,8 @@ export default function ManufacturersPage() {
                     key={manufacturer.id}
                     manufacturer={manufacturer}
                     viewMode="grid"
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
                 ))}
               </div>
@@ -257,6 +324,8 @@ export default function ManufacturersPage() {
                     key={manufacturer.id}
                     manufacturer={manufacturer}
                     viewMode="list"
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
                 ))}
               </div>
@@ -291,6 +360,16 @@ export default function ManufacturersPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddManufacturer}
+      />
+
+      <EditManufacturerModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedManufacturer(null);
+        }}
+        onSubmit={handleEditManufacturer}
+        manufacturer={selectedManufacturer}
       />
     </>
   );
