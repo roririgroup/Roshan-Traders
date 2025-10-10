@@ -330,7 +330,7 @@ export default function ManufacturersPage() {
               ))}
             </div>
           )
-        ) : (
+        (
           /* Empty State */
           <div className="text-center py-20">
             <div className="bg-gray-50 rounded-3xl p-16 max-w-lg mx-auto border border-gray-200 shadow-md">
@@ -370,6 +370,6 @@ export default function ManufacturersPage() {
         onSubmit={handleEditManufacturer}
         manufacturer={selectedManufacturer}
       />
-    </>
+    </div>
   );
 }

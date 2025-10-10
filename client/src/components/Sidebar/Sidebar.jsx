@@ -58,6 +58,7 @@ const MENU_CONFIG = {
   ],
   driver: [
     { to: '/dashboard/drivers', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/dashboard/drivers/load', label: 'Loads For Delivery', icon:  Package  },
     { to: '/dashboard/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
     { to: '/dashboard/drivers/earnings', label: 'Earnings', icon: DollarSign },
     { to: '/dashboard/drivers/profile', label: 'Profile', icon: User },
