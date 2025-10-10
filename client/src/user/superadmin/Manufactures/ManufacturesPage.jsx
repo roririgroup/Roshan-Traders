@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import PageHeader from './components/PageHeader';
 import ManufacturerCard from './ManufactureCard';
 import CallToAction from './components/CallToAction';
-import { getAllManufacturers } from './manufactures';
+import AddManufacturerModal from './components/AddManufacturerModal';
+import EditManufacturerModal from './components/EditManufacturerModal';
 import {
   Search,
   Filter,
@@ -22,6 +23,45 @@ export default function ManufacturersPage() {
   const [selectedLocation, setSelectedLocation] = useState('');
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('rating');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedManufacturer, setSelectedManufacturer] = useState(null);
+
+  useEffect(() => {
+    fetchManufacturers();
+  }, []);
+
+  const fetchManufacturers = async () => {
+    try {
+      const response = await fetch('http://localhost:7700/api/manufacturers');
+      if (response.ok) {
+        const data = await response.json();
+        const mappedManufacturers = data.map(manufacturer => ({
+          id: manufacturer.id,
+          name: manufacturer.companyName,
+          location: manufacturer.location,
+          specialization: manufacturer.specializations?.map(s => s.specialization.name).join(', ') || 'General',
+          rating: manufacturer.rating,
+          productsCount: manufacturer._count?.products || 0,
+          turnover: manufacturer.companyInfo?.annualTurnover || 'N/A',
+          exportCountries: manufacturer.companyInfo?.exportCountries?.length || 0,
+          established: manufacturer.established,
+          image: manufacturer.image,
+          founder: manufacturer.founders?.[0] ? { name: manufacturer.founders[0].name } : null,
+          ordersCount: manufacturer.orders?.length || 0,
+          gradient: 'from-blue-500/20 to-purple-500/20',
+          description: manufacturer.description,
+        }));
+        setManufacturers(mappedManufacturers);
+      } else {
+        console.error('Failed to fetch manufacturers');
+      }
+    } catch (error) {
+      console.error('Error fetching manufacturers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter and sort manufacturers
   const filteredManufacturers = manufacturers
@@ -46,6 +86,108 @@ export default function ManufacturersPage() {
     });
 
   const locations = [...new Set(manufacturers.map((m) => m.location))];
+
+  const handleAddManufacturer = async (payload) => {
+    console.log('handleAddManufacturer called with payload:', payload);
+    
+    try {
+      console.log('Making API call to create manufacturer...');
+      
+      // Call backend API to create manufacturer
+      const response = await fetch('http://localhost:7700/api/manufacturers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log('API response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API error response:', errorData);
+        throw new Error(errorData.message || 'Failed to add manufacturer');
+      }
+
+      const result = await response.json();
+      console.log('Manufacturer added successfully:', result);
+
+      // Show success alert
+      alert('Manufacturer added successfully!');
+
+      // Close modal and refresh manufacturers list
+      setIsAddModalOpen(false);
+      fetchManufacturers();
+
+      console.log('Modal closed and manufacturers list refreshed');
+    } catch (error) {
+      console.error('Error adding manufacturer:', error);
+      alert(`Failed to add manufacturer: ${error.message}`);
+    }
+  };
+
+  const handleEdit = async (manufacturer) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturer.id}`);
+      if (response.ok) {
+        const fullManufacturer = await response.json();
+        setSelectedManufacturer(fullManufacturer);
+        setIsEditModalOpen(true);
+      } else {
+        alert('Failed to fetch manufacturer details');
+      }
+    } catch (error) {
+      console.error('Error fetching manufacturer:', error);
+      alert('Error fetching manufacturer details');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this manufacturer?')) {
+      try {
+        const response = await fetch(`http://localhost:7700/api/manufacturers/${id}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          alert('Manufacturer deleted successfully!');
+          fetchManufacturers();
+        } else {
+          alert('Failed to delete manufacturer');
+        }
+      } catch (error) {
+        console.error('Error deleting manufacturer:', error);
+        alert('Error deleting manufacturer');
+      }
+    }
+  };
+
+  const handleEditManufacturer = async (id, payload) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update manufacturer');
+      }
+
+      const result = await response.json();
+      alert('Manufacturer updated successfully!');
+
+      setIsEditModalOpen(false);
+      setSelectedManufacturer(null);
+      fetchManufacturers();
+    } catch (error) {
+      console.error('Error updating manufacturer:', error);
+      alert(`Failed to update manufacturer: ${error.message}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
@@ -150,18 +292,33 @@ export default function ManufacturersPage() {
           </div>
         </div>
 
-        {/* Manufacturers Grid/List */}
-        {filteredManufacturers.length > 0 ? (
-          viewMode === 'grid' ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredManufacturers.map((manufacturer) => (
-                <ManufacturerCard
-                  key={manufacturer.id}
-                  manufacturer={manufacturer}
-                  viewMode="grid"
-                />
-              ))}
-            </div>
+          {/* Manufacturers Grid/List */}
+          {filteredManufacturers.length > 0 ? (
+            viewMode === 'grid' ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredManufacturers.map((manufacturer) => (
+                  <ManufacturerCard
+                    key={manufacturer.id}
+                    manufacturer={manufacturer}
+                    viewMode="grid"
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {filteredManufacturers.map((manufacturer) => (
+                  <ManufacturerCard
+                    key={manufacturer.id}
+                    manufacturer={manufacturer}
+                    viewMode="list"
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            )
           ) : (
             <div className="space-y-6">
               {filteredManufacturers.map((manufacturer) => (
@@ -197,6 +354,22 @@ export default function ManufacturersPage() {
         )}
 
       </div>
-    </div>
+
+      <AddManufacturerModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleAddManufacturer}
+      />
+
+      <EditManufacturerModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedManufacturer(null);
+        }}
+        onSubmit={handleEditManufacturer}
+        manufacturer={selectedManufacturer}
+      />
+    </>
   );
 }
