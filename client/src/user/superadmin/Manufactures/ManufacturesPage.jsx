@@ -50,7 +50,6 @@ export default function ManufacturersPage() {
   return (
     <div className="min-h-screen bg-white text-gray-800">
       {/* Header Section */}
-      <PageHeader />
 
       {/* Filters and Search Section */}
       <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-lg border-b border-gray-100 shadow-sm">
@@ -197,8 +196,6 @@ export default function ManufacturersPage() {
           </div>
         )}
 
-        {/* Call to Action */}
-        <CallToAction />
       </div>
     </div>
   );

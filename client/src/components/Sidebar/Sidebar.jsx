@@ -1,97 +1,107 @@
-import { NavLink } from 'react-router-dom'
-import { Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X, TrendingUp,  FileText, CreditCard, Package, LayoutDashboard, ShoppingCart, DollarSign, User, BarChart3, Truck, Gift } from 'lucide-react'
-import { logout } from '../../lib/auth'
-import { getCurrentUserRole } from '../../lib/roles'
-import Button from '../ui/Button'
+import { NavLink } from 'react-router-dom'; // ✅ Add this import at the top
+import {
+  Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X,
+  TrendingUp, FileText, CreditCard, Package, LayoutDashboard, ShoppingCart,
+  DollarSign, User, BarChart3, Truck, Gift
+} from 'lucide-react';
+import { logout } from '../../lib/auth';
+import { getCurrentUserRole } from '../../lib/roles';
+import Button from '../ui/Button';
+import { useState, useEffect } from 'react';
 
-const black = '/lottie/Roshan_black.png'
+const black = '/lottie/Roshan_black.png';
 
-const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative"
+const linkBase = "flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-medium transition-all duration-200 group relative";
 const active = ({ isActive }) =>
-  isActive 
-    ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25` 
-    : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`
+  isActive
+    ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25`
+    : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`;
 
 const MENU_CONFIG = {
- superadmin: [
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }, 
-    { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
-    { to: '/agents', label: 'Agents', icon: UserRound },
-    { to: '/companies', label: 'Companies', icon: Building2 },
-    { to: '/employees', label: 'Employees', icon: Gift },
-    { to: '/users', label: 'Users', icon: Users },
-    { to: '/orders', label: 'Orders', icon: ShoppingCart },
-    { to: '/paymentreports', label: 'Payment Reports', icon: CreditCard },
-    { to: '/report', label: 'Reports', icon: FileText },
-    { to: '/signup-approval', label: 'SignUp Approval', icon: UserCheck }, 
+  superadmin: [
+    { to: '/dashboard/home', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/dashboard/manufacturers', label: 'Manufacturers', icon: Factory },
+    { to: '/dashboard/agents', label: 'Agents', icon: UserRound },
+    { to: '/dashboard/companies', label: 'Companies', icon: Building2 },
+    { to: '/dashboard/employees', label: 'Employees', icon: Gift },
+    { to: '/dashboard/products', label: 'Products', icon: Package },
+    { to: '/dashboard/users', label: 'Users', icon: Users },
+    { to: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/dashboard/paymentreports', label: 'Payment Reports', icon: CreditCard },
+    { to: '/dashboard/report', label: 'Reports', icon: FileText },
+    { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
   ],
   agent: [
-    { to: '/agents/dashboard', label: 'Dashboard', icon: TrendingUp },
-    { to: '/agents/products', label: 'Products', icon: Package },
-    { to: '/agents/orders', label: 'Orders', icon: ShoppingCart },
-    { to: '/agents/payment-report', label: 'Payment Report', icon: DollarSign },
-    { to: '/agents/profile', label: 'Profile', icon: User },
-    { to: '/agents/reports', label: 'Reports', icon: BarChart3 },
+    { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
+    { to: '/dashboard/agent-products', label: 'Products', icon: Package },
+    { to: '/dashboard/agent-orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/dashboard/agent-payment-report', label: 'Payment Report', icon: DollarSign },
+    { to: '/dashboard/agent-profile', label: 'Profile', icon: User },
+    { to: '/dashboard/agent-reports', label: 'Reports', icon: BarChart3 },
   ],
   manufacturer: [
-    { to: '/manufacturers/dashboard', label: 'Dashboard', icon: TrendingUp },
-    { to: '/manufacturers/products', label: 'Products', icon: Package },
-    { to: '/manufacturers/orders', label: 'Customer Orders', icon: ShoppingCart },
-    { to: '/manufacturers/employees', label: 'Employees', icon: Gift },
-    { to: '/manufacturers/payments', label: 'Payments', icon: DollarSign },
-    { to: '/manufacturers/reports', label: 'Reports', icon: BarChart3 },
-    { to: '/manufacturers/profile', label: 'Profile', icon: User },
+    { to: '/dashboard/manufacturer-dashboard', label: 'Dashboard', icon: TrendingUp },
+    { to: '/dashboard/manufacturer-products', label: 'Products', icon: Package },
+    { to: '/dashboard/manufacturer-orders', label: 'Customer Orders', icon: ShoppingCart },
+    { to: '/dashboard/manufacturer-employees', label: 'Employees', icon: Gift },
+    { to: '/dashboard/manufacturer-payments', label: 'Payments', icon: DollarSign },
+    { to: '/dashboard/manufacturer-reports', label: 'Reports', icon: BarChart3 },
+    { to: '/dashboard/manufacturer-profile', label: 'Profile', icon: User },
   ],
   truckowner: [
-    { to: '/truck owners/dashboard', label: 'Dashboard', icon: Truck },
-    { to: '/truck owners/driver-management', label: 'Driver Management', icon: Users },
-    { to: '/truck owners/truck-management', label: 'Truck Management', icon: Truck },
-    { to: '/truck owners/trips', label: 'Trips', icon: Package },
-    { to: '/truck owners/payments', label: 'Payments', icon: DollarSign },
-    { to: '/truck owners/profile', label: 'Profile', icon: User },
+    { to: '/dashboard/truck-owners', label: 'Dashboard', icon: Truck },
+    { to: '/dashboard/truck-owners/driver-management', label: 'Driver Management', icon: Users },
+    { to: '/dashboard/truck-owners/truck-management', label: 'Truck Management', icon: Truck },
+    { to: '/dashboard/truck-owners/trips', label: 'Trips', icon: Package },
+    { to: '/dashboard/truck-owners/payments', label: 'Payments', icon: DollarSign },
+    { to: '/dashboard/truck-owners/profile', label: 'Profile', icon: User },
   ],
   driver: [
-    { to: '/drivers', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
-    { to: '/drivers/earnings', label: 'Earnings', icon: DollarSign },
-    { to: '/drivers/profile', label: 'Profile', icon: User },
+    { to: '/dashboard/drivers', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/dashboard/drivers/trip-details', label: 'Delivery Trips', icon: Truck },
+    { to: '/dashboard/drivers/earnings', label: 'Earnings', icon: DollarSign },
+    { to: '/dashboard/drivers/profile', label: 'Profile', icon: User },
   ],
-}
+};
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
-  const role = getCurrentUserRole()
-  console.log("Sidebar role:", role) // Debug log for role
-  
+  const [role, setRole] = useState(() => getCurrentUserRole() || 'guest');
+
+  useEffect(() => {
+    const handleRoleChange = () => {
+      const newRole = getCurrentUserRole() || 'guest';
+      if (newRole !== role) setRole(newRole);
+    };
+    window.addEventListener('storage', handleRoleChange);
+    return () => window.removeEventListener('storage', handleRoleChange);
+  }, [role]);
+
+  const menu = MENU_CONFIG[role] || [];
+
   return (
     <>
       {/* Mobile Overlay */}
       {mobile && (
-        <div 
-          className="fixed inset-0 bg-black/40 z-40 md:hidden" 
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
-      
+
       <aside
         className={`
-          ${mobile 
+          ${mobile
             ? 'fixed inset-y-0 left-0 z-50 w-64 sm:w-72 bg-white border-r border-slate-200 flex flex-col shadow-2xl transform transition-transform duration-300 md:hidden'
-            : `h-screen bg-white border-r border-slate-200 sticky top-0 hidden md:flex flex-col transition-all duration-300 shadow-sm ${
-                isCollapsed ? 'w-16 lg:w-20' : 'w-64 lg:w-72'
-              }`
+            : `h-screen bg-white border-r border-slate-200 sticky top-0 hidden md:flex flex-col transition-all duration-300 shadow-sm ${isCollapsed ? 'w-16 lg:w-20' : 'w-64 lg:w-72'}`
           }
         `}
       >
         {/* Header */}
         <div
-          className={`h-14 sm:h-16 border-b border-slate-200 flex items-center px-3 sm:px-6 bg-gradient-to-r from-slate-50 to-white ${
-            isCollapsed && !mobile ? 'justify-center' : 'justify-between'
-          }`}>
-          <div className={`flex items-center gap-2 sm:gap-3 ${
-            isCollapsed && !mobile ? 'justify-center' : ''
-          }`}>
-           
+          className={`h-14 sm:h-16 border-b border-slate-200 flex items-center px-3 sm:px-6 bg-gradient-to-r from-slate-50 to-white ${isCollapsed && !mobile ? 'justify-center' : 'justify-between'}`}
+        >
+          <div className={`flex items-center gap-2 sm:gap-3 ${isCollapsed && !mobile ? 'justify-center' : ''}`}>
             {(!isCollapsed || mobile) && (
               <div>
                 <img src={black} alt="Roshan Traders" className="h-10 w-35" />
@@ -110,12 +120,11 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
         </div>
 
         {/* Navigation */}
-        <nav className={`flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto ${
-          isCollapsed && !mobile ? 'flex flex-col items-center' : ''
-        }`}>
-          
-          {(MENU_CONFIG[role] || []).map((item) => {
-            const Icon = item.icon
+        <nav
+          className={`flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto ${isCollapsed && !mobile ? 'flex flex-col items-center' : ''}`}
+        >
+          {menu.map((item) => {
+            const Icon = item.icon;
             return (
               <NavLink
                 key={item.to}
@@ -135,22 +144,20 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
                   </div>
                 )}
               </NavLink>
-            )
+            );
           })}
         </nav>
 
         {/* Logout Section */}
-        <div className={`p-3 sm:p-4 border-t border-slate-200 bg-slate-50/50 ${
-          isCollapsed && !mobile ? 'flex justify-center' : ''
-        }`}>
+        <div
+          className={`p-3 sm:p-4 border-t border-slate-200 bg-slate-50/50 ${isCollapsed && !mobile ? 'flex justify-center' : ''}`}
+        >
           <Button
             variant="primary"
-            className={`w-full flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-200 font-medium text-sm ${
-              isCollapsed && !mobile ? 'justify-center px-2 py-2' : 'px-3 sm:px-4 py-2 sm:py-2.5'
-            }`}
+            className={`w-full flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-200 font-medium text-sm ${isCollapsed && !mobile ? 'justify-center px-2 py-2' : 'px-3 sm:px-4 py-2 sm:py-2.5'}`}
             onClick={() => {
               logout();
-              window.location.href = "/user/login";
+              window.location.href = '/user/login';
             }}
           >
             <LogOut className="size-4 flex-shrink-0" />
@@ -159,5 +166,5 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
         </div>
       </aside>
     </>
-  )
+  );
 }

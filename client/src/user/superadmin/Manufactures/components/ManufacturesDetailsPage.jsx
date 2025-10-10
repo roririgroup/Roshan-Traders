@@ -32,8 +32,6 @@ import {
   Clock3,
   AlertCircle,
 } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '../../../components/ui/Card';
-import Badge from '../../../components/ui/Badge';
 import { getManufacturerById } from '../manufactures';
 
 // StatCard Component

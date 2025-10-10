@@ -19,42 +19,18 @@ export default function Products() {
   const [search, setSearch] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
 
-  // Mock data - replace with API calls
+  // Fetch products from API
   useEffect(() => {
-    setProducts([
-      {
-        id: 1,
-        name: 'Red Bricks',
-        price: 50,
-        description: 'High-quality red bricks for dream house construction works',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
-        inStock: true
-      },
-      {
-        id: 2,
-        name: 'Teak Wood Planks',
-        price: 1500,
-        description: 'Durable teak wood planks for furniture and flooring',
-        image: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTEhMVFRUWFRcWGBUXFxUXFRUVFRUXFxcXFRUYHSggGBolGxUVITEhJSkrLi4uFyAzODMtNygtLisBCgoKDg0OGxAQGy0mICUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAKsBJgMBIgACEQEDEQH/xAAcAAACAgMBAQAAAAAAAAAAAAAEBQYHAQIDAAj/xABBEAABAgQEBAMFBwMCBAcAAAABAhEAAwQhIhMxQVFhcQYigZETMkKhsRQjQlLB0fBicuEkkhUzQ1M0c4KissLx/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDBAAF/8QAKREAAgICAgEDAwUBAQAAAAAAAAECEQMhEjFBBBNRImFxBTJCgbHwM//aAAwDAQACEQMRAD8AjWKkqBeF1ChjDarIMLE6wsQyDETsk1CxqFAxbmGY2lSAQdop7LdL9Yk+G1Ia0eR+pQfJSQbpBHHWIeIoIGgiMUVDnUAYk8zDlTFZsto64BSBFQAptDaI4MvHG15DCLezvIwACUTl2JiM1NKStCWuVAfGLVXOASRs0JKbh4Z0zD+Z/nEsSfJvstJaJPwnS5JQT0hzU6GPUUoJSGjep0h44uOPZEgNfXZVKeG3DQ8ROY7wi40ACJqhsPqYacETvuJb6kCNT/8AFfk690SvwQ0KcTksR5gw8e0JsdTytuWhJ41xCAS6pPicsPqaszWEIqKgBXpEjp6cCIQjK9HGZyHERLiKkAUlTXBPxIiaERHuI6fMktqLxd4eSY0e7F8iS8sWip+IqcfaVAfmI+cWZQ1Kvs4F3Dg/GIT9jz1qR1U/6xP0EfblJ/Y7K+TQlOHNtFmcB0yfsg/uU/m//wCRyxHAB4ZbVoK4HpyKc/3q/SNkMvJbLe3TIf7RKUInpI3T+sRJMrMYm/tHlEzUP+U/WIjSS+b0jdligaY2Z4pimK4p4sxKZb5Uj5xGsKkPMHnEo9o8l5qVdUiI5hSXmDzjXjVUjPkdtsnWEy2SIYzBaA8OSyRBE1UY8k+U2zRFUqF9Ql4DXLg6cYHMY5RspFg8tLQfTqgOWI6y1QjQzYwCoxzmKtGqVRzmKtDQVsV9CjF1FjETo5pE0xK8XUWMROjmETTFYr6WJPaZNuH8QZQeJXQ1gUIqjB6whQeJXQ1gUIqjB6x5mXG4ys0QmpK0T+ZODQHOmQilV5EdkVwMY3iaLqaY0nzIQ4pODGGU6sBaEGJ1gIMWxQdiykqI5i8wMYi9HMImeUSjFZgYxKqGYCkRqkqRKEuTZJqKc4gqZNaI5QzQ0HzJ7CMU4/UaYvQTNnQHOmwPOnQHOnQYwBKYPNnQHNnQRNnQHOnRaMRGz//2Q==',
-        inStock: true
-      },
-      {
-        id: 3,
-        name: 'River Sand',
-        price: 800,
-        description: 'Fine river sand suitable for plastering and masonry',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy0aaxkf0AdQf78X-Ypu9Bb02Ck9-bJvXynA&s',
-        inStock: false
-      },
-        {
-        id: 3,
-        name: 'Flooring Tiles',
-        price: 80,
-        description: 'Fine flooring tiles suitable for your dream house',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRh1n6ZLXb7E0znBkcHYq_O6Ms_1IliB0rEg&s',
-        inStock: true
+    async function fetchProducts() {
+      try {
+        const response = await fetch('http://localhost:7700/api/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
       }
-    ])
+    }
+    fetchProducts();
   }, [])
 
   const handleInputChange = (e) => {

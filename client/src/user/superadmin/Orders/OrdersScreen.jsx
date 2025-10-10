@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge.jsx'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, UserPlus } from 'lucide-react'
 import { getOrders, updateOrderStatus } from '../../../store/ordersStore.js'
 import NotificationContainer from '../../../components/ui/NotificationContainer.jsx'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal.jsx'
 import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar.jsx'
 import { getCurrentUser, isSuperAdmin } from '../../../lib/auth.js'
+import Modal from '../../../components/ui/Modal.jsx'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -16,6 +17,10 @@ export default function Orders() {
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [manufacturers, setManufacturers] = useState([])
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [selectedOrderForAssign, setSelectedOrderForAssign] = useState(null)
+  const [selectedManufacturer, setSelectedManufacturer] = useState('')
 
   const { notifications, removeNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
@@ -41,10 +46,29 @@ export default function Orders() {
     return () => clearInterval(interval)
   }, [])
 
+  // Fetch manufacturers
+  useEffect(() => {
+    const fetchManufacturers = async () => {
+      try {
+        const response = await fetch('/api/users/manufacturers')
+        if (response.ok) {
+          const data = await response.json()
+          setManufacturers(data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch manufacturers:', error)
+      }
+    }
+
+    fetchManufacturers()
+  }, [])
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'pending':
         return <Badge variant="warning">Pending</Badge>
+      case 'in_progress':
+        return <Badge variant="info">In Progress</Badge>
       case 'confirmed':
         return <Badge variant="success">Confirmed</Badge>
       case 'shipped':
@@ -105,6 +129,36 @@ export default function Orders() {
     }
   }
 
+  const handleAssignOrder = async () => {
+    if (!selectedOrderForAssign || !selectedManufacturer) return
+
+    setIsLoading(true)
+    try {
+      // Call API to assign order to manufacturer
+      const response = await fetch(`/api/orders/${selectedOrderForAssign.id}/assign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ manufacturerId: parseInt(selectedManufacturer) }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to assign order')
+      }
+
+      setRefreshTrigger(prev => prev + 1)
+      showSuccessNotification('Order assigned successfully!')
+      setIsAssignModalOpen(false)
+      setSelectedOrderForAssign(null)
+      setSelectedManufacturer('')
+    } catch (error) {
+      showErrorNotification('Failed to assign order. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const renderOrderTable = (orderList, title) => (
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
       <div className="p-4 border-b border-slate-200">
@@ -121,6 +175,7 @@ export default function Orders() {
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Manufacturer</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
           </thead>
@@ -159,8 +214,24 @@ export default function Orders() {
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress}
                 </td>
+                <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
+                  {order.manufacturer ? order.manufacturer.companyName : 'Not Assigned'}
+                </td>
                 <td className="py-4 px-6">
-                  {order.status === 'pending' && (
+                  {!order.manufacturer && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedOrderForAssign(order)
+                        setIsAssignModalOpen(true)
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <UserPlus className="size-3" />
+                      Assign
+                    </button>
+                  )}
+                  {order.status === 'in_progress' && order.manufacturer && (
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => {
@@ -215,6 +286,58 @@ export default function Orders() {
         isLoading={isLoading}
       />
 
+      {/* Assign Order Modal */}
+      <Modal
+        isOpen={isAssignModalOpen}
+        onClose={() => {
+          setIsAssignModalOpen(false)
+          setSelectedOrderForAssign(null)
+          setSelectedManufacturer('')
+        }}
+        title="Assign Order to Manufacturer"
+      >
+        <div className="p-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">Order #{selectedOrderForAssign?.id}</h3>
+            <p className="text-gray-600">Select a manufacturer to assign this order to.</p>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Manufacturer</label>
+            <select
+              value={selectedManufacturer}
+              onChange={(e) => setSelectedManufacturer(e.target.value)}
+              className="w-full p-2 border rounded"
+            >
+              <option value="">Select Manufacturer</option>
+              {manufacturers.map((manufacturer) => (
+                <option key={manufacturer.id} value={manufacturer.id}>
+                  {manufacturer.companyName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => {
+                setIsAssignModalOpen(false)
+                setSelectedOrderForAssign(null)
+                setSelectedManufacturer('')
+              }}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAssignOrder}
+              disabled={!selectedManufacturer || isLoading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isLoading ? 'Assigning...' : 'Assign Order'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
@@ -244,6 +367,7 @@ export default function Orders() {
           options: [
             { value: 'all', label: 'All Status' },
             { value: 'pending', label: 'Pending' },
+            { value: 'in_progress', label: 'In Progress' },
             { value: 'confirmed', label: 'Confirmed' },
             { value: 'shipped', label: 'Shipped' },
             { value: 'rejected', label: 'Rejected' },

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, MapPin, Phone, Mail, Users, Calendar, Factory, Star, ExternalLink, Package } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, MapPin, Phone, Mail, Users, Calendar, Factory, Star, ExternalLink, Package, Plus, Edit, Trash2 } from 'lucide-react';
 
 // Card Components
 const Card = ({ children, className = "" }) => (
