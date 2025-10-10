@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-export const manufacturersData = [];
-
-=======
 import React from 'react';
 
 export const manufacturersData = [
@@ -447,15 +443,10 @@ export const manufacturersData = [
 ];
 
 // Function to get manufacturer by ID
->>>>>>> origin/master
 export const getManufacturerById = (id) => {
   return manufacturersData.find(manufacturer => manufacturer.id === id);
 }
 
-<<<<<<< HEAD
-=======
-// Function to get all manufacturers (summary view)
->>>>>>> origin/master
 export const getAllManufacturers = () => {
   return manufacturersData.map(({ 
     id, 
@@ -483,8 +474,7 @@ export const getAllManufacturers = () => {
     exportCountries: companyInfo.exportCountries
   }));
 }
-<<<<<<< HEAD
-=======
+
 
 // Function to get product details by manufacturer ID and product ID
 export const getProductDetails = (manufacturerId, productId) => {
