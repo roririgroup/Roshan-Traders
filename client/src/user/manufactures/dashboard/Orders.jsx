@@ -250,7 +250,6 @@ export default function Orders() {
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress || 'N/A'}
                 </td>
-<<<<<<< HEAD
                 <td className="py-4 px-6">
                   {title === 'Outsource Orders' && order.status === 'in_progress' && (
                     <div className="flex gap-2">
@@ -277,8 +276,6 @@ export default function Orders() {
                     </div>
                   )}
                 </td>
-=======
->>>>>>> origin/master
               </tr>
             ))}
           </tbody>
