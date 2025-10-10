@@ -1,197 +1,153 @@
-import { useState } from 'react'
-import Button from '../../../components/ui/Button'
-import Modal from '../../../components/ui/Modal'
-import { MapPin, Upload, Eye, Truck, Clock, CheckCircle } from 'lucide-react'
+import React, { useState, useEffect } from "react";
+import { MapPin } from "lucide-react";
 
 export default function Trips() {
-  const [trips, setTrips] = useState([
-    {
-      id: 1,
-      truckNo: 'TN01AB1234',
-      driver: 'Raj Kumar',
-      from: 'Chennai',
-      to: 'Bangalore',
-      status: 'Running',
-      startTime: '2024-10-01 08:00',
-      estimatedArrival: '2024-10-01 16:00',
-      cargo: 'Electronics - 15 Ton',
-      agent: 'ABC Logistics',
-      podUploaded: false
-    },
-    {
-      id: 2,
-      truckNo: 'TN02CD5678',
-      driver: 'Suresh Patel',
-      from: 'Mumbai',
-      to: 'Delhi',
-      status: 'Upcoming',
-      startTime: '2024-10-05 06:00',
-      estimatedArrival: '2024-10-06 18:00',
-      cargo: 'Textiles - 12 Ton',
-      agent: 'XYZ Traders',
-      podUploaded: false
-    },
-    {
-      id: 3,
-      truckNo: 'TN01AB1234',
-      driver: 'Raj Kumar',
-      from: 'Bangalore',
-      to: 'Hyderabad',
-      status: 'Completed',
-      startTime: '2024-09-28 09:00',
-      estimatedArrival: '2024-09-28 15:00',
-      cargo: 'Machinery - 18 Ton',
-      agent: 'DEF Industries',
-      podUploaded: true
-    }
-  ])
+  const [trips, setTrips] = useState([]);
 
-  const [selectedTrip, setSelectedTrip] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  useEffect(() => {
+    // Load mock + assigned trips
+    const mockTrips = [
+      {
+        id: 1,
+        truckNo: "TN01AB1234",
+        driver: "Raj Kumar",
+        from: "Chennai",
+        to: "Bangalore",
+        status: "Running",
+        startTime: "2024-10-01 08:00",
+        estimatedArrival: "2024-10-01 16:00",
+        cargo: "Electronics - 15 Ton",
+        agent: "ABC Logistics",
+        podUploaded: false,
+      },
+      {
+        id: 2,
+        truckNo: "TN02CD5678",
+        driver: "Suresh Patel",
+        from: "Mumbai",
+        to: "Delhi",
+        status: "Upcoming",
+        startTime: "2024-10-05 06:00",
+        estimatedArrival: "2024-10-06 18:00",
+        cargo: "Textiles - 12 Ton",
+        agent: "XYZ Traders",
+        podUploaded: false,
+      },
+    ];
 
-  const handleViewDetails = (trip) => {
-    setSelectedTrip(trip)
-    setIsModalOpen(true)
-  }
-
-  const handleUploadPOD = (tripId) => {
-    // Mock upload
-    setTrips(trips.map(trip =>
-      trip.id === tripId ? { ...trip, podUploaded: true } : trip
-    ))
-    alert('POD uploaded successfully')
-  }
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Running': return 'bg-blue-100 text-blue-800'
-      case 'Upcoming': return 'bg-yellow-100 text-yellow-800'
-      case 'Completed': return 'bg-green-100 text-green-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
+    const storedTrips = JSON.parse(localStorage.getItem("truckTrips")) || [];
+    setTrips([...storedTrips, ...mockTrips]);
+  }, []);
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      {/* Header */}
-      <div className="mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
-          <MapPin className="size-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Trips & Orders</h1>
-          <p className="text-slate-600">Track all your assigned trips</p>
-        </div>
-      </div>
-
-      {/* Trips Table */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Truck No</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimated Arrival</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">POD</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {trips.map((trip) => (
-              <tr key={trip.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.truckNo}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.driver}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.from}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.to}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(trip.status)}`}>
-                    {trip.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.startTime}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.estimatedArrival}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.cargo}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{trip.agent}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  {trip.podUploaded ? (
-                    <span className="text-green-600 font-semibold">Uploaded</span>
-                  ) : (
-                    <span className="text-red-600 font-semibold">Pending</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center space-x-2">
-                  <Button onClick={() => handleViewDetails(trip)} variant="outline" size="sm">
-                    <Eye className="size-4 mr-1" />
-                    Details
-                  </Button>
-                  {trip.status === 'Completed' && !trip.podUploaded && (
-                    <Button onClick={() => handleUploadPOD(trip.id)} className="bg-[#F08344] hover:bg-[#e0733a]" size="sm">
-                      <Upload className="size-4 mr-1" />
-                      Upload POD
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Trip Details Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        {selectedTrip && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Trip Details</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium">Truck Number</p>
-                  <p className="text-lg">{selectedTrip.truckNo}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Driver</p>
-                  <p className="text-lg">{selectedTrip.driver}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">From</p>
-                  <p className="text-lg">{selectedTrip.from}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">To</p>
-                  <p className="text-lg">{selectedTrip.to}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Cargo</p>
-                  <p className="text-lg">{selectedTrip.cargo}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Agent</p>
-                  <p className="text-lg">{selectedTrip.agent}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Start Time</p>
-                  <p className="text-lg">{selectedTrip.startTime}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Estimated Arrival</p>
-                  <p className="text-lg">{selectedTrip.estimatedArrival}</p>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={() => setIsModalOpen(false)} variant="outline">
-                  Close
-                </Button>
-              </div>
-            </div>
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-3">
+          <div className="w-1 h-8 bg-[#F08344] rounded-full"></div>
+          Trips Management
+        </h2>
+        
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-gradient-to-r from-[#F08344] to-[#e67533]">
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Driver
+                  </th>
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Truck No
+                  </th>
+                  <th className="text-center px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Route
+                  </th>
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Cargo
+                  </th>
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Agent
+                  </th>
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Start Time
+                  </th>
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Est. Arrival
+                  </th>
+                  <th className="text-left px-6 py-4 text-white font-semibold text-sm uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {trips.map((trip, index) => (
+                  <tr 
+                    key={trip.id} 
+                    className="hover:bg-gradient-to-r hover:from-orange-50 hover:to-transparent transition-all duration-200 group"
+                  >
+                    <td className="px-6 py-4 font-semibold text-gray-800 group-hover:text-[#F08344] transition-colors">
+                      {trip.driver}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded-md text-gray-700 group-hover:bg-orange-100 transition-colors">
+                        {trip.truckNo}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-700">{trip.from}</span>
+                        <div className="flex items-center">
+                          <div className="w-8 h-0.5 bg-gray-300"></div>
+                          <MapPin className="w-4 h-4 mx-1 text-[#F08344] animate-pulse" />
+                          <div className="w-8 h-0.5 bg-gray-300"></div>
+                        </div>
+                        <span className="font-medium text-gray-700">{trip.to}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-600">{trip.cargo}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-medium text-gray-700">{trip.agent}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-600">{trip.startTime}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-600">{trip.estimatedArrival}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm ${
+                          trip.status === "Running"
+                            ? "bg-gradient-to-r from-green-400 to-green-500 text-white"
+                            : "bg-gradient-to-r from-blue-400 to-blue-500 text-white"
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full mr-2 ${
+                          trip.status === "Running" ? "bg-white animate-pulse" : "bg-white"
+                        }`}></span>
+                        {trip.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {trips.length === 0 && (
+                  <tr>
+                    <td colSpan="8" className="text-center py-12">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                          <MapPin className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 font-medium">No trips available.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
-      </Modal>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
