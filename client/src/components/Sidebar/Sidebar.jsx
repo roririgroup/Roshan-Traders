@@ -17,7 +17,6 @@ const MENU_CONFIG = {
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
     { to: '/agents', label: 'Agents', icon: UserRound },
-    { to: '/companies', label: 'Companies', icon: Building2 },
     { to: '/employees', label: 'Employees', icon: Gift },
     { to: '/products', label: 'Products', icon: Package },
     { to: '/users', label: 'Users', icon: Users },

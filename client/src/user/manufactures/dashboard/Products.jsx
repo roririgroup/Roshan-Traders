@@ -25,27 +25,18 @@ export default function Products() {
   const [search, setSearch] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
 
-  // Mock data - replace with API calls
+  // Fetch products from API
   useEffect(() => {
-    setProducts([
-      {
-        id: 1,
-        name: 'Red Bricks',
-        price: 50,
-        description: 'High-quality  for dream house construction works',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
-        inStock: true,
-        stockQuantity: 1000
-      },
-      {
-        id: 2,
-        name: 'Teak Wood Planks',
-        price: 1500,
-        description: 'Durable teak wood planks for furniture and flooring',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
-        stockQuantity: 50
+    async function fetchProducts() {
+      try {
+        const response = await fetch('http://localhost:7700/api/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
       }
-    ])
+    }
+    fetchProducts();
   }, [])
 
   const handleInputChange = (e) => {

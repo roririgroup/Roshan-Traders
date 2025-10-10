@@ -1,9 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "../user/superadmin/DashboardLayout";
 import DashboradPage from "../user/superadmin/DashboradPage/DashboradPage";
-import ManufacturersPage from "../pages/Manufactures/ManufacturesPage";
-import ManufacturerDetailsPage from "../pages/Manufactures/components/ManufacturesDetailsPage";
-import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
+import ManufacturersPage from "../user/superadmin/Manufactures/ManufacturesPage";
+import ManufacturerDetailsPage from "../user/superadmin/Manufactures/components/ManufacturesDetailsPage";
 import AgentsPage from "../user/superadmin/AgentPage/AgentsPage";
 import EmployeesPage from "../user/superadmin/EmployeesPage/EmployeesPage";
 import UsersPage from "../user/superadmin/UsersPage/UsersPage";
@@ -137,14 +136,6 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <ManufacturerDetailsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="companies"
-          element={
-            <ProtectedRoute requiredRole="superadmin">
-              <CompaniesPage />
             </ProtectedRoute>
           }
         />

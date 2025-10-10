@@ -4,9 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserType {
@@ -47,6 +46,8 @@ model User {
   auditLogs    AuditLog[]
   agent        Agent?
   manufacturer Manufacturer?
+  approvedAgents Agent[] @relation("AgentApprovedBy")
+  verifiedManufacturers Manufacturer[] @relation("ManufacturerVerifiedBy")
 
   @@map("users")
   @@index([userType])
@@ -83,6 +84,9 @@ model OTP {
   expiresAt   DateTime
   attempts    Int      @default(0)
   createdAt   DateTime @default(now())
+
+  // Relations
+  user        User?    @relation(fields: [phoneNumber], references: [phoneNumber])
 
   @@map("otps")
   @@index([phoneNumber])
@@ -146,6 +150,11 @@ model Manufacturer {
   isVerified      Boolean   @default(false)
   verifiedById    Int?
   verifiedAt      DateTime?
+  description     String?
+  established     Int?
+  location        String?
+  rating          Float     @default(4.0)
+  image           String?
   createdAt       DateTime  @default(now())
 
   // Relations
@@ -290,10 +299,18 @@ model Product {
   category       String
   priceRange     String?
   imageUrl       String?
-  manufacturerId Int
+  manufacturerId Int?
+  qualityRating  Float     @default(4.0)
+  offer          String?
+  buyersCount    Int       @default(0)
+  returnExchange Boolean   @default(false)
+  cashOnDelivery Boolean   @default(false)
+  paymentOptions Json?     // Array of payment options like ['UPI', 'Card']
+  description    String?
+  isActive       Boolean   @default(true)
 
   // Relations
-  manufacturer   Manufacturer      @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  manufacturer   Manufacturer?     @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
   attributes     ProductAttribute[]
   orderItems     OrderItem[]
 
@@ -326,10 +343,10 @@ model Order {
   totalAmount     Float
   deliveryAddress String?
   notes           String?
-  manufacturerId  Int
+  manufacturerId  Int?
 
   // Relations
-  manufacturer    Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  manufacturer    Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
   items           OrderItem[]
 
   @@map("orders")

@@ -71,6 +71,8 @@ export default function Orders() {
     switch (status) {
       case 'pending':
         return <Badge variant="warning">Pending</Badge>
+      case 'in_progress':
+        return <Badge variant="info">In Progress</Badge>
       case 'confirmed':
         return <Badge variant="success">Confirmed</Badge>
       case 'shipped':
@@ -149,6 +151,7 @@ export default function Orders() {
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +189,32 @@ export default function Orders() {
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress}
                 </td>
-              
+                <td className="py-4 px-6">
+                  {title === 'Outsource Orders' && order.status === 'in_progress' && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleConfirmOrder(order.id)
+                        }}
+                        className="px-3 py-1 bg-[#F08344] text-white rounded-lg text-sm hover:bg-[#e0763a] transition-colors cursor-pointer"
+                        disabled={isLoading}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRejectOrder(order.id)
+                        }}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors cursor-pointer"
+                        disabled={isLoading}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -272,6 +300,7 @@ export default function Orders() {
           options: [
             { value: 'all', label: 'All Status' },
             { value: 'pending', label: 'Pending' },
+            { value: 'in_progress', label: 'In Progress' },
             { value: 'confirmed', label: 'Confirmed' },
             { value: 'shipped', label: 'Shipped' },
             { value: 'rejected', label: 'Rejected' },

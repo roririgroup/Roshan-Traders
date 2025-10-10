@@ -1,0 +1,196 @@
+const prisma = require('../../shared/lib/db.js');
+
+const createProduct = async (payload) => {
+  const {
+    name,
+    category,
+    priceRange,
+    imageUrl,
+    manufacturerId,
+    qualityRating,
+    offer,
+    buyersCount,
+    returnExchange,
+    cashOnDelivery,
+    paymentOptions,
+    description,
+  } = payload;
+
+  // Generate unique ID using crypto for better uniqueness
+  const crypto = require('crypto');
+  const id = crypto.randomBytes(8).toString('hex');
+
+  const productData = await prisma.product.create({
+    data: {
+      id,
+      name,
+      category: category || 'General',
+      priceRange: priceRange || '0',
+      imageUrl: imageUrl || '',
+      manufacturerId: manufacturerId ? parseInt(manufacturerId) : null,
+      qualityRating: qualityRating || 4.0,
+      offer: offer || '',
+      buyersCount: buyersCount || 0,
+      returnExchange: returnExchange || false,
+      cashOnDelivery: cashOnDelivery || false,
+      paymentOptions: paymentOptions ? JSON.stringify(paymentOptions) : JSON.stringify([]),
+      description: description || '',
+    },
+    include: {
+      manufacturer: {
+        select: {
+          id: true,
+          companyName: true,
+        },
+      },
+    },
+  });
+
+  // Transform the response to match frontend expectations
+  let parsedPaymentOptions = [];
+  try {
+    parsedPaymentOptions = JSON.parse(productData.paymentOptions || '[]');
+  } catch (e) {
+    parsedPaymentOptions = [];
+  }
+  
+  return {
+    ...productData,
+    priceAmount: parseFloat(productData.priceRange) || 0,
+    paymentOptions: parsedPaymentOptions,
+  };
+};
+
+const getProducts = async () => {
+  const products = await prisma.product.findMany({
+    include: {
+      manufacturer: {
+        select: {
+          id: true,
+          companyName: true,
+        },
+      },
+    },
+  });
+
+  // Transform the response to match frontend expectations
+  return products.map(product => {
+    let parsedPaymentOptions = [];
+    try {
+      parsedPaymentOptions = JSON.parse(product.paymentOptions || '[]');
+    } catch (e) {
+      parsedPaymentOptions = [];
+    }
+    
+    return {
+      ...product,
+      priceAmount: parseFloat(product.priceRange) || 0,
+      paymentOptions: parsedPaymentOptions,
+      image: product.imageUrl, // Map imageUrl to image for frontend compatibility
+    };
+  });
+};
+
+const getProductById = async (id) => {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: {
+      manufacturer: true,
+      attributes: true,
+      orderItems: {
+        include: {
+          order: true,
+        },
+      },
+    },
+  });
+
+  if (!product) return null;
+
+  // Transform the response to match frontend expectations
+  let parsedPaymentOptions = [];
+  try {
+    parsedPaymentOptions = JSON.parse(product.paymentOptions || '[]');
+  } catch (e) {
+    parsedPaymentOptions = [];
+  }
+  
+  return {
+    ...product,
+    priceAmount: parseFloat(product.priceRange) || 0,
+    paymentOptions: parsedPaymentOptions,
+    image: product.imageUrl, // Map imageUrl to image for frontend compatibility
+  };
+};
+
+const updateProduct = async (id, payload) => {
+  const {
+    name,
+    category,
+    priceRange,
+    imageUrl,
+    manufacturerId,
+    qualityRating,
+    offer,
+    buyersCount,
+    returnExchange,
+    cashOnDelivery,
+    paymentOptions,
+    description,
+  } = payload;
+
+  const productData = await prisma.product.update({
+    where: { id },
+    data: {
+      name,
+      category,
+      priceRange: priceRange || '0',
+      imageUrl: imageUrl || '',
+      manufacturerId: manufacturerId ? parseInt(manufacturerId) : null,
+      qualityRating,
+      offer,
+      buyersCount,
+      returnExchange,
+      cashOnDelivery,
+      paymentOptions: paymentOptions ? JSON.stringify(paymentOptions) : JSON.stringify([]),
+      description,
+    },
+    include: {
+      manufacturer: {
+        select: {
+          id: true,
+          companyName: true,
+        },
+      },
+    },
+  });
+
+  // Transform the response to match frontend expectations
+  let parsedPaymentOptions = [];
+  try {
+    parsedPaymentOptions = JSON.parse(productData.paymentOptions || '[]');
+  } catch (e) {
+    parsedPaymentOptions = [];
+  }
+  
+  return {
+    ...productData,
+    priceAmount: parseFloat(productData.priceRange) || 0,
+    paymentOptions: parsedPaymentOptions,
+    image: productData.imageUrl, // Map imageUrl to image for frontend compatibility
+  };
+};
+
+const deleteProduct = async (id) => {
+  return await prisma.product.delete({
+    where: { id },
+  });
+};
+
+module.exports = {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+};
