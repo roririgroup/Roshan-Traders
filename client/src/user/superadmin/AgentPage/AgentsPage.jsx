@@ -1,100 +1,114 @@
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import { Users, TrendingUp, Award, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AddAgentsModal from './AddAgentsModal'
 import EditAgentModal from './EditAgentModal'
 import AgentCard from './AgentCard'
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState(() => {
-    const savedAgents = localStorage.getItem('agents')
-    if (savedAgents) {
-      return JSON.parse(savedAgents)
-    }
-    return [
-      {
-        id: 'a1',
-        name: 'Israil',
-        referrals: 14,
-        image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop',
-        phone: '+91 98765 43210',
-        email: 'ravi.patil@example.com',
-        location: 'Mumbai, Maharashtra',
-        joinDate: 'Jan 2024',
-        status: 'active'
-      },
-      {
-        id: 'a2',
-        name: 'Kumar',
-        referrals: 9,
-        image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop',
-        phone: '+91 87654 32109',
-        email: 'neha.gupta@example.com',
-        location: 'Kallikulam',
-        joinDate: 'Feb 2024',
-        status: 'active'
-      },
-      {
-        id: 'a3',
-        name: 'Iyyapa',
-        referrals: 18,
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
-        phone: '+91 76543 21098',
-        email: 'amit.sharma@example.com',
-        location: 'Pothai',
-        joinDate: 'Dec 2023',
-        status: 'active'
-      },
-      {
-        id: 'a4',
-        name: 'Kanidurai',
-        referrals: 6,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJdjXMNs33JT-tl_JKSqpVmwOLSikdjQiNNykHlj6OyIK4XqPGNb9XC9NJnhhRXZg6Dfc&usqp=CAU',
-        phone: '+91 65432 10987',
-        email: 'priya.verma@example.com',
-        location: 'Kallilulam',
-        joinDate: 'Mar 2024',
-        status: 'inactive'
-      }
-    ]
-  })
+  const [agents, setAgents] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editAgent, setEditAgent] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
+  useEffect(() => {
+    fetchAgents();
+  }, []);
+
+  const fetchAgents = async () => {
+    try {
+      const response = await fetch('http://localhost:7700/api/agents');
+      if (response.ok) {
+        const data = await response.json();
+        const mappedAgents = data.map(agent => ({
+          id: agent.id,
+          name: agent.user.name,
+          referrals: agent.referrals || 0,
+          image: agent.user.image || 'https://via.placeholder.com/150',
+          phone: agent.user.phone,
+          email: agent.user.email,
+          location: agent.location,
+          joinDate: new Date(agent.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          status: agent.status,
+        }));
+        setAgents(mappedAgents);
+      } else {
+        console.error('Failed to fetch agents');
+      }
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const totalReferrals = agents.reduce((sum, agent) => sum + agent.referrals, 0)
   const activeAgents = agents.filter(agent => agent.status === 'active').length
   const inactiveAgents = agents.filter(agent => agent.status === 'inactive').length
 
-  const handleAddAgent = (newAgent) => {
-    const updatedAgents = [...agents, { ...newAgent, id: `a${agents.length + 1}` }]
-    setAgents(updatedAgents)
-    localStorage.setItem('agents', JSON.stringify(updatedAgents))
-    setIsModalOpen(false)
-  }
+  const handleAddAgent = async (payload) => {
+    try {
+      const response = await fetch('http://localhost:7700/api/agents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (response.ok) {
+        fetchAgents();
+        setIsModalOpen(false);
+      } else {
+        console.error('Failed to add agent');
+      }
+    } catch (error) {
+      console.error('Error adding agent:', error);
+    }
+  };
 
   const handleEditAgent = (agent) => {
     setEditAgent(agent)
     setIsEditModalOpen(true)
   }
 
-  const handleSaveEdit = (updatedAgent) => {
-    const updatedAgents = agents.map((agent) =>
-      agent.id === updatedAgent.id ? updatedAgent : agent
-    )
-    setAgents(updatedAgents)
-    localStorage.setItem('agents', JSON.stringify(updatedAgents))
-    setIsEditModalOpen(false)
-    setEditAgent(null)
-  }
+  const handleSaveEdit = async (updatedAgent) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/agents/${updatedAgent.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedAgent),
+      });
+      if (response.ok) {
+        fetchAgents();
+        setIsEditModalOpen(false);
+        setEditAgent(null);
+      } else {
+        console.error('Failed to update agent');
+      }
+    } catch (error) {
+      console.error('Error updating agent:', error);
+    }
+  };
 
-  const handleRemoveAgent = (id) => {
-    const updatedAgents = agents.filter((agent) => agent.id !== id)
-    setAgents(updatedAgents)
-    localStorage.setItem('agents', JSON.stringify(updatedAgents))
-  }
+  const handleRemoveAgent = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/agents/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        fetchAgents();
+      } else {
+        console.error('Failed to remove agent');
+      }
+    } catch (error) {
+      console.error('Error removing agent:', error);
+    }
+  };
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">

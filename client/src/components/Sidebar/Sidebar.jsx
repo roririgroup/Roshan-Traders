@@ -18,6 +18,19 @@ const active = ({ isActive }) =>
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`;
 
 const MENU_CONFIG = {
+<<<<<<< HEAD
+ superadmin: [
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/manufacturers', label: 'Manufacturers', icon: Factory },
+    { to: '/agents', label: 'Agents', icon: UserRound },
+    { to: '/employees', label: 'Employees', icon: Gift },
+    { to: '/products', label: 'Products', icon: Package },
+    { to: '/users', label: 'Users', icon: Users },
+    { to: '/orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/paymentreports', label: 'Payment Reports', icon: CreditCard },
+    { to: '/report', label: 'Reports', icon: FileText },
+    { to: '/signup-approval', label: 'SignUp Approval', icon: UserCheck },
+=======
   superadmin: [
     { to: '/dashboard/home', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/dashboard/manufacturers', label: 'Manufacturers', icon: Factory },
@@ -30,6 +43,7 @@ const MENU_CONFIG = {
     { to: '/dashboard/paymentreports', label: 'Payment Reports', icon: CreditCard },
     { to: '/dashboard/report', label: 'Reports', icon: FileText },
     { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
+>>>>>>> origin/master
   ],
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },

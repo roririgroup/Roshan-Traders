@@ -26,8 +26,17 @@ export default function Products() {
   const [search, setSearch] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
 
-  // Mock data - replace with API calls
+  // Fetch products from API
   useEffect(() => {
+<<<<<<< HEAD
+    async function fetchProducts() {
+      try {
+        const response = await fetch('http://localhost:7700/api/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+=======
     setProducts([
       {
         id: 1,
@@ -45,8 +54,10 @@ export default function Products() {
         description: 'Durable teak wood planks for furniture and flooring',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
         stockQuantity: 50
+>>>>>>> origin/master
       }
-    ])
+    }
+    fetchProducts();
   }, [])
 
   const handleInputChange = (e) => {
