@@ -1,8 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import DashboardLayout from "../user/superadmin/DashboardLayout";
 import DashboradPage from "../user/superadmin/DashboradPage/DashboradPage";
-import ManufacturersPage from "../user/superadmin/Manufactures/ManufacturesPage";
-import ManufacturerDetailsPage from "../user/superadmin/Manufactures/components/ManufacturesDetailsPage";
+import ManufacturersPage from "../user/superadmin/ManufacturesPage/ManufacturersPage";
 import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
 import AgentsPage from "../user/superadmin/AgentPage/AgentsPage";
 import EmployeesPage from "../user/superadmin/EmployeesPage/EmployeesPage";
@@ -26,7 +25,6 @@ import { isAuthenticated } from "../lib/auth";
 import UserLogin from "../pages/Login/components/UserLogin";
 import SuperAdminLogin from "../pages/Login/components/SuperAdminLogin";
 import { hasRole } from "../lib/roles";
-import OrdersScreen from "../user/superadmin/Orders/OrdersScreen";
 import PaymentReports from "../user/superadmin/PaymentReportPage/PaymentReports";
 import ReportPage from "../user/superadmin/ReportPage/ReportPage";
 import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
@@ -172,14 +170,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="manufacturers/:manufacturerId"
-          element={
-            <ProtectedRoute requiredRole="superadmin">
-              <ManufacturerDetailsPage />
-            </ProtectedRoute>
-          }
-        />
+       
         <Route
           path="companies"
           element={
@@ -225,14 +216,6 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <UsersPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="orders"
-          element={
-            <ProtectedRoute requiredRole="superadmin">
-              <OrdersScreen />
             </ProtectedRoute>
           }
         />
