@@ -3,10 +3,7 @@ import DashboardLayout from "../user/superadmin/DashboardLayout";
 import DashboradPage from "../user/superadmin/DashboradPage/DashboradPage";
 import ManufacturersPage from "../user/superadmin/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../user/superadmin/Manufactures/components/ManufacturesDetailsPage";
-<<<<<<< HEAD
-=======
 import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
->>>>>>> origin/master
 import AgentsPage from "../user/superadmin/AgentPage/AgentsPage";
 import EmployeesPage from "../user/superadmin/EmployeesPage/EmployeesPage";
 import UsersPage from "../user/superadmin/UsersPage/UsersPage";

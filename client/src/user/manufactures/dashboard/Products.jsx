@@ -28,7 +28,6 @@ export default function Products() {
 
   // Fetch products from API
   useEffect(() => {
-<<<<<<< HEAD
     async function fetchProducts() {
       try {
         const response = await fetch('http://localhost:7700/api/products');
@@ -36,29 +35,30 @@ export default function Products() {
         setProducts(data);
       } catch (error) {
         console.error('Failed to fetch products:', error);
-=======
-    setProducts([
-      {
-        id: 1,
-        name: 'Red Bricks',
-        price: 50,
-        description: 'High-quality for dream house construction works',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
-        inStock: true,
-        stockQuantity: 1000
-      },
-      {
-        id: 2,
-        name: 'Teak Wood Planks',
-        price: 1500,
-        description: 'Durable teak wood planks for furniture and flooring',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
-        stockQuantity: 50
->>>>>>> origin/master
+        setProducts([
+          {
+            id: 1,
+            name: 'Red Bricks',
+            price: 50,
+            description: 'High-quality for dream house construction works',
+            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
+            inStock: true,
+            stockQuantity: 1000
+          },
+          {
+            id: 2,
+            name: 'Teak Wood Planks',
+            price: 1500,
+            description: 'Durable teak wood planks for furniture and flooring',
+            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
+            stockQuantity: 50
+          }
+        ]);
       }
     }
+
     fetchProducts();
-  }, [])
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -76,53 +76,52 @@ export default function Products() {
   }
 
   // ✅ Corrected order creation for Orders.jsx compatibility
- const handlePlaceOrder = (product) => {
-  const quantity = Number(quantities[product.id])
-  if (!quantity || quantity <= 0) {
-    alert('Please enter a valid quantity')
-    return
+  const handlePlaceOrder = (product) => {
+    const quantity = Number(quantities[product.id])
+    if (!quantity || quantity <= 0) {
+      alert('Please enter a valid quantity')
+      return
+    }
+
+    const user = getCurrentUser()
+    if (!user || !user.id) {
+      alert('Please log in before placing an order.')
+      return
+    }
+
+    const unitPrice = Number(product.price)
+    const total = unitPrice * quantity
+
+    const orderData = {
+      id: Date.now(),
+      orderType: 'product',
+      userInfo: {
+        id: user.id,
+        name: user.name || user.username || 'Unknown User'
+      },
+      items: [
+        {
+          name: product.name,
+          quantity,
+          price: unitPrice
+        }
+      ],
+      totalAmount: total,
+      status: 'pending',
+      orderDate: new Date().toISOString(),
+      deliveryAddress: 'N/A'
+    }
+
+    console.log('Placing order:', orderData)
+    addOrder(orderData)
+    alert('Order placed successfully!')
+
+    // reset quantity
+    setQuantities(prev => ({
+      ...prev,
+      [product.id]: ''
+    }))
   }
-
-  const user = getCurrentUser()
-  if (!user || !user.id) {
-    alert('Please log in before placing an order.')
-    return
-  }
-
-  const unitPrice = Number(product.price)
-  const total = unitPrice * quantity
-
-  const orderData = {
-    id: Date.now(),
-    orderType: 'product',
-    userInfo: {
-      id: user.id,
-      name: user.name || user.username || 'Unknown User'
-    },
-    items: [
-      {
-        name: product.name,
-        quantity,
-        price: unitPrice
-      }
-    ],
-    totalAmount: total,
-    status: 'pending',
-    orderDate: new Date().toISOString(),
-    deliveryAddress: 'N/A'
-  }
-
-  console.log('Placing order:', orderData)
-  addOrder(orderData)
-  alert('Order placed successfully!')
-
-  // reset quantity
-  setQuantities(prev => ({
-    ...prev,
-    [product.id]: ''
-  }))
-}
-
 
   const handleAddProduct = () => {
     if (!formData.name || !formData.price || !formData.description) {
