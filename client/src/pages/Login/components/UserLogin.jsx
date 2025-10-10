@@ -55,6 +55,13 @@ export default function UserLogin() {
     navigate('/signup')
   }
 
+  const userTypes = [
+    { value: 'agent', label: 'Agent', icon: <User className="w-5 h-5" /> },
+    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-5 h-5" /> },
+    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
+    { value: 'driver', label: 'Driver', icon: <Wrench className="w-5 h-5" /> }
+  ]
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center relative ">
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -78,54 +85,26 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-  {[
-    { value: 'agent', label: 'Agent', icon: <User className="w-5 h-5" /> },
-    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-5 h-5" /> },
-    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
-    { value: 'driver', label: 'Driver', icon: <Wrench className="w-5 h-5" /> }
-  ].map((type) => (
-    <button
-      key={type.value}
-      type="button"
-      onClick={() => setUserType(type.value)}
-      className={`flex flex-col items-center justify-center h-16 w-24 rounded-xl border text-sm font-medium transition-all ${
-        userType === type.value
-          ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
-      }`}
-    >
-      <div className="flex flex-col items-center gap-2">
-        {type.icon}
-        <span>{type.label}</span>
-      </div>
-    </button>
-  ))}
-</div>
-
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { value: 'agent', label: 'Agent', icon: <User className="w-4 h-4" /> },
-                    { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-4 h-4" /> },
-                    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-4 h-4" /> },
-                    { value: 'driver', label: 'Driver', icon: <Wrench className="w-4 h-4" /> }
-                  ].map((type) => (
+                <label className="block text-sm font-medium text-gray-700 mb-3">Select User Type</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {userTypes.map((type) => (
                     <button
                       key={type.value}
                       type="button"
                       onClick={() => setUserType(type.value)}
-                      className={`py-2 px-3 cursor-pointer rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${
+                      className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all ${
                         userType === type.value
-                          ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
                       }`}
                     >
-                      {type.icon}
-                      {type.label}
+                      <div className="flex flex-col items-center gap-1">
+                        {type.icon}
+                        <span className="text-xs">{type.label}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
-
               </div>
 
               <div>

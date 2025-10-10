@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Player } from '@lottiefiles/react-lottie-player';
+import Construction from '../../../public/lottie/construction.json';
 const Signup = () => {
   const navigate = useNavigate();
 
@@ -76,26 +77,30 @@ const Signup = () => {
         <div className="w-2/5 flex items-center justify-center relative overflow-hidden bg-white">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] rounded-r-full"></div>
           <div className="w-full h-full flex items-center justify-center relative z-10">
-            <img 
-              src="/lottie/working.gif" 
-              alt="Truck Animation" 
-              className="w-80 h-80 object-contain"
-            />
+            <Player
+        autoplay
+        loop
+        src={Construction}
+        style={{ height: 400, width: 400 }}
+      />
           </div>
         </div>
+           <div>
+      
+    </div>
 
         {/* Right Side - Form */}
         <div className="w-3/5 flex flex-col justify-center p-8 bg-white relative">
           <div className="text-center mb-6">
-            <img 
+            {/* <img 
               src="/lottie/Roshan_black.png" 
               alt="Logo" 
               className="h-12  ml-12 mx-auto object-contain" 
-            />
+            /> */}
             <h1 className="text-2xl font-bold text-gray-900">
               Create Account
             </h1>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600 ">
               Your account will be activated after admin approval
             </p>
           </div>
@@ -107,7 +112,7 @@ const Signup = () => {
             {/* First Name & Last Name */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 ">
                   First Name
                 </label>
                 <input
@@ -121,7 +126,7 @@ const Signup = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 ">
                   Last Name
                 </label>
                 <input
@@ -138,7 +143,7 @@ const Signup = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 ">
                 Email
               </label>
               <input
@@ -154,7 +159,7 @@ const Signup = () => {
 
             {/* Contact Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 ">
                 Contact Number
               </label>
               <input
@@ -170,7 +175,7 @@ const Signup = () => {
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 ">
                 Address
               </label>
               <input
@@ -186,7 +191,7 @@ const Signup = () => {
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 ">
                 Role
               </label>
               <select
@@ -207,7 +212,7 @@ const Signup = () => {
             {/* Password & Confirm Password */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 ">
                   Password
                 </label>
                 <input
@@ -221,7 +226,7 @@ const Signup = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 ">
                   Confirm Password
                 </label>
                 <input
@@ -238,10 +243,11 @@ const Signup = () => {
 
             {/* Error Message */}
             {error && (
-              <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+              <p className="text-red-500 text-sm text-center ">{error}</p>
             )}
 
             {/* Submit Button */}
+            
             <button
               type="submit"
               className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2"

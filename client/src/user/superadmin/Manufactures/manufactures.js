@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const manufacturersData = [
   {
     id: 'rn-tiles',
@@ -33,7 +35,14 @@ export const manufacturersData = [
         sizes: ['600x600mm', '800x800mm', '1200x600mm'],
         finishes: ['Glossy', 'Matte', 'Sugar'],
         priceRange: '₹25-45 per sq.ft',
-        image: 'https://images.unsplash.com/photo-1581093458791-9d1f8f5b88f8?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1581093458791-9d1f8f5b88f8?q=80&w=400&auto=format&fit=crop',
+        description: 'High-quality ceramic floor tiles perfect for residential and commercial spaces. Excellent durability and slip resistance.',
+        specifications: {
+          waterAbsorption: '< 3%',
+          thickness: '8-10mm',
+          surface: 'Glazed',
+          usage: 'Flooring'
+        }
       },
       {
         id: 'p2',
@@ -42,7 +51,14 @@ export const manufacturersData = [
         sizes: ['600x600mm', '800x800mm'],
         finishes: ['Polished', 'Lapato', 'Carving'],
         priceRange: '₹35-65 per sq.ft',
-        image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop',
+        description: 'Premium vitrified tiles with superior strength and stain resistance. Ideal for high-traffic areas.',
+        specifications: {
+          waterAbsorption: '< 0.5%',
+          thickness: '10-12mm',
+          surface: 'Polished',
+          usage: 'Flooring'
+        }
       },
       {
         id: 'p3',
@@ -51,7 +67,14 @@ export const manufacturersData = [
         sizes: ['300x450mm', '300x600mm', '400x800mm'],
         finishes: ['Glossy', 'Matte', 'Digital Print'],
         priceRange: '₹18-35 per sq.ft',
-        image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=400&auto=format&fit=crop',
+        description: 'Elegant wall tiles with modern designs and easy maintenance. Perfect for kitchens and bathrooms.',
+        specifications: {
+          waterAbsorption: '< 10%',
+          thickness: '6-8mm',
+          surface: 'Glazed',
+          usage: 'Wall Cladding'
+        }
       }
     ],
     specializations: ['Digital Printing', 'Large Format Tiles', 'Outdoor Applications'],
@@ -168,12 +191,18 @@ export const manufacturersData = [
     products: [
       {
         id: 'p4',
-        name: 'Galvanized    Sheets',
+        name: 'Galvanized Sheets',
         category: 'Steel Sheets',
         thickness: ['0.5mm', '0.7mm', '1.0mm', '1.2mm'],
         grades: ['SGCC', 'DX51D', 'S350GD'],
         priceRange: '₹45-65 per kg',
-        image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=400&auto=format&fit=crop',
+        description: 'High-quality galvanized steel sheets with excellent corrosion resistance.',
+        specifications: {
+          coating: 'Zinc Coated',
+          standard: 'IS 277',
+          finish: 'Commercial'
+        }
       },
       {
         id: 'p5',
@@ -182,7 +211,13 @@ export const manufacturersData = [
         thickness: ['0.4mm', '0.5mm', '0.7mm'],
         colors: ['RAL Colors', 'Custom Colors'],
         priceRange: '₹55-75 per kg',
-        image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=400&auto=format&fit=crop',
+        description: 'Pre-painted steel sheets available in various colors and finishes.',
+        specifications: {
+          coating: 'PVDF/Polyester',
+          standard: 'IS 513',
+          finish: 'Matt/Gloss'
+        }
       },
       {
         id: 'p6',
@@ -191,7 +226,13 @@ export const manufacturersData = [
         profiles: ['Corrugated', 'Trapezoidal', 'Standing Seam'],
         lengths: ['Custom lengths up to 12m'],
         priceRange: '₹50-70 per kg',
-        image: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=400&auto=format&fit=crop',
+        description: 'Durable roofing sheets designed for long-lasting protection.',
+        specifications: {
+          material: 'Galvanized Steel',
+          profile: 'Corrugated',
+          coating: 'Zinc Aluminium'
+        }
       }
     ],
     specializations: ['Custom Fabrication', 'Large Volume Orders', 'Quick Delivery'],
@@ -294,7 +335,13 @@ export const manufacturersData = [
         types: ['Common Bricks', 'Facing Bricks', 'Engineering Bricks'],
         sizes: ['230x110x70mm', '230x110x100mm'],
         priceRange: '₹4-8 per piece',
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop',
+        description: 'Traditional clay bricks with excellent compressive strength.',
+        specifications: {
+          compressiveStrength: '35-40 kg/cm²',
+          waterAbsorption: '15-20%',
+          size: 'Standard'
+        }
       },
       {
         id: 'p8',
@@ -303,7 +350,13 @@ export const manufacturersData = [
         types: ['Standard', 'High Strength', 'Lightweight'],
         sizes: ['230x110x70mm', '230x110x100mm'],
         priceRange: '₹3-6 per piece',
-        image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop',
+        description: 'Eco-friendly bricks made from fly ash, perfect for modern construction.',
+        specifications: {
+          compressiveStrength: '70-100 kg/cm²',
+          waterAbsorption: '12-15%',
+          size: 'Standard'
+        }
       },
       {
         id: 'p9',
@@ -312,7 +365,13 @@ export const manufacturersData = [
         types: ['Solid', 'Hollow', 'AAC Blocks'],
         sizes: ['400x200x200mm', '600x200x200mm'],
         priceRange: '₹25-45 per piece',
-        image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=400&auto=format&fit=crop'
+        image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=400&auto=format&fit=crop',
+        description: 'Versatile concrete blocks for various construction needs.',
+        specifications: {
+          compressiveStrength: '30-35 kg/cm²',
+          density: '1800-2000 kg/m³',
+          size: 'Standard'
+        }
       }
     ],
     specializations: ['Eco-Friendly Products', 'Custom Sizes', 'Bulk Supply'],
@@ -374,231 +433,21 @@ export const manufacturersData = [
         ],
         deliveryAddress: 'Commercial Complex, Mumbai - 400001',
         notes: 'High-rise building project'
-      },
-      {
-        id: 'ORD-008',
-        customerName: 'Rural Housing Corp.',
-        customerEmail: 'orders@ruralhousing.com',
-        orderDate: '2024-01-28',
-        status: 'pending',
-        totalAmount: 120000,
-        items: [
-          {
-            productId: 'p8',
-            productName: 'Fly Ash Bricks',
-            quantity: 20000,
-            unitPrice: 5,
-            totalPrice: 100000
-          },
-          {
-            productId: 'p9',
-            productName: 'Concrete Blocks',
-            quantity: 500,
-            unitPrice: 35,
-            totalPrice: 17500
-          }
-        ],
-        deliveryAddress: 'Village Development, Satara - 415001',
-        notes: 'Government housing scheme'
       }
     ],
     productsCount: 3,
     turnover: '₹25 Crores',
     exportCountries: 3,
     teamSize: 80
-  },
-  {
-    id: 'rks',
-    name: 'RKS',
-    location: 'Pune, Maharashtra',
-    specialization: 'Construction Materials',
-    established: 2012,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
-    logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
-    rating: 4.3,
-    founder: {
-      name: 'Chellaya Reddy',
-      experience: '12 years',
-      qualification: 'Diploma in Civil Engineering'
-    },
-    companyInfo: {
-      employees: 80,
-      annualTurnover: '₹25 Crores',
-      exportCountries: 3,
-      certifications: ['BIS 3495', 'IGBC Approved', 'GRIHA Certified']
-    },
-    contact: {
-      phone: '+91 98234 56789',
-      email: 'orders@rks.com',
-      website: 'rks.com',
-      address: 'Survey No. 123, Chakan Industrial Area, Pune - 410501, Maharashtra'
-    },
-    products: [
-      {
-        id: 'p10',
-        name: 'Clay Bricks',
-        category: 'Bricks',
-        types: ['Common Bricks', 'Facing Bricks', 'Engineering Bricks'],
-        sizes: ['230x110x70mm', '230x110x100mm'],
-        priceRange: '₹4-8 per piece',
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop'
-      },
-      {
-        id: 'p11',
-        name: 'Fly Ash Bricks',
-        category: 'Bricks',
-        types: ['Standard', 'High Strength', 'Lightweight'],
-        sizes: ['230x110x70mm', '230x110x100mm'],
-        priceRange: '₹3-6 per piece',
-        image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop'
-      }
-    ],
-    specializations: ['Eco-Friendly Products', 'Custom Sizes', 'Bulk Supply'],
-    description: 'Quality brick manufacturer focused on sustainable and eco-friendly building materials. Specializes in clay bricks and fly ash bricks for residential and commercial construction.',
-    achievements: [
-      'Green Building Material Award 2023',
-      'Quality Certification 2022',
-      'Regional Supplier Award 2021'
-    ],
-    orders: [
-      {
-        id: 'ORD-009',
-        customerName: 'Eco Builders Ltd.',
-        customerEmail: 'orders@ecobuilders.com',
-        orderDate: '2024-01-12',
-        status: 'completed',
-        totalAmount: 350000,
-        items: [
-          {
-            productId: 'p10',
-            productName: 'Clay Bricks',
-            quantity: 50000,
-            unitPrice: 6,
-            totalPrice: 300000
-          },
-          {
-            productId: 'p11',
-            productName: 'Fly Ash Bricks',
-            quantity: 10000,
-            unitPrice: 5,
-            totalPrice: 50000
-          }
-        ],
-        deliveryAddress: 'Green Valley, Pune - 411001',
-        notes: 'Eco-friendly construction project'
-      }
-    ],
-    productsCount: 2,
-    turnover: '₹25 Crores',
-    exportCountries: 3,
-    teamSize: 80
-  },
-  {
-    id: 'premium-steel',
-    name: 'Premium Steel Works',
-    location: 'Chennai, Tamil Nadu',
-    specialization: 'Steel Products',
-    established: 2015,
-    image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=800&auto=format&fit=crop',
-    logo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=200&auto=format&fit=crop',
-    rating: 4.7,
-    founder: {
-      name: 'Dr. Priya Sharma',
-      experience: '10 years',
-      qualification: 'Ph.D. Materials Science'
-    },
-    companyInfo: {
-      employees: 120,
-      annualTurnover: '₹40 Crores',
-      exportCountries: 12,
-      certifications: ['ISO 9001:2015', 'IATF 16949', 'OHSAS 18001']
-    },
-    contact: {
-      phone: '+91 98765 12345',
-      email: 'info@premiumsteel.com',
-      website: 'premiumsteel.com',
-      address: 'Industrial Area, Chennai - 600001, Tamil Nadu'
-    },
-    products: [
-      {
-        id: 'ps1',
-        name: 'Stainless Steel Sheets',
-        category: 'Steel Products',
-        grades: ['304', '316L', '430'],
-        thickness: ['0.5mm', '1.0mm', '2.0mm'],
-        priceRange: '₹180-350 per kg',
-        image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=400&auto=format&fit=crop'
-      }
-    ],
-    specializations: ['Precision Engineering', 'Custom Fabrication', 'Quality Control'],
-    description: 'Leading manufacturer of high-grade stainless steel products with advanced manufacturing capabilities and strict quality standards.',
-    achievements: [
-      'Excellence in Innovation Award 2023',
-      'Best Quality Supplier 2022',
-      'Export Achievement Award 2021'
-    ],
-    orders: [],
-    productsCount: 1,
-    turnover: '₹40 Crores',
-    exportCountries: 12,
-    teamSize: 120
-  },
-  {
-    id: 'green-construction',
-    name: 'Green Construction Materials',
-    location: 'Bangalore, Karnataka',
-    specialization: 'Sustainable Materials',
-    established: 2018,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
-    logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=200&auto=format&fit=crop',
-    rating: 4.5,
-    founder: {
-      name: 'Arjun Kumar Mehta',
-      experience: '8 years',
-      qualification: 'M.Tech Environmental Engineering'
-    },
-    companyInfo: {
-      employees: 65,
-      annualTurnover: '₹18 Crores',
-      exportCountries: 5,
-      certifications: ['IGBC Platinum', 'GRIHA 5-Star', 'LEED Certified']
-    },
-    contact: {
-      phone: '+91 87654 32109',
-      email: 'contact@greenconstruction.com',
-      website: 'greenconstruction.com',
-      address: 'Tech Park, Bangalore - 560001, Karnataka'
-    },
-    products: [
-      {
-        id: 'gc1',
-        name: 'Eco-Friendly Bricks',
-        category: 'Sustainable Materials',
-        types: ['Fly Ash Bricks', 'Recycled Bricks', 'Bio Bricks'],
-        sizes: ['230x110x70mm', '230x110x100mm'],
-        priceRange: '₹5-8 per piece',
-        image: 'https://images.unsplash.com/photo-1572998133418-2be45e29a8d4?q=80&w=400&auto=format&fit=crop'
-      }
-    ],
-    specializations: ['Sustainable Materials', 'Green Technology', 'Environmental Solutions'],
-    description: 'Pioneer in eco-friendly construction materials, committed to sustainable building practices and environmental conservation.',
-    achievements: [
-      'Green Innovation Award 2023',
-      'Sustainability Excellence 2022',
-      'Environmental Impact Award 2021'
-    ],
-    orders: [],
-    productsCount: 1,
-    turnover: '₹18 Crores',
-    exportCountries: 5,
-    teamSize: 65
   }
 ];
 
+// Function to get manufacturer by ID
 export const getManufacturerById = (id) => {
   return manufacturersData.find(manufacturer => manufacturer.id === id);
 }
 
+// Function to get all manufacturers (summary view)
 export const getAllManufacturers = () => {
   return manufacturersData.map(({ 
     id, 
@@ -626,3 +475,57 @@ export const getAllManufacturers = () => {
     exportCountries: companyInfo.exportCountries
   }));
 }
+
+// Function to get product details by manufacturer ID and product ID
+export const getProductDetails = (manufacturerId, productId) => {
+  const manufacturer = getManufacturerById(manufacturerId);
+  if (!manufacturer) return null;
+  
+  const product = manufacturer.products.find(p => p.id === productId);
+  return product ? { 
+    ...product, 
+    manufacturerName: manufacturer.name,
+    manufacturerLocation: manufacturer.location 
+  } : null;
+}
+
+// Function to place a new order
+export const placeOrder = (manufacturerId, orderData) => {
+  const manufacturer = getManufacturerById(manufacturerId);
+  if (!manufacturer) {
+    return { success: false, message: 'Manufacturer not found' };
+  }
+
+  // Generate new order ID
+  const newOrderId = `ORD-${String(manufacturer.orders.length + 1).padStart(3, '0')}`;
+  
+  const newOrder = {
+    id: newOrderId,
+    ...orderData,
+    orderDate: new Date().toISOString().split('T')[0],
+    status: 'pending'
+  };
+
+  return {
+    success: true,
+    order: newOrder,
+    message: 'Order placed successfully'
+  };
+}
+
+// Function to get navigation path for manufacturer view
+export const getManufacturerViewPath = (manufacturerId) => {
+  return `/superadmin/manufacturers/${manufacturerId}`;
+}
+
+// Export as default for easier imports
+const ManufacturersData = {
+  manufacturersData,
+  getManufacturerById,
+  getAllManufacturers,
+  getProductDetails,
+  placeOrder,
+  getManufacturerViewPath
+};
+
+export default ManufacturersData;
