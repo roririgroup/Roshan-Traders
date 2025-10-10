@@ -1,5 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import bricksImage from '../../assets/bricks.jpg';
+import brick from '../../assets/brick.jpg';
+import layingBricksImage from '../../assets/laying bricks.jpg';
+import floortile from '../../assets/floor-tile.jpg'
+import roof from '../../assets/roof.jpg';
+import rooftile from '../../assets/roof-tile.jpg';
+import floortiles from '../../assets/floor tile.jpg';
+import tile from '../../assets/tile.jpg'
+
+
+
+
+
 import {
   Factory,
   Shield,
@@ -46,7 +59,7 @@ function LandingPage() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-in');
+            entry.target.classList.add('animate-fade-in-up');
           }
         });
       },
@@ -71,7 +84,7 @@ function LandingPage() {
         'Compressive Strength: 10-15 N/mm²',
         'Finish: Smooth/Rough'
       ],
-      image: 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: bricksImage,
       alt: 'Roshan Traders premium red clay bricks stacked at factory'
     },
     {
@@ -83,7 +96,7 @@ function LandingPage() {
         'Water Absorption: <8%',
         'Finish: Glazed/Unglazed'
       ],
-      image: 'https://images.pexels.com/photos/6419122/pexels-photo-6419122.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: floortile,
       alt: 'Roshan Traders terracotta clay floor tiles with natural finish'
     },
     {
@@ -95,7 +108,7 @@ function LandingPage() {
         'Weight: 3.5 kg per tile',
         'Finish: Natural Red/Brown'
       ],
-      image: 'https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: roof,
       alt: 'Roshan Traders durable clay roof tiles installed on traditional building'
     }
   ];
@@ -111,12 +124,12 @@ function LandingPage() {
 
   // Gallery images
   const galleryImages = [
-    { url: 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Red bricks stacked at Roshan Traders manufacturing facility' },
-    { url: 'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Traditional clay kiln at Roshan Traders factory' },
-    { url: 'https://images.pexels.com/photos/6419122/pexels-photo-6419122.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Clay floor tiles production line' },
-    { url: 'https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Finished roof tiles ready for dispatch' },
-    { url: 'https://images.pexels.com/photos/1669754/pexels-photo-1669754.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Quality inspection at Roshan Traders facility' },
-    { url: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Workers crafting premium clay tiles' }
+    { url: brick, alt: 'Red bricks stacked at Roshan Traders manufacturing facility' },
+    { url: floortiles, alt: 'Traditional clay kiln at Roshan Traders factory' },
+    { url: bricksImage, alt: 'Clay floor tiles production line' },
+    { url: rooftile, alt: 'Finished roof tiles ready for dispatch' },
+    { url: layingBricksImage, alt: 'Quality inspection at Roshan Traders facility' },
+    { url: tile, alt: 'Workers crafting premium clay tiles' }
   ];
 
   // Testimonials
@@ -161,7 +174,7 @@ function LandingPage() {
                   Roshan Traders
                 </h1>
                 <p className={`text-xs ${scrolled ? 'text-gray-600' : 'text-gray-200'}`}>
-                  Since 1990
+                  Since 1960
                 </p>
               </div>
             </div>
@@ -222,9 +235,9 @@ function LandingPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto animate-fade-in">
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto fade-in-section opacity-0">
           <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            Trusted Brick & Tile Makers Since 1990
+            Trusted Brick & Tile Makers Since 1960
           </h2>
           <p className="text-xl sm:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto">
             Building lasting structures with premium quality bricks, clay floor tiles, and roof tiles.
@@ -471,7 +484,7 @@ function LandingPage() {
                 <Factory className="h-10 w-10 text-[#B0413E]" />
                 <div>
                   <h3 className="text-2xl font-bold">Roshan Traders</h3>
-                  <p className="text-sm text-gray-300">Since 1990</p>
+                  <p className="text-sm text-gray-300">Since 1960</p>
                 </div>
               </div>
               <p className="text-gray-300 mb-4">
