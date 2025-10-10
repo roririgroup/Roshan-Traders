@@ -5,6 +5,7 @@ import Modal from '../../../components/ui/Modal'
 import FilterBar from '../../../components/ui/FilterBar'
 import { Package, Plus, ShoppingCart, Edit, Trash2 } from 'lucide-react'
 import { addOrder } from '../../../store/ordersStore'
+import { getCurrentUser } from '../../../lib/auth'
 
 export default function Products() {
   const [products, setProducts] = useState([])
@@ -27,6 +28,7 @@ export default function Products() {
 
   // Fetch products from API
   useEffect(() => {
+<<<<<<< HEAD
     async function fetchProducts() {
       try {
         const response = await fetch('http://localhost:7700/api/products');
@@ -34,6 +36,25 @@ export default function Products() {
         setProducts(data);
       } catch (error) {
         console.error('Failed to fetch products:', error);
+=======
+    setProducts([
+      {
+        id: 1,
+        name: 'Red Bricks',
+        price: 50,
+        description: 'High-quality for dream house construction works',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
+        inStock: true,
+        stockQuantity: 1000
+      },
+      {
+        id: 2,
+        name: 'Teak Wood Planks',
+        price: 1500,
+        description: 'Durable teak wood planks for furniture and flooring',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
+        stockQuantity: 50
+>>>>>>> origin/master
       }
     }
     fetchProducts();
@@ -54,26 +75,54 @@ export default function Products() {
     }))
   }
 
-  const handlePlaceOrder = (product) => {
-    const quantity = quantities[product.id]
-    if (!quantity || quantity <= 0) {
-      alert('Please enter a valid quantity')
-      return
-    }
-
-    const orderData = {
-      name: product.name,
-      quantity: parseInt(quantity),
-      price: product.price
-    }
-
-    addOrder(orderData)
-    alert('Order placed successfully!')
-    setQuantities(prev => ({
-      ...prev,
-      [product.id]: ''
-    }))
+  // ✅ Corrected order creation for Orders.jsx compatibility
+ const handlePlaceOrder = (product) => {
+  const quantity = Number(quantities[product.id])
+  if (!quantity || quantity <= 0) {
+    alert('Please enter a valid quantity')
+    return
   }
+
+  const user = getCurrentUser()
+  if (!user || !user.id) {
+    alert('Please log in before placing an order.')
+    return
+  }
+
+  const unitPrice = Number(product.price)
+  const total = unitPrice * quantity
+
+  const orderData = {
+    id: Date.now(),
+    orderType: 'product',
+    userInfo: {
+      id: user.id,
+      name: user.name || user.username || 'Unknown User'
+    },
+    items: [
+      {
+        name: product.name,
+        quantity,
+        price: unitPrice
+      }
+    ],
+    totalAmount: total,
+    status: 'pending',
+    orderDate: new Date().toISOString(),
+    deliveryAddress: 'N/A'
+  }
+
+  console.log('Placing order:', orderData)
+  addOrder(orderData)
+  alert('Order placed successfully!')
+
+  // reset quantity
+  setQuantities(prev => ({
+    ...prev,
+    [product.id]: ''
+  }))
+}
+
 
   const handleAddProduct = () => {
     if (!formData.name || !formData.price || !formData.description) {
@@ -84,7 +133,8 @@ export default function Products() {
     const newProduct = {
       id: Date.now(),
       ...formData,
-      price: parseFloat(formData.price)
+      price: parseFloat(formData.price),
+      stockQuantity: formData.stockQuantity || 0
     }
 
     setProducts(prev => [...prev, newProduct])
@@ -93,7 +143,8 @@ export default function Products() {
       price: '',
       description: '',
       image: '',
-      inStock: true
+      inStock: true,
+      stockQuantity: 0
     })
     setShowAddForm(false)
   }
@@ -105,7 +156,8 @@ export default function Products() {
       price: product.price.toString(),
       description: product.description,
       image: product.image || '',
-      inStock: product.inStock
+      inStock: product.inStock,
+      stockQuantity: product.stockQuantity || 0
     })
     setShowAddForm(true)
   }
@@ -121,7 +173,8 @@ export default function Products() {
         ? {
             ...product,
             ...formData,
-            price: parseFloat(formData.price)
+            price: parseFloat(formData.price),
+            stockQuantity: formData.stockQuantity || 0
           }
         : product
     ))
@@ -131,7 +184,8 @@ export default function Products() {
       price: '',
       description: '',
       image: '',
-      inStock: true
+      inStock: true,
+      stockQuantity: 0
     })
     setEditingProduct(null)
     setShowAddForm(false)
@@ -141,25 +195,6 @@ export default function Products() {
     if (window.confirm('Are you sure you want to delete this product?')) {
       setProducts(prev => prev.filter(product => product.id !== productId))
     }
-  }
-
-  const handleUpdateStock = (productId, inStock) => {
-    setProducts(prev => prev.map(product =>
-      product.id === productId
-        ? { ...product, inStock }
-        : product
-    ))
-  }
-
-  // New handler for manual stock quantity change
-  const handleStockQuantityChange = (productId, quantity) => {
-    setProducts(prev =>
-      prev.map(product =>
-        product.id === productId
-          ? { ...product, stockQuantity: Number(quantity), inStock: Number(quantity) > 0 }
-          : product
-      )
-    )
   }
 
   // Add Stock Modal handlers
@@ -208,11 +243,12 @@ export default function Products() {
                 price: '',
                 description: '',
                 image: '',
-                inStock: true
+                inStock: true,
+                stockQuantity: 0
               })
               setShowAddForm(true)
             }}
-            className="bg-Orange-600 hover:bg-Orange-700 text-white"
+            className="bg-orange-600 hover:bg-orange-700 text-white"
           >
             <Plus className="size-4 mr-2" />
             Add Product
@@ -275,6 +311,7 @@ export default function Products() {
                 <input
                   type="number"
                   min="0"
+                  max={product.stockQuantity}
                   value={quantities[product.id] || ''}
                   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
                   placeholder="Enter order qty"
@@ -283,7 +320,7 @@ export default function Products() {
                 <Button
                   onClick={() => handlePlaceOrder(product)}
                   className="bg-green-600 hover:bg-green-700 text-white"
-                  disabled={!product.inStock || !(quantities[product.id] > 0)}
+                  disabled={!product.inStock || !(quantities[product.id] > 0) || (quantities[product.id] > product.stockQuantity)}
                 >
                   <ShoppingCart className="size-4 mr-2" />
                   Order
@@ -310,7 +347,7 @@ export default function Products() {
                 </div>
                 <Button
                   onClick={() => openAddStockModal(product.id)}
-                  className="bg-Orange-600 hover:bg-Orange-700 text-white flex items-center gap-2"
+                  className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2"
                   size="sm"
                   title="Add Stock"
                 >
@@ -388,6 +425,19 @@ export default function Products() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Stock Quantity</label>
+            <input
+              type="number"
+              name="stockQuantity"
+              value={formData.stockQuantity}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter stock quantity"
+              min="0"
+            />
+          </div>
+
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -405,7 +455,7 @@ export default function Products() {
             </Button>
             <Button
               onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
-              className="bg-Orange-600 hover:bg-Orange-700 text-white"
+              className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               {editingProduct ? 'Update Product' : 'Add Product'}
             </Button>
@@ -429,7 +479,7 @@ export default function Products() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setShowAddStockModal(false)}>Cancel</Button>
-            <Button className="bg-Orange-600 hover:bg-Orange700 text-white cursor-pointer" onClick={handleConfirmAddStock}>Add</Button>
+            <Button className="bg-orange-600 hover:bg-orange-700 text-white cursor-pointer" onClick={handleConfirmAddStock}>Add</Button>
           </div>
         </div>
       </Modal>

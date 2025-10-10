@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.16.4",
+    "@lottiefiles/react-lottie-player": "^3.6.0",
     "@tailwindcss/vite": "^4.1.12",
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",

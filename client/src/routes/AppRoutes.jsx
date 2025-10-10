@@ -1,8 +1,12 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import DashboardLayout from "../user/superadmin/DashboardLayout";
 import DashboradPage from "../user/superadmin/DashboradPage/DashboradPage";
 import ManufacturersPage from "../user/superadmin/Manufactures/ManufacturesPage";
 import ManufacturerDetailsPage from "../user/superadmin/Manufactures/components/ManufacturesDetailsPage";
+<<<<<<< HEAD
+=======
+import CompaniesPage from "../user/superadmin/CompaniesPage/CompaniesPage";
+>>>>>>> origin/master
 import AgentsPage from "../user/superadmin/AgentPage/AgentsPage";
 import EmployeesPage from "../user/superadmin/EmployeesPage/EmployeesPage";
 import UsersPage from "../user/superadmin/UsersPage/UsersPage";
@@ -30,53 +34,93 @@ import PaymentReports from "../user/superadmin/PaymentReportPage/PaymentReports"
 import ReportPage from "../user/superadmin/ReportPage/ReportPage";
 import AgentDetailsPage from "../user/superadmin/AgentPage/AgentDetailsPage";
 import Signup from "../pages/signup/signup";
-import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage"; // ✅ Added import
+import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage";
 import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
+import LandingPage from "../pages/LandingPage/LandinPage";
+
+// Custom hook to prevent infinite redirects
+function useSafeNavigate() {
+  const location = useLocation();
+  
+  const shouldRedirect = (targetPath) => {
+    return location.pathname !== targetPath;
+  };
+
+  return { shouldRedirect };
+}
 
 function ProtectedRoute({ children, requiredRole = null }) {
+  const { shouldRedirect } = useSafeNavigate();
+  
   if (!isAuthenticated()) {
-    return <Navigate to="/user/login" replace />;
+    return shouldRedirect('/user/login') ? <Navigate to="/user/login" replace /> : children;
   }
   
   // If a specific role is required, check for it
   if (requiredRole && !hasRole(requiredRole)) {
-    return <Navigate to="/" replace />;
+    return shouldRedirect('/') ? <Navigate to="/" replace /> : children;
   }
   
   return children;
 }
 
 function PublicRoute({ children }) {
+  const { shouldRedirect } = useSafeNavigate();
+  
   if (isAuthenticated()) {
-    return <Navigate to="/" replace />;
+    // Redirect based on role only if we're not already on the correct path
+    if (hasRole("superadmin") && shouldRedirect('/dashboard/home')) {
+      return <Navigate to="/dashboard/home" replace />;
+    } else if (hasRole("manufacturer") && shouldRedirect('/dashboard/manufacturer-dashboard')) {
+      return <Navigate to="/dashboard/manufacturer-dashboard" replace />;
+    } else if (hasRole("agent") && shouldRedirect('/dashboard/agent-dashboard')) {
+      return <Navigate to="/dashboard/agent-dashboard" replace />;
+    } else if (hasRole("truckOwner") && shouldRedirect('/dashboard/truck-owners')) {
+      return <Navigate to="/dashboard/truck-owners" replace />;
+    } else if (hasRole("driver") && shouldRedirect('/dashboard/drivers')) {
+      return <Navigate to="/dashboard/drivers" replace />;
+    }
   }
   return children;
 }
 
 function RoleBasedRedirect() {
+  const { shouldRedirect } = useSafeNavigate();
+  
   if (!isAuthenticated()) {
-    return <Navigate to="/user/login" replace />;
+    return shouldRedirect('/') ? <Navigate to="/" replace /> : <LandingPage />;
   }
 
-  if (hasRole("superadmin")) {
-    return <Navigate to="/dashboard" replace />;
-  } else if (hasRole("manufacturer")) {
-    return <Navigate to="/manufacturers/dashboard" replace />;
-  } else if (hasRole("agent")) {
-    return <Navigate to="/agents/dashboard" replace />;
-  } else if (hasRole("truckOwner")) {
-    return <Navigate to="/truck owners" replace />;
-  } else if (hasRole("driver")) {
-    return <Navigate to="/drivers" replace />;
+  if (hasRole("superadmin") && shouldRedirect('/dashboard/home')) {
+    return <Navigate to="/dashboard/home" replace />;
+  } else if (hasRole("manufacturer") && shouldRedirect('/dashboard/manufacturer-dashboard')) {
+    return <Navigate to="/dashboard/manufacturer-dashboard" replace />;
+  } else if (hasRole("agent") && shouldRedirect('/dashboard/agent-dashboard')) {
+    return <Navigate to="/dashboard/agent-dashboard" replace />;
+  } else if (hasRole("truckOwner") && shouldRedirect('/dashboard/truck-owners')) {
+    return <Navigate to="/dashboard/truck-owners" replace />;
+  } else if (hasRole("driver") && shouldRedirect('/dashboard/drivers')) {
+    return <Navigate to="/dashboard/drivers" replace />;
   }
 
-  return <Navigate to="/user/login" replace />;
+  // Default fallback - stay on current page
+  return <div>Loading...</div>;
 }
 
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
+      {/* Landing Page as default route */}
+      <Route 
+        path="/" 
+        element={
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        } 
+      />
+      
       <Route 
         path="/user/login" 
         element={
@@ -104,22 +148,22 @@ export default function AppRoutes() {
 
       {/* Protected Routes with Layout */}
       <Route
-        path="/"
+        path="/dashboard/*"
         element={
           <ProtectedRoute>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        {/* Role-based redirect for root path */}
+        {/* Role-based redirect for dashboard */}
         <Route index element={<RoleBasedRedirect />} />
 
-        {/* Superadmin Routes - Manufacturer Management */}
+        {/* Superadmin Routes */}
         <Route
-          path="dashboard"
+          path="home"
           element={
             <ProtectedRoute requiredRole="superadmin">
-             <DashboradPage />
+              <DashboradPage />
             </ProtectedRoute>
           }
         />
@@ -191,7 +235,7 @@ export default function AppRoutes() {
           path="paymentreports"
           element={
             <ProtectedRoute requiredRole="superadmin">
-             <PaymentReports/>
+              <PaymentReports/>
             </ProtectedRoute>
           }
         />
@@ -199,11 +243,10 @@ export default function AppRoutes() {
           path="report"
           element={
             <ProtectedRoute requiredRole="superadmin">
-             <ReportPage/>
+              <ReportPage/>
             </ProtectedRoute>
           }
         />
-        {/* ✅ Added SignUp Approval Route */}
         <Route
           path="signup-approval"
           element={
@@ -215,7 +258,7 @@ export default function AppRoutes() {
 
         {/* Agent Routes */}
         <Route
-          path="agents/dashboard"
+          path="agent-dashboard"
           element={
             <ProtectedRoute requiredRole="agent">
               <Dashboard />
@@ -223,7 +266,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="agents/products"
+          path="agent-products"
           element={
             <ProtectedRoute requiredRole="agent">
               <Products />
@@ -231,7 +274,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="agents/orders"
+          path="agent-orders"
           element={
             <ProtectedRoute requiredRole="agent">
               <AgentOrders />
@@ -239,7 +282,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="agents/payment-report"
+          path="agent-payment-report"
           element={
             <ProtectedRoute requiredRole="agent">
               <PaymentReport />
@@ -247,7 +290,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="agents/profile"
+          path="agent-profile"
           element={
             <ProtectedRoute requiredRole="agent">
               <Profile />
@@ -255,7 +298,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="agents/reports"
+          path="agent-reports"
           element={
             <ProtectedRoute requiredRole="agent">
               <Reports />
@@ -265,7 +308,7 @@ export default function AppRoutes() {
 
         {/* Manufacturer Dashboard Routes */}
         <Route
-          path="manufacturers/dashboard"
+          path="manufacturer-dashboard"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerDashboard />
@@ -273,7 +316,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/products"
+          path="manufacturer-products"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerProducts />
@@ -281,7 +324,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/orders"
+          path="manufacturer-orders"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <CustomerOrder />
@@ -289,7 +332,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/payments"
+          path="manufacturer-payments"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <Payments />
@@ -297,7 +340,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/employees"
+          path="manufacturer-employees"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <Employees />
@@ -305,7 +348,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/reports"
+          path="manufacturer-reports"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerReports />
@@ -313,7 +356,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path="manufacturers/profile"
+          path="manufacturer-profile"
           element={
             <ProtectedRoute requiredRole="manufacturer">
               <ManufacturerProfile />
@@ -323,7 +366,7 @@ export default function AppRoutes() {
 
         {/* Truck Owner Routes */}
         <Route
-          path="truck owners/*"
+          path="truck-owners/*"
           element={
             <ProtectedRoute requiredRole="truckOwner">
               <TruckOwner />
