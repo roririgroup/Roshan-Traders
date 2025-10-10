@@ -11,8 +11,9 @@ import { getCurrentUser } from '../../../lib/auth'
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [outsourceOrders, setOutsourceOrders] = useState([])
+  const [yourOrders, setYourOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState('orders')
+  const [activeTab, setActiveTab] = useState('your-orders')
   const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
@@ -27,14 +28,17 @@ export default function Orders() {
   useEffect(() => {
     const allOrders = getOrders()
     const user = getCurrentUser()
-    // Separate orders: orders placed by current user are "Orders", others are "Outsource Orders"
-    setOrders(allOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
-    setOutsourceOrders(allOrders.filter(order => order.userInfo && order.userInfo.id !== user?.id))
+    
+    // Separate orders:
+    // - Your Orders: Orders placed by current user from products page (from dashboard)
+    // - Outsource Orders: Orders from customers (customer orders)
+    setYourOrders(allOrders.filter(order => 
+      order.userInfo && order.userInfo.id === user?.id && order.orderType === 'product'
+    ))
+    setOutsourceOrders(allOrders.filter(order => 
+      order.userInfo && order.userInfo.id !== user?.id
+    ))
   }, [refreshTrigger])
-
-  // Removed Confirm and Reject buttons as per user request
-
-  // Removed Confirm and Reject buttons as per user request
 
   // Auto-refresh every 5 seconds to check for new orders
   useEffect(() => {
@@ -58,14 +62,14 @@ export default function Orders() {
         newOrders.forEach(order => {
           showOrderNotification(order)
         })
-        setTimeout(() => setNewOutsourceOrder(false), 5000) // Hide notification after 5 seconds
+        setTimeout(() => setNewOutsourceOrder(false), 5000)
       }
       setOutsourceOrders(externalOrders)
     }
 
-    const interval = setInterval(checkForNewOrders, 10000) // Check every 10 seconds
+    const interval = setInterval(checkForNewOrders, 10000)
     return () => clearInterval(interval)
-    }, [outsourceOrders.length, showOrderNotification])
+  }, [outsourceOrders.length, showOrderNotification])
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -102,7 +106,6 @@ export default function Orders() {
   const handleConfirmOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'confirmed')
       setRefreshTrigger(prev => prev + 1)
@@ -119,7 +122,6 @@ export default function Orders() {
   const handleRejectOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       updateOrderStatus(orderId, 'rejected')
       setRefreshTrigger(prev => prev + 1)
@@ -155,7 +157,7 @@ export default function Orders() {
             {orderList.map((order) => (
               <tr 
                 key={order.id} 
-                className="border-b border-slate-100 hover:bg-slate-50 transition-colors  group"
+                className="border-b border-slate-100 hover:bg-slate-50 transition-colors group"
                 onClick={() => handleOrderClick(order)}
               >
                 <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
@@ -186,7 +188,6 @@ export default function Orders() {
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress}
                 </td>
-              
               </tr>
             ))}
           </tbody>
@@ -240,10 +241,19 @@ export default function Orders() {
         )}
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Only 2 tabs now */}
       <div className="mb-6">
         <div className="flex gap-2">
-         
+          <button
+            onClick={() => setActiveTab('your-orders')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'your-orders'
+                ? 'bg-[#F08344] text-white'
+                : 'bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Your Orders ({yourOrders.length})
+          </button>
           <button
             onClick={() => setActiveTab('outsource')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
@@ -279,17 +289,17 @@ export default function Orders() {
         }]}
       />
 
-      {/* Orders Table */}
-      {activeTab === 'orders' && renderOrderTable(
-        orders
+      {/* Your Orders Table - Shows orders you placed from dashboard products */}
+      {activeTab === 'your-orders' && renderOrderTable(
+        yourOrders
           .filter(o => (
             o.customerName.toLowerCase().includes(search.toLowerCase()) ||
             String(o.id).includes(search)
           ))
           .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-        , 'Orders')}
+        , 'Your Orders')}
 
-      {/* Outsource Orders Table */}
+      {/* Outsource Orders Table - Shows customer orders */}
       {activeTab === 'outsource' && renderOrderTable(
         outsourceOrders
           .filter(o => (
@@ -299,11 +309,12 @@ export default function Orders() {
           .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
         , 'Outsource Orders')}
 
-      {(activeTab === 'orders' && orders.length === 0) && (
+      {/* Empty states */}
+      {(activeTab === 'your-orders' && yourOrders.length === 0) && (
         <div className="text-center py-12">
           <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
-          <p className="text-slate-600">Orders will appear here once customers place them</p>
+          <p className="text-slate-600">Orders you place from products will appear here</p>
         </div>
       )}
 
@@ -311,7 +322,7 @@ export default function Orders() {
         <div className="text-center py-12">
           <ExternalLink className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No outsource orders yet</h3>
-          <p className="text-slate-600">Outsource orders will appear here</p>
+          <p className="text-slate-600">Customer orders will appear here</p>
         </div>
       )}
     </div>
