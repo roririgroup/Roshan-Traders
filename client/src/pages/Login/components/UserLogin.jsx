@@ -11,7 +11,7 @@ export default function UserLogin() {
   const navigate = useNavigate()
   const [phone, setPhone] = useState('9876543210') // Default phone number
   const [otp, setOtp] = useState('1234') // Default OTP
-  const [userType, setUserType] = useState('agent')
+  const [selectedRoles, setSelectedRoles] = useState(['agent']) // Default to agent
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -25,26 +25,31 @@ export default function UserLogin() {
       setError('Please enter both mobile number and OTP')
       return
     }
+    if (selectedRoles.length === 0) {
+      setError('Please select at least one role')
+      return
+    }
 
     setIsLoading(true)
     setError('')
 
     // Direct login without any verification
-    const res = loginUser({ phone, otp, userType })
+    const res = loginUser({ phone, otp, selectedRoles })
     if (!res.success) {
       setError(res.error || 'Login failed')
       setIsLoading(false)
       return
     }
 
-    // Redirect based on userType
-    if (userType === 'agent') {
+    // Redirect based on first selected role
+    const firstRole = selectedRoles[0]
+    if (firstRole === 'agent') {
       navigate('/agents/dashboard')
-    } else if (userType === 'manufacturer') {
+    } else if (firstRole === 'manufacturer') {
       navigate('/manufacturers/dashboard')
-    } else if (userType === 'truckOwner') {
+    } else if (firstRole === 'truckOwner') {
       navigate('/truck-owners/dashboard')
-    } else if (userType === 'driver') {
+    } else if (firstRole === 'driver') {
       navigate('/drivers/dashboard')
     } else {
       navigate('/')
@@ -85,26 +90,45 @@ export default function UserLogin() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Select User Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Select User Roles (Multiple allowed)</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {userTypes.map((type) => (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => setUserType(type.value)}
-                      className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all ${
-                        userType === type.value
-                          ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center gap-1">
-                        {type.icon}
-                        <span className="text-xs">{type.label}</span>
-                      </div>
-                    </button>
-                  ))}
+                  {userTypes.map((type) => {
+                    const isSelected = selectedRoles.includes(type.value)
+                    return (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedRoles(prev => prev.filter(r => r !== type.value))
+                          } else {
+                            setSelectedRoles(prev => [...prev, type.value])
+                          }
+                        }}
+                        className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${
+                          isSelected
+                            ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          {type.icon}
+                          <span className="text-xs">{type.label}</span>
+                        </div>
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 w-3 h-3 bg-indigo-600 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs">✓</span>
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
+                {selectedRoles.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Selected: {selectedRoles.map(role => userTypes.find(t => t.value === role)?.label).join(', ')}
+                  </p>
+                )}
               </div>
 
               <div>
