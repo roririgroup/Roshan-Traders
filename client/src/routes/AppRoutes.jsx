@@ -48,16 +48,16 @@ function useSafeNavigate() {
 
 function ProtectedRoute({ children, requiredRole = null }) {
   const { shouldRedirect } = useSafeNavigate();
-  
+
   if (!isAuthenticated()) {
     return shouldRedirect('/user/login') ? <Navigate to="/user/login" replace /> : children;
   }
-  
-  // If a specific role is required, check for it
+
+  // If a specific role is required, check for it against active role
   if (requiredRole && !hasRole(requiredRole)) {
     return shouldRedirect('/') ? <Navigate to="/" replace /> : children;
   }
-  
+
   return children;
 }
 

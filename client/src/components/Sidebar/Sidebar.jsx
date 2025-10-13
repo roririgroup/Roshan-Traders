@@ -5,7 +5,7 @@ import {
   DollarSign, User, BarChart3, Truck, Gift
 } from 'lucide-react';
 import { logout } from '../../lib/auth';
-import { getCurrentUserRole } from '../../lib/roles';
+import { getCurrentUserRole, getCurrentUserRoles, getCurrentUserActiveRole, setCurrentUserActiveRole } from '../../lib/roles';
 import Button from '../ui/Button';
 import { useState, useEffect } from 'react';
 
@@ -66,18 +66,25 @@ const MENU_CONFIG = {
 };
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
-  const [role, setRole] = useState(() => getCurrentUserRole() || 'guest');
+  const [activeRole, setActiveRole] = useState(() => getCurrentUserActiveRole() || 'guest');
+  const userRoles = getCurrentUserRoles();
 
   useEffect(() => {
     const handleRoleChange = () => {
-      const newRole = getCurrentUserRole() || 'guest';
-      if (newRole !== role) setRole(newRole);
+      const newRole = getCurrentUserActiveRole() || 'guest';
+      if (newRole !== activeRole) setActiveRole(newRole);
     };
     window.addEventListener('storage', handleRoleChange);
     return () => window.removeEventListener('storage', handleRoleChange);
-  }, [role]);
+  }, [activeRole]);
 
-  const menu = MENU_CONFIG[role] || [];
+  const handleRoleSwitch = (role) => {
+    if (setCurrentUserActiveRole(role)) {
+      setActiveRole(role);
+    }
+  };
+
+  const menu = MENU_CONFIG[activeRole] || [];
 
   return (
     <>
@@ -119,6 +126,28 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
             </button>
           )}
         </div>
+
+        {/* Role Selection Section - Only show if user has multiple roles */}
+        {userRoles.length > 1 && (!isCollapsed || mobile) && (
+          <div className="px-3 sm:px-4 py-2 border-b border-slate-200 bg-slate-50/50">
+            <div className="text-xs font-medium text-slate-600 mb-2">Switch Role</div>
+            <div className="flex flex-wrap gap-1">
+              {userRoles.map((role) => (
+                <button
+                  key={role}
+                  onClick={() => handleRoleSwitch(role)}
+                  className={`px-2 py-1 text-xs rounded-md transition-all ${
+                    activeRole === role
+                      ? 'bg-[#F08344] text-white shadow-sm'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav

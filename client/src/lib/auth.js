@@ -29,19 +29,20 @@ export function loginSuperAdmin({ email, password }) {
 }
 
 // User authentication (Mobile OTP)
-export function loginUser({ phone, otp, userType }) {
+export function loginUser({ phone, otp, selectedRoles }) {
   // Dummy login: accept any non-empty phone+otp
   if (!phone || !otp) return { success: false, error: "Phone and OTP required" };
-  if (!userType) return { success: false, error: "User type required" };
-  
+  if (!selectedRoles || selectedRoles.length === 0) return { success: false, error: "At least one role required" };
+
   // Dummy validation - just check if they exist
   if (phone.length < 10) return { success: false, error: "Please enter a valid mobile number" };
   if (otp.length < 4) return { success: false, error: "Please enter a valid OTP" };
-  
+
   const user = {
-    id: `${userType}-${Date.now()}`,
-    role: String(userType).toLowerCase(),
-    name: `${userType.charAt(0).toUpperCase() + userType.slice(1)} User`,
+    id: `user-${Date.now()}`,
+    roles: selectedRoles.map(role => String(role).toLowerCase()),
+    activeRole: selectedRoles[0].toLowerCase(), // Default to first selected role
+    name: `${selectedRoles[0].charAt(0).toUpperCase() + selectedRoles[0].slice(1)} User`,
     phone,
     loginMethod: 'mobile'
   };
