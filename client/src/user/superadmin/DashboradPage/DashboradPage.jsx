@@ -106,14 +106,6 @@ export default function SuperAdminDashboard() {
             color={{ bg: "bg-green-100", text: "text-green-600" }}
           />
           <StatCard
-            title="Companies"
-            value={stats.totalCompanies}
-            icon={Building2}
-            trend="+5%"
-            description="from last month"
-            color={{ bg: "bg-indigo-100", text: "text-indigo-600" }}
-          />
-          <StatCard
             title="Employees"
             value={stats.totalEmployees}
             icon={Users}
