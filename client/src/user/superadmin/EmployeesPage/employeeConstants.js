@@ -18,7 +18,7 @@ export const MOCK_EMPLOYEES = [
   {
     id: "emp_001",
     name: "Sanjay Kumar",
-    role: "Driver",
+    role: "Truck Owner",
     status: "Available",
     image:
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop",
@@ -35,7 +35,7 @@ export const MOCK_EMPLOYEES = [
     id: "emp_003",
     name: "Singh",
     role: "Loader",             
-    status: "Unavailable",
+    status: "Available",
     image:
       'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop',
   },

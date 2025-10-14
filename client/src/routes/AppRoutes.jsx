@@ -35,7 +35,7 @@ import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpAppr
 import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
 import LandingPage from "../pages/LandingPage/LandinPage";
 import EnquiryPage from "../pages/LandingPage/EnquiryPage";
-
+import ProductAvailability from "../user/superadmin/ProductStock/Product";
 // Custom hook to prevent infinite redirects
 function useSafeNavigate() {
   const location = useLocation();
@@ -260,6 +260,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <SignUpApprovalPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="product-stock"
+          element={ 
+            <ProtectedRoute requiredRole="superadmin">
+              <ProductAvailability />
             </ProtectedRoute>
           }
         />
