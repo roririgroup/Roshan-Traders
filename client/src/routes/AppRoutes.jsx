@@ -34,6 +34,7 @@ import Signup from "../pages/signup/signup";
 import SignUpApprovalPage from "../user/superadmin/SignUpApprovalPage/SignUpApprovalPage";
 import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
 import LandingPage from "../pages/LandingPage/LandinPage";
+import EnquiryPage from "../pages/LandingPage/EnquiryPage";
 
 // Custom hook to prevent infinite redirects
 function useSafeNavigate() {
@@ -114,6 +115,16 @@ export default function AppRoutes() {
         element={
           <PublicRoute>
             <LandingPage />
+          </PublicRoute>
+        } 
+      />
+      
+      {/* Add Enquiry Page Route */}
+      <Route 
+        path="/enquiry" 
+        element={
+          <PublicRoute>
+            <EnquiryPage />
           </PublicRoute>
         } 
       />

@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import bricksImage from '../../assets/bricks.jpg';
 import brick from '../../assets/brick.jpg';
 import layingBricksImage from '../../assets/laying bricks.jpg';
-import floortile from '../../assets/floor-tile.jpg'
+import floortile from '../../assets/floor-tile.jpg';
 import roof from '../../assets/roof.jpg';
 import rooftile from '../../assets/roof-tile.jpg';
 import floortiles from '../../assets/floor tile.jpg';
-import tile from '../../assets/tile.jpg'
-
-
-
-
+import tile from '../../assets/tile.jpg';
 
 import {
   Factory,
@@ -28,21 +24,41 @@ import {
   X,
   Menu,
   ChevronRight,
-  Download,
   MessageSquare,
-  CheckCircle2
+  CheckCircle2,
+  IndianRupee,
+  Navigation,
+  Calculator,
+  RotateCcw,
+  CreditCard,
+  Wallet,
+  User
 } from 'lucide-react';
 
 function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [truckRent, setTruckRent] = useState(0);
+  const [brickQuantity, setBrickQuantity] = useState(1000);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [showCashOptions, setShowCashOptions] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     message: ''
   });
+
+  const navigate = useNavigate();
+
+  // Brick pricing
+  const brickRate = 9;
+  const companyLocation = { lat: 8.5252374, lng: 77.5806626 };
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -73,7 +89,101 @@ function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
-  // Product data
+  // Get user location
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLoc = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(userLoc);
+          calculateDistance(userLoc);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          alert('Unable to get your location. Please enable location services.');
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  };
+
+  // Calculate distance using Haversine formula
+  const calculateDistance = (userLoc) => {
+    const R = 6371;
+    const dLat = (userLoc.lat - companyLocation.lat) * Math.PI / 180;
+    const dLng = (userLoc.lng - companyLocation.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(companyLocation.lat * Math.PI / 180) * Math.cos(userLoc.lat * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const calculatedDistance = R * c;
+    setDistance(calculatedDistance.toFixed(1));
+    calculateTruckRent(calculatedDistance);
+  };
+
+  // Calculate truck rent based on distance
+  const calculateTruckRent = (dist) => {
+    let rent = 0;
+    if (dist <= 10) {
+      rent = 1000;
+    } else if (dist <= 20) {
+      rent = 1500;
+    } else if (dist <= 30) {
+      rent = 2000;
+    } else if (dist <= 40) {
+      rent = 2500;
+    } else if (dist <= 50) {
+      rent = 3000;
+    } else {
+      rent = 3000 + (dist - 50) * 60;
+    }
+    setTruckRent(Math.round(rent));
+  };
+
+  // Calculate total cost
+  const calculateTotalCost = () => {
+    const brickCost = brickQuantity * brickRate;
+    return brickCost + truckRent;
+  };
+
+  // Handle View Now button click
+  const handleViewNowClick = (productName) => {
+    localStorage.setItem('selectedProduct', productName);
+    navigate('/enquiry');
+  };
+
+  // Handle payment method selection
+  const handlePaymentMethodSelect = (method) => {
+    setSelectedPaymentMethod(method);
+    if (method === 'online') {
+      setShowPaymentPopup(true);
+      setShowCashOptions(false);
+    } else if (method === 'cash') {
+      setShowCashOptions(true);
+      setShowPaymentPopup(false);
+    }
+  };
+
+  // Handle online payment selection
+  const handleOnlinePaymentSelect = (method) => {
+    alert(`Redirecting to ${method} payment...`);
+    setShowPaymentPopup(false);
+    setSelectedPaymentMethod('');
+  };
+
+  // Handle cash option selection
+  const handleCashOptionSelect = (option) => {
+    alert(`You selected: ${option}. Our delivery executive will contact you for payment details.`);
+    setShowCashOptions(false);
+    setSelectedPaymentMethod('');
+  };
+
+  // Product data with pricing
   const products = [
     {
       id: 1,
@@ -82,7 +192,8 @@ function LandingPage() {
       specs: [
         'Size: 230 x 110 x 75 mm',
         'Compressive Strength: 10-15 N/mm²',
-        'Finish: Smooth/Rough'
+        'Finish: Smooth/Rough',
+        `Rate: ₹${brickRate} per brick`
       ],
       image: bricksImage,
       alt: 'Roshan Traders premium red clay bricks stacked at factory'
@@ -94,7 +205,8 @@ function LandingPage() {
       specs: [
         'Size: 300 x 300 x 15 mm',
         'Water Absorption: <8%',
-        'Finish: Glazed/Unglazed'
+        'Finish: Glazed/Unglazed',
+        'Rate: ₹45 per tile'
       ],
       image: floortile,
       alt: 'Roshan Traders terracotta clay floor tiles with natural finish'
@@ -106,30 +218,12 @@ function LandingPage() {
       specs: [
         'Size: 400 x 240 x 18 mm',
         'Weight: 3.5 kg per tile',
-        'Finish: Natural Red/Brown'
+        'Finish: Natural Red/Brown',
+        'Rate: ₹85 per tile'
       ],
       image: roof,
       alt: 'Roshan Traders durable clay roof tiles installed on traditional building'
     }
-  ];
-
-  // Manufacturing process steps
-  const processSteps = [
-    { icon: Factory, label: 'Raw Clay Selection', description: 'Premium clay sourcing' },
-    { icon: Shield, label: 'Molding', description: 'Precision shaping' },
-    { icon: Truck, label: 'Drying', description: 'Natural air drying' },
-    { icon: Factory, label: 'Kiln Firing', description: 'High-temp firing' },
-    { icon: Award, label: 'Packing', description: 'Quality packaging' }
-  ];
-
-  // Gallery images
-  const galleryImages = [
-    { url: brick, alt: 'Red bricks stacked at Roshan Traders manufacturing facility' },
-    { url: floortiles, alt: 'Traditional clay kiln at Roshan Traders factory' },
-    { url: bricksImage, alt: 'Clay floor tiles production line' },
-    { url: rooftile, alt: 'Finished roof tiles ready for dispatch' },
-    { url: layingBricksImage, alt: 'Quality inspection at Roshan Traders facility' },
-    { url: tile, alt: 'Workers crafting premium clay tiles' }
   ];
 
   // Testimonials
@@ -181,10 +275,10 @@ function LandingPage() {
 
             {/* Desktop Navigation Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              <Link to="/superadmin/login" className="bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-2.5 rounded-md font-medium transition-colors duration-200 shadow-md inline-block">
+              <Link to="/superadmin/login" className="bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-2.5 rounded-md font-medium transition-colors duration-200 shadow-md">
                 Super Admin Login
               </Link>
-              <Link to="/user/login" className={`border-2 px-6 py-2.5 rounded-md font-medium transition-colors duration-200 inline-block ${
+              <Link to="/user/login" className={`border-2 px-6 py-2.5 rounded-md font-medium transition-colors duration-200 ${
                 scrolled
                   ? 'border-[#B0413E] text-[#B0413E] hover:bg-[#B0413E] hover:text-white'
                   : 'border-white text-white hover:bg-white hover:text-[#B0413E]'
@@ -211,10 +305,10 @@ function LandingPage() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white shadow-lg">
             <div className="px-4 py-4 space-y-3">
-              <Link to="/superadmin/login" className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-2.5 rounded-md font-medium transition-colors duration-200 inline-block text-center">
+              <Link to="/superadmin/login" className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-2.5 rounded-md font-medium transition-colors duration-200 block text-center">
                 Super Admin Login
               </Link>
-              <Link to="/user/login" className="w-full border-2 border-[#B0413E] text-[#B0413E] hover:bg-[#B0413E] hover:text-white px-6 py-2.5 rounded-md font-medium transition-colors duration-200 inline-block text-center">
+              <Link to="/user/login" className="w-full border-2 border-[#B0413E] text-[#B0413E] hover:bg-[#B0413E] hover:text-white px-6 py-2.5 rounded-md font-medium transition-colors duration-200 block text-center">
                 User Login
               </Link>
             </div>
@@ -222,9 +316,8 @@ function LandingPage() {
         )}
       </nav>
 
-      {/* Hero Section with Parallax Effect */}
+      {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-fixed"
           style={{
@@ -234,7 +327,6 @@ function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#4A2F2A]/90 to-[#B0413E]/70"></div>
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto fade-in-section opacity-0">
           <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
             Trusted Brick & Tile Makers Since 1960
@@ -244,17 +336,22 @@ function LandingPage() {
             Delivering durability, excellence, and tradition for over three decades.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-[#B0413E] hover:bg-[#8d332e] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center gap-2">
+            <button 
+              onClick={() => document.getElementById('products').scrollIntoView({ behavior: 'smooth' })}
+              className="bg-[#B0413E] hover:bg-[#8d332e] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center gap-2"
+            >
               View Products
               <ChevronRight className="h-5 w-5" />
             </button>
-            <button className="bg-white hover:bg-gray-100 text-[#B0413E] px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+            <button 
+              onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+              className="bg-white hover:bg-gray-100 text-[#B0413E] px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+            >
               Request a Quote
             </button>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
           <ChevronRight className="h-6 w-6 text-white rotate-90" />
         </div>
@@ -289,254 +386,196 @@ function LandingPage() {
                     Premium Quality
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-[#4A2F2A] mb-3">
+                <div className="p-8">
+                  <h3 className="text-2xl font-bold text-[#4A2F2A] mb-4">
                     {product.name}
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-6 leading-relaxed">
                     {product.description}
                   </p>
-                  <div className="mb-6 space-y-2">
-                    <p className="font-semibold text-[#B0413E] mb-2">Key Specifications:</p>
+                  <div className="mb-8 space-y-3">
+                    <p className="font-semibold text-[#B0413E] mb-3 text-lg">Key Specifications:</p>
                     {product.specs.map((spec, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        {spec}
+                      <div key={idx} className="flex items-center gap-3 text-base text-gray-700">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                        <span>{spec}</span>
                       </div>
                     ))}
                   </div>
                   <div className="flex gap-3">
-                    <button className="flex-1 bg-[#B0413E] hover:bg-[#8d332e] text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-                      <Download className="h-4 w-4" />
-                      Download Spec
-                    </button>
-                    <button className="flex-1 border-2 border-[#B0413E] text-[#B0413E] hover:bg-[#B0413E] hover:text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      Enquire Now
+                    <button 
+                      onClick={() => handleViewNowClick(product.name)}
+                      className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 text-lg"
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      View Now
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Quality & Manufacturing Process Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 fade-in-section opacity-0">
-            <h2 className="text-4xl sm:text-5xl font-bold text-[#4A2F2A] mb-4">
-              Our Manufacturing Excellence
-            </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              A time-tested process ensuring consistent quality and durability in every product.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {processSteps.map((step, index) => (
-              <div
-                key={index}
-                className="fade-in-section opacity-0 text-center"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="relative">
-                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#B0413E] to-[#8d332e] rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform duration-300">
-                    <step.icon className="h-12 w-12 text-white" />
-                  </div>
-                  {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-12 left-[70%] w-full h-0.5 bg-gradient-to-r from-[#B0413E] to-[#E8D7C3]">
-                      <ChevronRight className="absolute -right-2 -top-3 h-6 w-6 text-[#B0413E]" />
-                    </div>
-                  )}
-                </div>
-                <h3 className="text-lg font-bold text-[#4A2F2A] mt-6 mb-2">
-                  {step.label}
+          {/* Delivery Rates Section */}
+          <div className="mt-20 fade-in-section opacity-0">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto">
+              <div className="text-center mb-10">
+                <h3 className="text-3xl font-bold text-[#4A2F2A] mb-4">
+                  Delivery & Pricing
                 </h3>
-                <p className="text-sm text-gray-600">
-                  {step.description}
+                <p className="text-xl text-gray-700">
+                  Transparent pricing with reliable delivery across all distances
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Gallery Section */}
-      <section className="py-20 bg-[#E8D7C3]/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 fade-in-section opacity-0">
-            <h2 className="text-4xl sm:text-5xl font-bold text-[#4A2F2A] mb-4">
-              Our Facility & Products
-            </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Take a glimpse into our state-of-the-art manufacturing facility and premium products.
-            </p>
-          </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Distance Rates */}
+                <div>
+                  <h4 className="text-2xl font-bold text-[#4A2F2A] mb-6 flex items-center gap-3">
+                    <Truck className="h-7 w-7 text-[#B0413E]" />
+                    Delivery Rates
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">0-10 km</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹1000</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">11-20 km</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹1500</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">21-30 km</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹2000</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">31-40 km</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹2500</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">41-50 km</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹3000</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">50+ km</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹60/km</span>
+                    </div>
+                  </div>
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {galleryImages.map((image, index) => (
-              <div
-                key={index}
-                className="fade-in-section opacity-0 relative h-64 rounded-lg overflow-hidden shadow-lg cursor-pointer group"
-                style={{ animationDelay: `${index * 100}ms` }}
-                onClick={() => setSelectedImage(image.url)}
-              >
-                <img
-                  src={image.url}
-                  alt={image.alt}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#4A2F2A]/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
-                  <p className="text-white text-sm font-medium px-4 text-center">
-                    Click to view
-                  </p>
+                {/* Product Pricing */}
+                <div>
+                  <h4 className="text-2xl font-bold text-[#4A2F2A] mb-6 flex items-center gap-3">
+                    <IndianRupee className="h-7 w-7 text-[#B0413E]" />
+                    Product Pricing
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">Red Clay Bricks</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹9 per brick</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">Clay Floor Tiles</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹45 per tile</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
+                      <span className="text-lg font-medium">Roof Tiles</span>
+                      <span className="text-xl font-bold text-[#B0413E]">₹85 per tile</span>
+                    </div>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="mt-8 p-6 bg-[#4A2F2A] rounded-lg text-white">
+                    <h5 className="text-lg font-bold mb-3 text-[#E8D7C3]">Important Notes:</h5>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-1 flex-shrink-0" />
+                        <span>Minimum order: 1000 bricks or equivalent</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-1 flex-shrink-0" />
+                        <span>Free delivery on orders above ₹50,000 within 30km</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-1 flex-shrink-0" />
+                        <span>Bulk discounts available for orders above 10,000 units</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <button
-            className="absolute top-4 right-4 text-white hover:text-gray-300"
-            onClick={() => setSelectedImage(null)}
-          >
-            <X className="h-8 w-8" />
-          </button>
-          <img
-            src={selectedImage}
-            alt="Enlarged gallery view"
-            className="max-w-full max-h-full object-contain"
-          />
-        </div>
-      )}
-
-      {/* Testimonials Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 fade-in-section opacity-0">
-            <h2 className="text-4xl sm:text-5xl font-bold text-[#4A2F2A] mb-4">
-              What Our Clients Say
-            </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Building trust through quality and reliability for over 30 years.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="fade-in-section opacity-0 bg-[#E8D7C3]/30 rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Award key={i} className="h-5 w-5 text-[#B0413E] fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "{testimonial.text}"
-                </p>
-                <div className="border-t border-[#B0413E]/20 pt-4">
-                  <p className="font-bold text-[#4A2F2A]">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {testimonial.company}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Partner Logos Placeholder */}
-          <div className="fade-in-section opacity-0 text-center">
-            <p className="text-lg font-semibold text-[#4A2F2A] mb-8">
-              Trusted by Leading Construction Companies
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="w-32 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <Factory className="h-8 w-8 text-gray-400" />
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#4A2F2A] text-white py-16">
+      <footer id="contact" className="bg-[#4A2F2A] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Company Info */}
             <div>
-              <div className="flex items-center space-x-3 mb-6">
-                <Factory className="h-10 w-10 text-[#B0413E]" />
+              <div className="flex items-center space-x-3 mb-8">
+                <Factory className="h-12 w-12 text-[#B0413E]" />
                 <div>
-                  <h3 className="text-2xl font-bold">Roshan Traders</h3>
-                  <p className="text-sm text-gray-300">Since 1960</p>
+                  <h3 className="text-3xl font-bold">Roshan Traders</h3>
+                  <p className="text-base text-gray-300 mt-1">Since 1960</p>
                 </div>
               </div>
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-300 mb-6 text-lg leading-relaxed">
                 Premium quality bricks, clay floor tiles, and roof tiles manufacturer. Building trust through excellence for over three decades.
               </p>
+              <div className="flex items-center gap-3 text-lg text-gray-300">
+                <Phone className="h-5 w-5" />
+                <span>+91-9876543210</span>
+              </div>
             </div>
 
             {/* Contact Info */}
             <div>
-              <h4 className="text-xl font-bold mb-6 text-[#E8D7C3]">Contact Us</h4>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-[#B0413E] mt-1 flex-shrink-0" />
-                  <p className="text-gray-300">
+              <h4 className="text-2xl font-bold mb-8 text-[#E8D7C3]">Contact Us</h4>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <MapPin className="h-6 w-6 text-[#B0413E] mt-1 flex-shrink-0" />
+                  <p className="text-gray-300 text-lg">
                     Roshan Traders Factory<br />
                     Industrial Area, Sector 5<br />
                     City, State - 123456
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-[#B0413E] flex-shrink-0" />
-                  <p className="text-gray-300">+91-XXXXXXXXXX</p>
+                <div className="flex items-center gap-4">
+                  <Phone className="h-6 w-6 text-[#B0413E] flex-shrink-0" />
+                  <p className="text-gray-300 text-lg">+91-9876543210</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-[#B0413E] flex-shrink-0" />
-                  <p className="text-gray-300">info@roshantraders.com</p>
+                <div className="flex items-center gap-4">
+                  <Mail className="h-6 w-6 text-[#B0413E] flex-shrink-0" />
+                  <p className="text-gray-300 text-lg">info@roshantraders.com</p>
                 </div>
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-xl font-bold mb-6 text-[#E8D7C3]">Quick Links</h4>
-              <ul className="space-y-3">
-                <li><a href="#products" className="text-gray-300 hover:text-[#B0413E] transition-colors">Products</a></li>
-                <li><a href="#about" className="text-gray-300 hover:text-[#B0413E] transition-colors">About Us</a></li>
-                <li><a href="#quality" className="text-gray-300 hover:text-[#B0413E] transition-colors">Quality Process</a></li>
-                <li><a href="#gallery" className="text-gray-300 hover:text-[#B0413E] transition-colors">Gallery</a></li>
-                <li><a href="#contact" className="text-gray-300 hover:text-[#B0413E] transition-colors">Contact</a></li>
+              <h4 className="text-2xl font-bold mb-8 text-[#E8D7C3]">Quick Links</h4>
+              <ul className="space-y-4">
+                <li><a href="#products" className="text-gray-300 hover:text-[#B0413E] transition-colors text-lg">Products</a></li>
+                <li><a href="#about" className="text-gray-300 hover:text-[#B0413E] transition-colors text-lg">About Us</a></li>
+                <li><a href="#quality" className="text-gray-300 hover:text-[#B0413E] transition-colors text-lg">Quality Process</a></li>
+                <li><a href="#gallery" className="text-gray-300 hover:text-[#B0413E] transition-colors text-lg">Gallery</a></li>
+                <li><a href="#contact" className="text-gray-300 hover:text-[#B0413E] transition-colors text-lg">Contact</a></li>
               </ul>
             </div>
 
             {/* Contact Form */}
             <div>
-              <h4 className="text-xl font-bold mb-6 text-[#E8D7C3]">Quick Inquiry</h4>
-              <form onSubmit={handleFormSubmit} className="space-y-3">
+              <h4 className="text-2xl font-bold mb-8 text-[#E8D7C3]">Quick Inquiry</h4>
+              <form onSubmit={handleFormSubmit} className="space-y-4">
                 <input
                   type="text"
                   placeholder="Your Name"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E]"
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E] text-lg"
                   required
                 />
                 <input
@@ -544,7 +583,7 @@ function LandingPage() {
                   placeholder="Email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E]"
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E] text-lg"
                   required
                 />
                 <input
@@ -552,20 +591,20 @@ function LandingPage() {
                   placeholder="Phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E]"
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E] text-lg"
                   required
                 />
                 <textarea
                   placeholder="Your Message"
                   value={formData.message}
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
-                  rows={3}
-                  className="w-full px-4 py-2 rounded-md bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E]"
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#B0413E] text-lg"
                   required
                 ></textarea>
                 <button
                   type="submit"
-                  className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-4 py-2.5 rounded-md font-medium transition-colors duration-200"
+                  className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 text-lg"
                 >
                   Send Message
                 </button>
@@ -574,23 +613,23 @@ function LandingPage() {
           </div>
 
           {/* Social Media & Copyright */}
-          <div className="border-t border-white/10 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex gap-6">
+          <div className="border-t border-white/10 pt-12">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+              <div className="flex gap-8">
                 <a href="#" className="text-gray-300 hover:text-[#B0413E] transition-colors">
-                  <Facebook className="h-6 w-6" />
+                  <Facebook className="h-8 w-8" />
                 </a>
                 <a href="#" className="text-gray-300 hover:text-[#B0413E] transition-colors">
-                  <Twitter className="h-6 w-6" />
+                  <Twitter className="h-8 w-8" />
                 </a>
                 <a href="#" className="text-gray-300 hover:text-[#B0413E] transition-colors">
-                  <Instagram className="h-6 w-6" />
+                  <Instagram className="h-8 w-8" />
                 </a>
                 <a href="#" className="text-gray-300 hover:text-[#B0413E] transition-colors">
-                  <Linkedin className="h-6 w-6" />
+                  <Linkedin className="h-8 w-8" />
                 </a>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-lg">
                 &copy; {new Date().getFullYear()} Roshan Traders. All rights reserved.
               </p>
             </div>
