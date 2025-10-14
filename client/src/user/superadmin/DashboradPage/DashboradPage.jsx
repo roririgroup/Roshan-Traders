@@ -59,7 +59,6 @@ export default function SuperAdminDashboard() {
   const stats = {
     totalManufacturers: 45,
     totalAgents: 128,
-    totalCompanies: 67,
     totalEmployees: 342,
     totalUsers: 510,
     pendingPayments: 23,
@@ -88,46 +87,32 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        {/* Stats Grid - Top Row with Section Header */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></div>
-            Key Metrics
-          </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Manufacturers"
-              value={stats.totalManufacturers}
-              icon={Factory}
-              trend="+12%"
-              description="from last month"
-              color={{ bg: "bg-blue-100", text: "text-blue-600" }}
-            />
-            <StatCard
-              title="Agents"
-              value={stats.totalAgents}
-              icon={UserCheck}
-              trend="+8%"
-              description="from last month"
-              color={{ bg: "bg-green-100", text: "text-green-600" }}
-            />
-            <StatCard
-              title="Companies"
-              value={stats.totalCompanies}
-              icon={Building2}
-              trend="+5%"
-              description="from last month"
-              color={{ bg: "bg-indigo-100", text: "text-indigo-600" }}
-            />
-            <StatCard
-              title="Employees"
-              value={stats.totalEmployees}
-              icon={Users}
-              trend="+15%"
-              description="from last month"
-              color={{ bg: "bg-purple-100", text: "text-purple-600" }}
-            />
-          </div>
+        {/* Stats Grid - Top Row */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Manufacturers"
+            value={stats.totalManufacturers}
+            icon={Factory}
+            trend="+12%"
+            description="from last month"
+            color={{ bg: "bg-blue-100", text: "text-blue-600" }}
+          />
+          <StatCard
+            title="Agents"
+            value={stats.totalAgents}
+            icon={UserCheck}
+            trend="+8%"
+            description="from last month"
+            color={{ bg: "bg-green-100", text: "text-green-600" }}
+          />
+          <StatCard
+            title="Employees"
+            value={stats.totalEmployees}
+            icon={Users}
+            trend="+15%"
+            description="from last month"
+            color={{ bg: "bg-purple-100", text: "text-purple-600" }}
+          />
         </div>
 
         {/* Stats Grid - Second Row with Section Header */}
