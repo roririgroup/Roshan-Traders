@@ -27,12 +27,7 @@ import {
   MessageSquare,
   CheckCircle2,
   IndianRupee,
-  Navigation,
-  Calculator,
-  RotateCcw,
-  CreditCard,
-  Wallet,
-  User
+  Download
 } from 'lucide-react';
 
 function LandingPage() {
@@ -43,9 +38,6 @@ function LandingPage() {
   const [distance, setDistance] = useState(null);
   const [truckRent, setTruckRent] = useState(0);
   const [brickQuantity, setBrickQuantity] = useState(1000);
-  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
-  const [showCashOptions, setShowCashOptions] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -157,32 +149,6 @@ function LandingPage() {
     navigate('/enquiry');
   };
 
-  // Handle payment method selection
-  const handlePaymentMethodSelect = (method) => {
-    setSelectedPaymentMethod(method);
-    if (method === 'online') {
-      setShowPaymentPopup(true);
-      setShowCashOptions(false);
-    } else if (method === 'cash') {
-      setShowCashOptions(true);
-      setShowPaymentPopup(false);
-    }
-  };
-
-  // Handle online payment selection
-  const handleOnlinePaymentSelect = (method) => {
-    alert(`Redirecting to ${method} payment...`);
-    setShowPaymentPopup(false);
-    setSelectedPaymentMethod('');
-  };
-
-  // Handle cash option selection
-  const handleCashOptionSelect = (option) => {
-    alert(`You selected: ${option}. Our delivery executive will contact you for payment details.`);
-    setShowCashOptions(false);
-    setSelectedPaymentMethod('');
-  };
-
   // Product data with pricing
   const products = [
     {
@@ -224,6 +190,25 @@ function LandingPage() {
       image: roof,
       alt: 'Roshan Traders durable clay roof tiles installed on traditional building'
     }
+  ];
+
+  // Manufacturing process steps (from second code)
+  const processSteps = [
+    { icon: Factory, label: 'Raw Clay Selection', description: 'Premium clay sourcing' },
+    { icon: Shield, label: 'Molding', description: 'Precision shaping' },
+    { icon: Truck, label: 'Drying', description: 'Natural air drying' },
+    { icon: Factory, label: 'Kiln Firing', description: 'High-temp firing' },
+    { icon: Award, label: 'Packing', description: 'Quality packaging' }
+  ];
+
+  // Gallery images (from second code)
+  const galleryImages = [
+    { url: brick, alt: 'Red bricks stacked at Roshan Traders manufacturing facility' },
+    { url: floortiles, alt: 'Traditional clay kiln at Roshan Traders factory' },
+    { url: bricksImage, alt: 'Clay floor tiles production line' },
+    { url: rooftile, alt: 'Finished roof tiles ready for dispatch' },
+    { url: layingBricksImage, alt: 'Quality inspection at Roshan Traders facility' },
+    { url: tile, alt: 'Workers crafting premium clay tiles' }
   ];
 
   // Testimonials
@@ -415,99 +400,292 @@ function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Delivery Rates Section */}
-          <div className="mt-20 fade-in-section opacity-0">
-            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto">
-              <div className="text-center mb-10">
-                <h3 className="text-3xl font-bold text-[#4A2F2A] mb-4">
-                  Delivery & Pricing
+      {/* Quality & Manufacturing Process Section (from second code) */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 fade-in-section opacity-0">
+            <h2 className="text-4xl sm:text-5xl font-bold text-[#4A2F2A] mb-4">
+              Our Manufacturing Excellence
+            </h2>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              A time-tested process ensuring consistent quality and durability in every product.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            {processSteps.map((step, index) => (
+              <div
+                key={index}
+                className="fade-in-section opacity-0 text-center"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="relative">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#B0413E] to-[#8d332e] rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform duration-300">
+                    <step.icon className="h-12 w-12 text-white" />
+                  </div>
+                  {index < processSteps.length - 1 && (
+                    <div className="hidden lg:block absolute top-12 left-[70%] w-full h-0.5 bg-gradient-to-r from-[#B0413E] to-[#E8D7C3]">
+                      <ChevronRight className="absolute -right-2 -top-3 h-6 w-6 text-[#B0413E]" />
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-[#4A2F2A] mt-6 mb-2">
+                  {step.label}
                 </h3>
-                <p className="text-xl text-gray-700">
-                  Transparent pricing with reliable delivery across all distances
+                <p className="text-sm text-gray-600">
+                  {step.description}
                 </p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Distance Rates */}
-                <div>
-                  <h4 className="text-2xl font-bold text-[#4A2F2A] mb-6 flex items-center gap-3">
-                    <Truck className="h-7 w-7 text-[#B0413E]" />
-                    Delivery Rates
-                  </h4>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">0-10 km</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹1000</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">11-20 km</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹1500</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">21-30 km</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹2000</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">31-40 km</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹2500</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">41-50 km</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹3000</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">50+ km</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹60/km</span>
-                    </div>
-                  </div>
+      {/* Gallery Section (from second code) */}
+      <section className="py-20 bg-[#E8D7C3]/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 fade-in-section opacity-0">
+            <h2 className="text-4xl sm:text-5xl font-bold text-[#4A2F2A] mb-4">
+              Our Facility & Products
+            </h2>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              Take a glimpse into our state-of-the-art manufacturing facility and premium products.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {galleryImages.map((image, index) => (
+              <div
+                key={index}
+                className="fade-in-section opacity-0 relative h-64 rounded-lg overflow-hidden shadow-lg cursor-pointer group"
+                style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => setSelectedImage(image.url)}
+              >
+                <img
+                  src={image.url}
+                  alt={image.alt}
+                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#4A2F2A]/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+                  <p className="text-white text-sm font-medium px-4 text-center">
+                    Click to view
+                  </p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-                {/* Product Pricing */}
-                <div>
-                  <h4 className="text-2xl font-bold text-[#4A2F2A] mb-6 flex items-center gap-3">
-                    <IndianRupee className="h-7 w-7 text-[#B0413E]" />
-                    Product Pricing
-                  </h4>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">Red Clay Bricks</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹9 per brick</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">Clay Floor Tiles</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹45 per tile</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3] hover:bg-[#F0E6D8] transition-colors">
-                      <span className="text-lg font-medium">Roof Tiles</span>
-                      <span className="text-xl font-bold text-[#B0413E]">₹85 per tile</span>
-                    </div>
-                  </div>
+      {/* Lightbox Modal (from second code) */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white hover:text-gray-300"
+            onClick={() => setSelectedImage(null)}
+          >
+            <X className="h-8 w-8" />
+          </button>
+          <img
+            src={selectedImage}
+            alt="Enlarged gallery view"
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
+      )}
 
-                  {/* Additional Info */}
-                  <div className="mt-8 p-6 bg-[#4A2F2A] rounded-lg text-white">
-                    <h5 className="text-lg font-bold mb-3 text-[#E8D7C3]">Important Notes:</h5>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-1 flex-shrink-0" />
-                        <span>Minimum order: 1000 bricks or equivalent</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-1 flex-shrink-0" />
-                        <span>Free delivery on orders above ₹50,000 within 30km</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-1 flex-shrink-0" />
-                        <span>Bulk discounts available for orders above 10,000 units</span>
-                      </li>
-                    </ul>
-                  </div>
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 fade-in-section opacity-0">
+            <h2 className="text-4xl sm:text-5xl font-bold text-[#4A2F2A] mb-4">
+              What Our Clients Say
+            </h2>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              Building trust through quality and reliability for over 30 years.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className="fade-in-section opacity-0 bg-[#E8D7C3]/30 rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Award key={i} className="h-5 w-5 text-[#B0413E] fill-current" />
+                  ))}
                 </div>
+                <p className="text-gray-700 mb-6 italic">
+                  "{testimonial.text}"
+                </p>
+                <div className="border-t border-[#B0413E]/20 pt-4">
+                  <p className="font-bold text-[#4A2F2A]">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {testimonial.company}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Delivery Rates Section with Google Maps - Single Card Design */}
+<section className="py-20 bg-[#E8D7C3]/20">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="fade-in-section opacity-0">
+      <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#4A2F2A] to-[#B0413E] p-8 text-center">
+          <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Delivery & Location
+          </h3>
+          <p className="text-xl text-gray-200">
+            Transparent delivery rates and our factory location
+          </p>
+        </div>
+
+        {/* Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* Delivery Rates - Left Side */}
+          <div className="p-8 border-r border-gray-200">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="bg-[#B0413E] p-3 rounded-full">
+                <Truck className="h-8 w-8 text-white" />
+              </div>
+              <h4 className="text-2xl font-bold text-[#4A2F2A]">
+                Delivery Rates
+              </h4>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F4F0] to-[#F0E6D8] rounded-lg border border-[#E8D7C3] hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <span className="text-lg font-medium text-[#4A2F2A]">0-10 km</span>
+                <span className="text-xl font-bold text-[#B0413E] bg-white px-4 py-2 rounded-full shadow-sm">₹1000</span>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F4F0] to-[#F0E6D8] rounded-lg border border-[#E8D7C3] hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <span className="text-lg font-medium text-[#4A2F2A]">11-20 km</span>
+                <span className="text-xl font-bold text-[#B0413E] bg-white px-4 py-2 rounded-full shadow-sm">₹1500</span>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F4F0] to-[#F0E6D8] rounded-lg border border-[#E8D7C3] hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <span className="text-lg font-medium text-[#4A2F2A]">21-30 km</span>
+                <span className="text-xl font-bold text-[#B0413E] bg-white px-4 py-2 rounded-full shadow-sm">₹2000</span>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F4F0] to-[#F0E6D8] rounded-lg border border-[#E8D7C3] hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <span className="text-lg font-medium text-[#4A2F2A]">31-40 km</span>
+                <span className="text-xl font-bold text-[#B0413E] bg-white px-4 py-2 rounded-full shadow-sm">₹2500</span>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F4F0] to-[#F0E6D8] rounded-lg border border-[#E8D7C3] hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <span className="text-lg font-medium text-[#4A2F2A]">41-50 km</span>
+                <span className="text-xl font-bold text-[#B0413E] bg-white px-4 py-2 rounded-full shadow-sm">₹3000</span>
+              </div>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F4F0] to-[#F0E6D8] rounded-lg border border-[#E8D7C3] hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <span className="text-lg font-medium text-[#4A2F2A]">50+ km</span>
+                <span className="text-xl font-bold text-[#B0413E] bg-white px-4 py-2 rounded-full shadow-sm">₹60/km</span>
+              </div>
+            </div>
+
+            {/* Additional Info */}
+            <div className="bg-gradient-to-br from-[#4A2F2A] to-[#5a3a34] rounded-xl p-6 text-white shadow-lg">
+              <h5 className="text-lg font-bold mb-4 text-[#E8D7C3] flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-400" />
+                Important Notes
+              </h5>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <div className="bg-green-500 rounded-full p-1 mt-1 flex-shrink-0">
+                    <CheckCircle2 className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-sm">Minimum order: 1000 bricks or equivalent</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-green-500 rounded-full p-1 mt-1 flex-shrink-0">
+                    <CheckCircle2 className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-sm">Free delivery on orders above ₹50,000 within 30km</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-green-500 rounded-full p-1 mt-1 flex-shrink-0">
+                    <CheckCircle2 className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-sm">Bulk discounts available for orders above 10,000 units</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Google Maps - Right Side */}
+          <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="bg-[#B0413E] p-3 rounded-full">
+                <MapPin className="h-8 w-8 text-white" />
+              </div>
+              <h4 className="text-2xl font-bold text-[#4A2F2A]">
+                Our Location
+              </h4>
+            </div>
+
+            <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200 mb-6">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3945.73341034623!2d77.57808767533228!3d8.525242696670293!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b04692c8b82209f%3A0xa00060055fec4e1!2sRORIRI%20SOFTWARE%20SOLUTIONS%20PVT.LTD.!5e0!3m2!1sen!2sin!4v1760339010612!5m2!1sen!2sin" 
+                width="100%" 
+                height="300" 
+                style={{ border: 0 }} 
+                allowFullScreen="" 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Roshan Traders Location"
+                className="w-full"
+              ></iframe>
+            </div>
+
+            {/* Address Card */}
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <h5 className="font-bold text-[#4A2F2A] mb-3 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-[#B0413E]" />
+                Factory Address
+              </h5>
+              <div className="space-y-2 text-gray-700">
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">📍</span>
+                  Roshan Traders Factory
+                </p>
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">🏭</span>
+                  Industrial Area, Sector 5
+                </p>
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">🏙️</span>
+                  City, State - 123456
+                </p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <button 
+                  onClick={() => window.open('https://maps.google.com/?q=8.5252427,77.5806627', '_blank')}
+                  className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <MapPin className="h-4 w-4" />
+                  Get Directions
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Footer */}
       <footer id="contact" className="bg-[#4A2F2A] text-white py-20">
