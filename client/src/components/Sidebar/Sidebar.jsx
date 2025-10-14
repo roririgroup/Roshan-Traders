@@ -22,7 +22,7 @@ const MENU_CONFIG = {
     { to: '/dashboard/home', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/dashboard/manufacturers', label: 'Manufacturers', icon: Factory },
     { to: '/dashboard/agents', label: 'Agents', icon: UserRound },
-    { to: '/dashboard/companies', label: 'Companies', icon: Building2 },
+    // { to: '/dashboard/companies', label: 'Companies', icon: Building2 },
     { to: '/dashboard/employees', label: 'Employees', icon: Gift },
     { to: '/dashboard/products', label: 'Products', icon: Package },
     { to: '/dashboard/users', label: 'Users', icon: Users },
