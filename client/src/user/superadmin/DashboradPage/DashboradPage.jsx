@@ -74,7 +74,6 @@ export default function SuperAdminDashboard() {
   const stats = {
     totalManufacturers: 45,
     totalAgents: 128,
-    totalCompanies: 67,
     totalEmployees: 342,
     totalUsers: 510,
     pendingPayments: 23,
@@ -112,14 +111,6 @@ export default function SuperAdminDashboard() {
             trend="+8%"
             description="from last month"
             color={{ bg: "bg-green-100", text: "text-green-600" }}
-          />
-          <StatCard
-            title="Companies"
-            value={stats.totalCompanies}
-            icon={Building2}
-            trend="+5%"
-            description="from last month"
-            color={{ bg: "bg-indigo-100", text: "text-indigo-600" }}
           />
           <StatCard
             title="Employees"
