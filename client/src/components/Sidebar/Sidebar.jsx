@@ -5,7 +5,7 @@ import {
   DollarSign, User, BarChart3, Truck, Gift
 } from 'lucide-react';
 import { logout } from '../../lib/auth';
-import { getCurrentUserRole } from '../../lib/roles';
+import { getCurrentUserRole, getCurrentUserRoles, getCurrentUserActiveRole, setCurrentUserActiveRole } from '../../lib/roles';
 import Button from '../ui/Button';
 import { useState, useEffect } from 'react';
 
@@ -67,18 +67,33 @@ const MENU_CONFIG = {
 };
 
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
-  const [role, setRole] = useState(() => getCurrentUserRole() || 'guest');
+  const [activeRole, setActiveRole] = useState(() => getCurrentUserActiveRole() || 'guest');
+  const userRoles = getCurrentUserRoles() || [];
 
   useEffect(() => {
     const handleRoleChange = () => {
-      const newRole = getCurrentUserRole() || 'guest';
-      if (newRole !== role) setRole(newRole);
+      const newActiveRole = getCurrentUserActiveRole() || 'guest';
+      if (newActiveRole !== activeRole) setActiveRole(newActiveRole);
     };
     window.addEventListener('storage', handleRoleChange);
     return () => window.removeEventListener('storage', handleRoleChange);
-  }, [role]);
+  }, [activeRole]);
 
-  const menu = MENU_CONFIG[role] || [];
+  const menu = MENU_CONFIG[activeRole] || [];
+
+  const handleRoleSwitch = (role) => {
+    setCurrentUserActiveRole(role);
+    setActiveRole(role);
+    // Navigate to the appropriate dashboard for the new role
+    const dashboardRoutes = {
+      agent: '/agents/dashboard',
+      manufacturer: '/manufacturers/dashboard',
+      truckowner: '/truck-owners/dashboard',
+      driver: '/drivers/dashboard'
+    };
+    const route = dashboardRoutes[role] || '/';
+    window.location.href = route;
+  };
 
   return (
     <>
@@ -120,6 +135,37 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
             </button>
           )}
         </div>
+
+        {/* Role Switcher */}
+        {userRoles.length > 1 && (!isCollapsed || mobile) && (
+          <div className="px-3 sm:px-4 py-3 border-b border-slate-200 bg-slate-50/50">
+            <p className="text-xs font-medium text-slate-600 mb-2">Switch Role</p>
+            <div className="flex flex-wrap gap-2">
+              {userRoles.map((role) => {
+                const roleLabels = {
+                  agent: 'Agent',
+                  manufacturer: 'Manufacturer',
+                  truckOwner: 'Truck Owner',
+                  driver: 'Driver'
+                };
+                const isActive = role === activeRole;
+                return (
+                  <button
+                    key={role}
+                    onClick={() => handleRoleSwitch(role)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-[#F08344] text-white shadow-sm'
+                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    }`}
+                  >
+                    {roleLabels[role] || role}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav
