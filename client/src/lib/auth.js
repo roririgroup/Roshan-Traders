@@ -68,7 +68,7 @@ export function isSuperAdmin() {
 // Helper function to check user role
 export function hasRole(role) {
   const user = getCurrentUser();
-  return Boolean(user && user.role === role);
+  return Boolean(user && user.activeRole === role);
 }
 
 
