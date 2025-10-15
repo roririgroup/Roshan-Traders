@@ -25,7 +25,7 @@ const MENU_CONFIG = {
     // { to: '/dashboard/companies', label: 'Companies', icon: Building2 },
     { to: '/dashboard/employees', label: 'Employees', icon: Gift },
     { to: '/dashboard/products', label: 'Products', icon: Package },
-    { to: '/dashboard/users', label: 'Users', icon: Users },
+    // { to: '/dashboard/users', label: 'Users', icon: Users },
     { to: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/dashboard/paymentreports', label: 'Payment Reports', icon: CreditCard },
     { to: '/dashboard/report', label: 'Reports', icon: FileText },
