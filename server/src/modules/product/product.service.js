@@ -187,10 +187,65 @@ const deleteProduct = async (id) => {
   });
 };
 
+const searchProducts = async (query) => {
+  const { name, category } = query;
+
+  const whereClause = {};
+  if (name || category) {
+    whereClause.OR = [];
+    if (name) {
+      whereClause.OR.push({
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      });
+    }
+    if (category) {
+      whereClause.OR.push({
+        category: {
+          contains: category,
+          mode: 'insensitive',
+        },
+      });
+    }
+  }
+
+  const products = await prisma.product.findMany({
+    where: whereClause,
+    include: {
+      manufacturer: {
+        select: {
+          id: true,
+          companyName: true,
+        },
+      },
+    },
+  });
+
+  // Transform the response to match frontend expectations
+  return products.map(product => {
+    let parsedPaymentOptions = [];
+    try {
+      parsedPaymentOptions = JSON.parse(product.paymentOptions || '[]');
+    } catch (e) {
+      parsedPaymentOptions = [];
+    }
+
+    return {
+      ...product,
+      priceAmount: parseFloat(product.priceRange) || 0,
+      paymentOptions: parsedPaymentOptions,
+      image: product.imageUrl, // Map imageUrl to image for frontend compatibility
+    };
+  });
+};
+
 module.exports = {
   createProduct,
   getProducts,
   getProductById,
   updateProduct,
   deleteProduct,
+  searchProducts,
 };

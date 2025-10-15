@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { createProduct, getProducts, getProductById, updateProduct, deleteProduct } = require('./product.service.js');
+const { createProduct, getProducts, getProductById, updateProduct, deleteProduct, searchProducts } = require('./product.service.js');
 
 const router = Router();
 
@@ -54,6 +54,16 @@ router.delete('/:id', async (req, res) => {
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete product' });
+  }
+});
+
+// GET /api/products/search - Search products by name or category
+router.get('/search', async (req, res) => {
+  try {
+    const products = await searchProducts(req.query);
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to search products' });
   }
 });
 

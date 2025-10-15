@@ -1,3 +1,5 @@
-- [x] Update AppRoutes.jsx to import LandingPage and create LandingOrRedirect component for root route
-- [x] Update landing.jsx to make login buttons functional links to login routes
-- [ ] Test the routing: unauthenticated users see landing page, login buttons navigate correctly, authenticated users redirected to dashboard
+# TODO: Add Search Endpoint to Products API
+
+- [x] Edit `server/src/modules/product/product.service.js` to add `searchProducts` function and export it
+- [x] Edit `server/src/modules/product/product.route.js` to add the new `/search` GET route and import `searchProducts`
+- [ ] Test the new endpoint by making requests with query parameters (e.g., `/api/products/search?name=example&category=electronics`)
