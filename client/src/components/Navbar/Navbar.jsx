@@ -1,9 +1,22 @@
 import { Menu, PanelLeftClose, PanelLeftOpen, Bell, Search, Settings, LogOut, User } from 'lucide-react'
 import { getCurrentUser, logout } from '../../lib/auth'
+import { getCurrentUserActiveRole } from '../../lib/roles'
 import Button from '../ui/Button'
 
 export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesktopSidebarCollapsed }) {
   const user = getCurrentUser()
+  const activeRole = getCurrentUserActiveRole()
+
+  const getRoleDisplayName = (role) => {
+    const roleNames = {
+      superadmin: 'Super Admin',
+      agent: 'Agent',
+      manufacturer: 'Manufacturer',
+      truckowner: 'Truck Owner',
+      driver: 'Driver'
+    }
+    return roleNames[role] || role
+  }
   
   return (
     <header className="h-14 sm:h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20 shadow-sm">
@@ -74,7 +87,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
             <p className="text-sm font-medium text-slate-900 truncate max-w-24 lg:max-w-32">
               {user?.name || 'User'}
             </p>
-            <p className="text-xs text-slate-500 truncate">Administrator</p>
+            <p className="text-xs text-slate-500 truncate">{getRoleDisplayName(activeRole)}</p>
           </div>
           
           {/* User Avatar */}
