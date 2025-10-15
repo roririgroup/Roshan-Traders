@@ -15,6 +15,7 @@ import {
   Award,
   Box,
   Building,
+  Plus,
 } from 'lucide-react';
 
 export default function ManufacturersPage() {
@@ -277,11 +278,20 @@ export default function ManufacturersPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Results Summary */}
-        <div className="mb-8 flex items-center justify-between text-sm text-gray-600 font-medium">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {filteredManufacturers.length} Manufacturers Found
-          </h2>
-          <div className="hidden sm:flex items-center gap-6">
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {filteredManufacturers.length} Manufacturers Found
+            </h2>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="bg-[#F08344] hover:bg-[#e0733a] text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 w-fit"
+            >
+              <Plus className="w-4 h-4" />
+              Add Manufacturer
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 font-medium">
             <div className="flex items-center gap-2">
               <Star className="w-4 h-4 text-yellow-500" />
               <span>Highest Rated</span>

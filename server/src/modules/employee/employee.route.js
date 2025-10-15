@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(employee);
   } catch (error) {
     console.error('Error creating employee:', error);
-    res.status(500).json({ message: 'Failed to create employee' });
+    res.status(400).json({ message: error.message || 'Failed to create employee' });
   }
 });
 
