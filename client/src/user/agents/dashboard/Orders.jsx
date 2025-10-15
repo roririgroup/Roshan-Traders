@@ -110,16 +110,16 @@ export default function Orders() {
                     </div>
                   </td>
                   <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
-                    ₹{order.totalAmount.toLocaleString()}
+                    ₹{order.totalAmount != null ? order.totalAmount.toLocaleString() : '0'}
                   </td>
                   <td className="py-4 px-6">
                     {getStatusBadge(order.status)}
                   </td>
                   <td className="py-4 px-6 text-slate-600 hover:text-[#F08344] transition-colors">
-                    {new Date(order.orderDate).toLocaleDateString()}
+                    {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : '—'}
                   </td>
                   <td className="py-4 px-6 text-slate-600 max-w-xs truncate hover:text-[#F08344] transition-colors">
-                    {order.deliveryAddress}
+                    {order.deliveryAddress || '—'}
                   </td>
                 </tr>
               ))}
