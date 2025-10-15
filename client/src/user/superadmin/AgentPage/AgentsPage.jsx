@@ -25,11 +25,11 @@ export default function AgentsPage() {
         const data = await response.json();
         const mappedAgents = data.map(agent => ({
           id: agent.id,
-          name: agent.user.name,
+          name: agent.name,
           referrals: agent.referrals || 0,
-          image: agent.user.image || 'https://via.placeholder.com/150',
-          phone: agent.user.phone,
-          email: agent.user.email,
+          image: agent.image || 'https://via.placeholder.com/150',
+          phone: agent.phone,
+          email: agent.email,
           location: agent.location,
           joinDate: new Date(agent.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
           status: agent.status,
@@ -61,11 +61,14 @@ export default function AgentsPage() {
       if (response.ok) {
         fetchAgents();
         setIsModalOpen(false);
+        alert('Agent added successfully!');
       } else {
-        console.error('Failed to add agent');
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to add agent');
       }
     } catch (error) {
       console.error('Error adding agent:', error);
+      alert('Error adding agent');
     }
   };
 
