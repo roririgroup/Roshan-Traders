@@ -3,6 +3,29 @@ const prisma = require('../../shared/lib/db.js');
 const createAgent = async (payload) => {
   const { name, phone, email, location, status, referrals, image } = payload;
 
+  // Validation
+  if (!name || !phone) {
+    throw new Error('Name and phone are required');
+  }
+
+  // Check if phone number already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { phoneNumber: phone },
+  });
+  if (existingUser) {
+    throw new Error('Phone number already exists');
+  }
+
+  // Check if email already exists if provided
+  if (email) {
+    const existingProfile = await prisma.userProfile.findUnique({
+      where: { email },
+    });
+    if (existingProfile) {
+      throw new Error('Email already exists');
+    }
+  }
+
   // Create user first
   const user = await prisma.user.create({
     data: {
