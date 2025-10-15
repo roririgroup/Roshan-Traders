@@ -41,29 +41,33 @@ export default function Orders() {
   ]
 
   // Load orders from shared store AND localStorage manufacturer orders
-  useEffect(() => {
-    const allOrders = getOrders()
-    const user = getCurrentUser()
-    
-    // Get assigned orders from localStorage
-    const manufacturerOrders = JSON.parse(localStorage.getItem('manufacturerOrders')) || []
-    
-    // Combine both orders from store and assigned orders
-    const combinedOrders = [...allOrders, ...manufacturerOrders]
-    
-    // Remove duplicates based on order ID
-    const uniqueOrders = combinedOrders.filter((order, index, self) =>
-      index === self.findIndex((o) => o.id === order.id)
-    )
-    
-    if (isSuperAdmin()) {
-      // Super Admin sees all orders
-      setOrders(uniqueOrders)
-    } else {
-      // Others see only their own orders
-      setOrders(uniqueOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
-    }
-  }, [refreshTrigger])
+ useEffect(() => {
+  const allOrders = getOrders()
+  const user = getCurrentUser()
+  
+  // Get assigned orders from localStorage
+  const manufacturerOrders = JSON.parse(localStorage.getItem('manufacturerOrders')) || []
+
+  // Get agent orders from localStorage
+  const agentOrders = JSON.parse(localStorage.getItem('agentOrders')) || []
+
+  // Combine all orders: store + manufacturer + agent
+  const combinedOrders = [...allOrders, ...manufacturerOrders, ...agentOrders]
+  
+  // Remove duplicates based on order ID
+  const uniqueOrders = combinedOrders.filter((order, index, self) =>
+    index === self.findIndex((o) => o.id === order.id)
+  )
+
+  if (isSuperAdmin()) {
+    // Super Admin sees all orders
+    setOrders(uniqueOrders)
+  } else {
+    // Others see only their own orders
+    setOrders(uniqueOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
+  }
+}, [refreshTrigger])
+
 
   // Auto-refresh periodically to check for updates
   useEffect(() => {
