@@ -35,6 +35,7 @@ const productApi = require('./modules/product/product.route.js');
 const ordersApi = require('./modules/order/order.route.js');
 const manufacturerApi = require('./modules/manufacturer/manufacturer.route.js');
 const agentApi = require('./modules/agent/agent.route.js');
+const employeeApi = require('./modules/employee/employee.route.js');
 
 app.use('/api/users', userApi);
 app.use('/api/admin-auth', adminAuthApi);
@@ -42,6 +43,7 @@ app.use('/api/products', productApi);
 app.use('/api/orders', ordersApi);
 app.use('/api/manufacturers', manufacturerApi);
 app.use('/api/agents', agentApi);
+app.use('/api/employees', employeeApi);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

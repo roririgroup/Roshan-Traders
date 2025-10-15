@@ -46,6 +46,7 @@ model User {
   auditLogs    AuditLog[]
   agent        Agent?
   manufacturer Manufacturer?
+  employee     Employee?
   approvedAgents Agent[] @relation("AgentApprovedBy")
   verifiedManufacturers Manufacturer[] @relation("ManufacturerVerifiedBy")
 
@@ -372,6 +373,28 @@ model OrderItem {
   @@map("order_items")
   @@index([orderId])
   @@index([productId])
+}
+
+model Employee {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique
+  employeeCode   String    @unique
+  role           String    // Truck Owner, Loader, etc.
+  status         String    @default("Available") // Available, On Job, Unavailable
+  currentOrder   Json?     // Current assigned task/order details
+  salary         Float     @default(0.0)
+  hireDate       DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("employees")
+  @@index([userId])
+  @@index([employeeCode])
+  @@index([role])
+  @@index([status])
 }
 
 model AuditLog {
