@@ -179,6 +179,7 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
                 to={item.to}
                 className={active}
                 onClick={mobile ? onClose : undefined}
+                end
               >
                 <Icon className="size-4 sm:size-5 flex-shrink-0" />
                 {(!isCollapsed || mobile) && (
