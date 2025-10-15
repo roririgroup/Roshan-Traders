@@ -273,91 +273,94 @@ export default function Products() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products
-          .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
-          .filter(p => stockFilter === 'all' || (stockFilter === 'in' ? p.inStock : !p.inStock))
-          .map((product) => (
-          <Card key={product.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow duration-200 flex flex-col">
-            <div className="flex-1">
-              <div className="mb-4">
-                <h3 className="font-semibold text-slate-900 text-lg mb-2">{product.name}</h3>
-                <p className="text-slate-600 text-sm line-clamp-2 mb-2">{product.description}</p>
-                <p className="text-xl font-bold text-slate-900 mb-2">₹{product.price.toLocaleString()}</p>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    product.inStock
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
-                  </span>
-                  <span className="text-sm text-slate-700">Stock: <span className="font-semibold">{Number(product.stockQuantity || 0)}</span></span>
-                </div>
-              </div>
+  {products
+    .filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+    .filter(p => stockFilter === 'all' || (stockFilter === 'in' ? p.inStock : !p.inStock))
+    .map((product) => (
+    <Card key={product.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow duration-200 flex flex-col">
+      <div className="flex-1">
+        <div className="mb-4">
+          <h3 className="font-semibold text-slate-900 text-lg mb-2">{product.name}</h3>
+          <p className="text-slate-600 text-sm line-clamp-2 mb-2">{product.description}</p>
+          <p className="text-xl font-bold text-slate-900 mb-2">
+            ₹{product.price != null ? product.price.toLocaleString() : '0'}
+          </p>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+              product.inStock
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {product.inStock ? 'In Stock' : 'Out of Stock'}
+            </span>
+            <span className="text-sm text-slate-700">Stock: <span className="font-semibold">{Number(product.stockQuantity || 0)}</span></span>
+          </div>
+        </div>
 
-            {product.image && (
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-32 object-cover rounded-lg mb-4"
-              />
-            )}
+        {product.image && (
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-32 object-cover rounded-lg mb-4"
+          />
+        )}
 
-            </div>
-
-            <div className="space-y-3 mt-4">
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  min="0"
-                  max={product.stockQuantity}
-                  value={quantities[product.id] || ''}
-                  onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-                  placeholder="Enter order qty"
-                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <Button
-                  onClick={() => handlePlaceOrder(product)}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  disabled={!product.inStock || !(quantities[product.id] > 0) || (quantities[product.id] > product.stockQuantity)}
-                >
-                  <ShoppingCart className="size-4 mr-2" />
-                  Order
-                </Button>
-              </div>
-
-              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleEditProduct(product)}
-                    variant="secondary"
-                    size="sm"
-                  >
-                    <Edit className="size-4" />
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    variant="secondary"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-                <Button
-                  onClick={() => openAddStockModal(product.id)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2"
-                  size="sm"
-                  title="Add Stock"
-                >
-                  <Plus className="size-4" />
-                  Add Stock
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
       </div>
+
+      <div className="space-y-3 mt-4">
+        <div className="flex gap-2">
+          <input
+            type="number"
+            min="0"
+            max={product.stockQuantity}
+            value={quantities[product.id] || ''}
+            onChange={(e) => handleQuantityChange(product.id, e.target.value)}
+            placeholder="Enter order qty"
+            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <Button
+            onClick={() => handlePlaceOrder(product)}
+            className="bg-green-600 hover:bg-green-700 text-white"
+            disabled={!product.inStock || !(quantities[product.id] > 0) || (quantities[product.id] > product.stockQuantity)}
+          >
+            <ShoppingCart className="size-4 mr-2" />
+            Order
+          </Button>
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+          <div className="flex gap-2">
+            <Button
+              onClick={() => handleEditProduct(product)}
+              variant="secondary"
+              size="sm"
+            >
+              <Edit className="size-4" />
+            </Button>
+            <Button
+              onClick={() => handleDeleteProduct(product.id)}
+              variant="secondary"
+              size="sm"
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+          <Button
+            onClick={() => openAddStockModal(product.id)}
+            className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2"
+            size="sm"
+            title="Add Stock"
+          >
+            <Plus className="size-4" />
+            Add Stock
+          </Button>
+        </div>
+      </div>
+    </Card>
+  ))}
+</div>
+
 
       {products.length === 0 && (
         <div className="text-center py-12">
