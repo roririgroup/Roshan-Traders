@@ -85,15 +85,13 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
           {/* User Details - Hidden on mobile */}
           <div className="hidden md:block text-right">
             <p className="text-sm font-medium text-slate-900 truncate max-w-24 lg:max-w-32">
-              {user?.name || 'User'}
+            {getRoleDisplayName(activeRole)}
             </p>
-            <p className="text-xs text-slate-500 truncate">{getRoleDisplayName(activeRole)}</p>
           </div>
-          
+
           {/* User Avatar */}
           <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm">
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-          </div>
+  {getRoleDisplayName(activeRole).charAt(0).toUpperCase()}         </div>
         </div>
         
         {/* Logout Button */}

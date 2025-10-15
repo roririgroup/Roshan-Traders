@@ -63,8 +63,33 @@ export default function TruckManagement() {
     setViewingTruck(truck)
   }
 
+  const validateTruckNumber = (truckNo) => {
+    // Indian vehicle registration number pattern
+    // Format: XX00XX0000 or XX00X0000 (where X is letter, 0 is digit)
+    const pattern = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/
+    return pattern.test(truckNo.toUpperCase())
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    // Validate truck number
+    if (!validateTruckNumber(formData.truckNo)) {
+      alert('Please enter a valid vehicle registration number (e.g., TN01AB1234)')
+      return
+    }
+
+    // Check for duplicate truck numbers
+    const isDuplicate = trucks.some(truck =>
+      truck.truckNo.toUpperCase() === formData.truckNo.toUpperCase() &&
+      (!editingTruck || truck.id !== editingTruck.id)
+    )
+
+    if (isDuplicate) {
+      alert('This truck number already exists. Please enter a unique truck number.')
+      return
+    }
+
     let newDocuments = editingTruck ? [...editingTruck.documents] : []
     if (formData.rcBookFile && !newDocuments.includes('RC Book')) newDocuments.push('RC Book')
     if (formData.insuranceFile && !newDocuments.includes('Insurance')) newDocuments.push('Insurance')
@@ -206,10 +231,12 @@ export default function TruckManagement() {
               <input
                 type="text"
                 value={formData.truckNo}
-                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value.toUpperCase() })}
                 className="w-full p-2 border rounded"
+                placeholder="e.g., TN01AB1234"
                 required
               />
+              
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Type</label>
