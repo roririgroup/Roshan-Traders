@@ -1,8 +1,8 @@
-import { NavLink } from 'react-router-dom'; // ✅ Add this import at the top
+import { NavLink } from 'react-router-dom';
 import {
   Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X,
   TrendingUp, FileText, CreditCard, Package, LayoutDashboard, ShoppingCart,
-  DollarSign, User, BarChart3, Truck, Gift
+  DollarSign, User, BarChart3, Truck, Gift, ChevronDown
 } from 'lucide-react';
 import { logout } from '../../lib/auth';
 import { getCurrentUserRole, getCurrentUserRoles, getCurrentUserActiveRole, setCurrentUserActiveRole } from '../../lib/roles';
@@ -42,7 +42,14 @@ const MENU_CONFIG = {
   ],
   manufacturer: [
     { to: '/dashboard/manufacturer-dashboard', label: 'Dashboard', icon: TrendingUp },
-    { to: '/dashboard/manufacturer-products', label: 'Products', icon: Package },
+    { 
+      label: 'Products', 
+      icon: Package,
+      submenu: [
+        { to: '/dashboard/manufacturer-products', label: 'All Products' },
+        { to: '/dashboard/manufacturer-product-orders', label: 'Orders' }
+      ]
+    },
     { to: '/dashboard/manufacturer-orders', label: 'Customer Orders', icon: ShoppingCart },
     { to: '/dashboard/manufacturer-employees', label: 'Employees', icon: Gift },
     { to: '/dashboard/manufacturer-payments', label: 'Payments', icon: DollarSign },
@@ -66,8 +73,59 @@ const MENU_CONFIG = {
   ],
 };
 
+// Submenu component
+const SubmenuItem = ({ item, isCollapsed, mobile, onClose, isOpen, onToggle }) => {
+  const Icon = item.icon;
+  
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        className={`${linkBase} w-full text-left ${
+          isOpen ? 'bg-slate-50 text-slate-900' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        }`}
+      >
+        <Icon className="size-4 sm:size-5 flex-shrink-0" />
+        {(!isCollapsed || mobile) && (
+          <>
+            <span className="group-hover:translate-x-0.5 transition-transform truncate flex-1 text-left">
+              {item.label}
+            </span>
+            <ChevronDown 
+              className={`size-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+            />
+          </>
+        )}
+      </button>
+      
+      {isOpen && (!isCollapsed || mobile) && (
+        <div className="ml-4 mt-1 space-y-1">
+          {item.submenu.map((subItem, index) => (
+            <NavLink
+              key={index}
+              to={subItem.to}
+              className={({ isActive }) =>
+                `block px-3 py-2 text-sm rounded-lg transition-colors ${
+                  isActive 
+                    ? 'bg-[#F08344] text-white' 
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`
+              }
+              onClick={mobile ? onClose : undefined}
+              end
+            >
+              {subItem.label}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const [activeRole, setActiveRole] = useState(() => getCurrentUserActiveRole() || 'guest');
+  const [openSubmenus, setOpenSubmenus] = useState({});
   const userRoles = getCurrentUserRoles() || [];
 
   useEffect(() => {
@@ -84,7 +142,6 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const handleRoleSwitch = (role) => {
     setCurrentUserActiveRole(role);
     setActiveRole(role);
-    // Navigate to the appropriate dashboard for the new role
     const dashboardRoutes = {
       agent: '/agents/dashboard',
       manufacturer: '/manufacturers/dashboard',
@@ -93,6 +150,13 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
     };
     const route = dashboardRoutes[role] || '/';
     window.location.href = route;
+  };
+
+  const toggleSubmenu = (label) => {
+    setOpenSubmenus(prev => ({
+      ...prev,
+      [label]: !prev[label]
+    }));
   };
 
   return (
@@ -172,6 +236,20 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
           className={`flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto ${isCollapsed && !mobile ? 'flex flex-col items-center' : ''}`}
         >
           {menu.map((item) => {
+            if (item.submenu) {
+              return (
+                <SubmenuItem
+                  key={item.label}
+                  item={item}
+                  isCollapsed={isCollapsed}
+                  mobile={mobile}
+                  onClose={onClose}
+                  isOpen={openSubmenus[item.label]}
+                  onToggle={() => toggleSubmenu(item.label)}
+                />
+              );
+            }
+            
             const Icon = item.icon;
             return (
               <NavLink
@@ -179,6 +257,7 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
                 to={item.to}
                 className={active}
                 onClick={mobile ? onClose : undefined}
+                end
               >
                 <Icon className="size-4 sm:size-5 flex-shrink-0" />
                 {(!isCollapsed || mobile) && (

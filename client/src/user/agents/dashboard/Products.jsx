@@ -21,15 +21,24 @@ export default function Products() {
 
   // Fetch products from API
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const response = await fetch('http://localhost:7700/api/products');
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-      }
+   async function fetchProducts() {
+  try {
+    const response = await fetch('http://localhost:7700/api/products');
+
+    // Check if the response is OK (status 200–299)
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status} ${response.statusText}`);
     }
+
+    // Try parsing JSON safely
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error('Error fetching products:', err.message);
+    return []; // Return an empty array or fallback data to avoid React crash
+  }
+}
+
     fetchProducts();
   }, [])
 
