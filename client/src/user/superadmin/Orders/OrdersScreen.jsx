@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge.jsx'
 import { ShoppingCart, UserPlus } from 'lucide-react'
-import { getOrders, updateOrderStatus } from '../../../store/ordersStore.js'
 import NotificationContainer from '../../../components/ui/NotificationContainer.jsx'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal.jsx'
 import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar.jsx'
 import { getCurrentUser, isSuperAdmin } from '../../../lib/auth.js'
 import Modal from '../../../components/ui/Modal.jsx'
+
+const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -40,33 +41,38 @@ export default function Orders() {
     { id: '7', companyName: 'Premium Roofs', stock: 600, category: 'clay_roof', productType: 'All Clay Roof Types' }
   ]
 
-  // Load orders from shared store AND localStorage manufacturer orders
- useEffect(() => {
-  const allOrders = getOrders()
-  const user = getCurrentUser()
-  
-  // Get assigned orders from localStorage
-  const manufacturerOrders = JSON.parse(localStorage.getItem('manufacturerOrders')) || []
+  // Load orders from backend API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/orders`)
+        if (response.ok) {
+          const backendOrders = await response.json()
+          
+          // Transform backend data to frontend format
+          const transformedOrders = backendOrders.map(order => ({
+            ...order,
+            status: order.status.toLowerCase(), // PENDING -> 'pending', etc.
+            items: order.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.unitPrice
+            })),
+            manufacturerName: order.manufacturer ? order.manufacturer.companyName : null,
+            orderDate: order.orderDate // Already ISO string
+          }))
 
-  // Get agent orders from localStorage
-  const agentOrders = JSON.parse(localStorage.getItem('agentOrders')) || []
+          setOrders(transformedOrders)
+        } else {
+          console.error('Failed to fetch orders')
+        }
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+      }
+    }
 
-  // Combine all orders: store + manufacturer + agent
-  const combinedOrders = [...allOrders, ...manufacturerOrders, ...agentOrders]
-  
-  // Remove duplicates based on order ID
-  const uniqueOrders = combinedOrders.filter((order, index, self) =>
-    index === self.findIndex((o) => o.id === order.id)
-  )
-
-  if (isSuperAdmin()) {
-    // Super Admin sees all orders
-    setOrders(uniqueOrders)
-  } else {
-    // Others see only their own orders
-    setOrders(uniqueOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
-  }
-}, [refreshTrigger])
+    fetchOrders()
+  }, [refreshTrigger])
 
 
   // Auto-refresh periodically to check for updates
@@ -118,9 +124,24 @@ export default function Orders() {
     }
   }
 
-  const handleStatusChange = (orderId, newStatus) => {
-    updateOrderStatus(orderId, newStatus)
-    setRefreshTrigger(prev => prev + 1)
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus.toUpperCase() })
+      })
+
+      if (response.ok) {
+        setRefreshTrigger(prev => prev + 1)
+      } else {
+        console.error('Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error updating status:', error)
+    }
   }
 
   const handleNotificationClick = (notificationId) => {
@@ -172,32 +193,24 @@ export default function Orders() {
 
     setIsLoading(true);
     try {
-      // 1️⃣ Get all assigned orders from localStorage
-      const existing = JSON.parse(localStorage.getItem('manufacturerOrders')) || [];
+      const response = await fetch(`${API_BASE_URL}/orders/${selectedOrderForAssign.id}/assign`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ manufacturerId: selectedManufacturer })
+      })
 
-      // 2️⃣ Add manufacturer info to order
-      const assignedOrder = {
-        ...selectedOrderForAssign,
-        manufacturerId: selectedManufacturer,
-        manufacturerName: manufacturers.find(m => m.id === selectedManufacturer)?.companyName || 'Unknown Manufacturer',
-        assignedAt: new Date().toISOString(),
-        category: selectedCategory,
-        status: 'in_progress',
-      };
-
-      // 3️⃣ Store back to localStorage
-      localStorage.setItem('manufacturerOrders', JSON.stringify([...existing, assignedOrder]));
-
-      // 4️⃣ Update status in main store if you want
-      updateOrderStatus(selectedOrderForAssign.id, 'in_progress');
-
-      // 5️⃣ UI + notification updates
-      setRefreshTrigger(prev => prev + 1);
-      showSuccessNotification('Order assigned successfully!');
-      setIsAssignModalOpen(false);
-      setSelectedOrderForAssign(null);
-      setSelectedManufacturer('');
-      setSelectedCategory('bricks');
+      if (response.ok) {
+        setRefreshTrigger(prev => prev + 1);
+        showSuccessNotification('Order assigned successfully!');
+        setIsAssignModalOpen(false);
+        setSelectedOrderForAssign(null);
+        setSelectedManufacturer('');
+        setSelectedCategory('bricks');
+      } else {
+        showErrorNotification('Failed to assign order. Please try again.');
+      }
     } catch (error) {
       console.error(error);
       showErrorNotification('Failed to assign order. Please try again.');
@@ -228,21 +241,20 @@ export default function Orders() {
     // Apply tab-specific filtering
     if (activeTab === 'your-orders') {
       // For Super Admin: show all orders that are not assigned to manufacturers
-      // For regular users: show their own orders
+      // For regular users: show their own orders (note: backend lacks userInfo, so show all for non-superadmin for now)
       if (isSuperAdmin()) {
-        filtered = filtered.filter(order => !order.manufacturerId && !order.manufacturerName)
+        filtered = filtered.filter(order => !order.manufacturerName && order.status === 'pending')
       } else {
-        filtered = filtered.filter(order => order.userInfo && order.userInfo.id === user?.id)
+        // Fallback: show all for non-superadmin until backend adds userId
+        filtered = filtered
       }
     } else if (activeTab === 'outsource') {
-      // Show ALL orders from other users (customer orders)
-      filtered = filtered.filter(order => 
-        order.userInfo && order.userInfo.id !== user?.id
-      )
+      // Show all orders (for superadmin, all customer orders)
+      filtered = filtered
     } else if (activeTab === 'confirm') {
       // Show orders that are assigned to manufacturers and in progress
       filtered = filtered.filter(order => 
-        (order.manufacturerId || order.manufacturerName) && order.status === 'in_progress'
+        order.manufacturerName && order.status === 'in_progress'
       )
     }
 
@@ -255,14 +267,12 @@ export default function Orders() {
   const user = getCurrentUser()
   const yourOrdersCount = orders.filter(order => 
     isSuperAdmin() 
-      ? !order.manufacturerId && !order.manufacturerName
-      : order.userInfo && order.userInfo.id === user?.id
+      ? !order.manufacturerName && order.status === 'pending'
+      : true // Fallback
   ).length
-  const outsourceOrdersCount = orders.filter(order => 
-    order.userInfo && order.userInfo.id !== user?.id
-  ).length
+  const outsourceOrdersCount = orders.length // All for superadmin
   const confirmOrdersCount = orders.filter(order => 
-    (order.manufacturerId || order.manufacturerName) && order.status === 'in_progress'
+    order.manufacturerName && order.status === 'in_progress'
   ).length
 
   const renderOrderTable = (orderList, title) => (
@@ -321,7 +331,7 @@ export default function Orders() {
                   {order.deliveryAddress || 'N/A'}
                 </td>
                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
-                  {order.manufacturerName || order.manufacturer?.companyName || 'Not Assigned'}
+                  {order.manufacturerName || 'Not Assigned'}
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
@@ -568,7 +578,7 @@ export default function Orders() {
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            Your Orders ({yourOrdersCount})
+             Orders ({yourOrdersCount})
           </button>
           <button
             onClick={() => setActiveTab('outsource')}
@@ -578,7 +588,7 @@ export default function Orders() {
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            Outsource Orders ({outsourceOrdersCount})
+            Confirm Orders ({outsourceOrdersCount})
           </button>
           <button
             onClick={() => setActiveTab('confirm')}
@@ -588,7 +598,7 @@ export default function Orders() {
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            Confirm Order ({confirmOrdersCount})
+            Rejected Order ({confirmOrdersCount})
           </button>
         </div>
       </div>
