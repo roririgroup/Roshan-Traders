@@ -37,24 +37,44 @@ export default function Orders() {
     selectedPaymentOption: ''
   })
   const [errors, setErrors] = useState({})
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [selectedOrderForAssign, setSelectedOrderForAssign] = useState(null)
+  const [selectedManufacturer, setSelectedManufacturer] = useState('')
+  const [manufacturers, setManufacturers] = useState([])
 
   const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
-  // ✅ Load products from API
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const response = await fetch('http://localhost:7700/api/products');
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-        setProducts([]);
-      }
+// ✅ Load products from API
+useEffect(() => {
+  async function fetchProducts() {
+    try {
+      const response = await fetch('http://localhost:7700/api/products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      setProducts([]);
     }
+  }
 
-    fetchProducts();
-  }, []);
+  fetchProducts();
+}, []);
+
+// ✅ Load manufacturers from API
+useEffect(() => {
+  async function fetchManufacturers() {
+    try {
+      const response = await fetch('http://localhost:7700/api/manufacturers');
+      const data = await response.json();
+      setManufacturers(data);
+    } catch (error) {
+      console.error('Failed to fetch manufacturers:', error);
+      setManufacturers([]);
+    }
+  }
+
+  fetchManufacturers();
+}, []);
 
   // ✅ Load orders from store
   useEffect(() => {
@@ -188,6 +208,46 @@ export default function Orders() {
       setShowPaymentOptions(false);
     }
   };
+
+  // ✅ Handle Assign Modal
+  const handleAssignClick = (order) => {
+    setSelectedOrderForAssign(order)
+    setIsAssignModalOpen(true)
+  }
+
+  const handleAssignOrder = async () => {
+    if (!selectedManufacturer || !selectedOrderForAssign) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('http://localhost:7700/api/orders/assign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: selectedOrderForAssign.id,
+          manufacturerId: selectedManufacturer
+        }),
+      })
+
+      if (response.ok) {
+        updateOrderStatus(selectedOrderForAssign.id, 'assigned')
+        setRefreshTrigger(prev => prev + 1)
+        showSuccessNotification('Order assigned successfully!')
+        setIsAssignModalOpen(false)
+        setSelectedOrderForAssign(null)
+        setSelectedManufacturer('')
+      } else {
+        showErrorNotification('Failed to assign order. Please try again.')
+      }
+    } catch (error) {
+      showErrorNotification('Failed to assign order. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const validateForm = () => {
     const newErrors = {}
 
@@ -432,6 +492,18 @@ export default function Orders() {
                   {order.deliveryAddress || 'N/A'}
                 </td>
                 <td className="py-4 px-6">
+                  {order.status === 'pending' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleAssignClick(order)
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors cursor-pointer"
+                      disabled={isLoading}
+                    >
+                      Assign
+                    </button>
+                  )}
                   {order.status === 'in_progress' && (
                     <div className="flex gap-2">
                       <button
@@ -925,6 +997,54 @@ export default function Orders() {
               className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm Payment
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Assign Order Modal */}
+      <Modal
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        title="Assign Order to Manufacturer"
+        className="max-w-md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 mb-4">Select a manufacturer to assign this order:</p>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Manufacturer *
+            </label>
+            <select
+              value={selectedManufacturer}
+              onChange={(e) => setSelectedManufacturer(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent"
+            >
+              <option value="">Select a manufacturer</option>
+              {manufacturers.map((manufacturer) => (
+                <option key={manufacturer.id} value={manufacturer.id}>
+                  {manufacturer.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsAssignModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAssignOrder}
+              disabled={!selectedManufacturer || isLoading}
+              className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Assigning...' : 'Assign Order'}
             </Button>
           </div>
         </div>
