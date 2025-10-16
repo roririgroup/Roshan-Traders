@@ -2,13 +2,43 @@ import { Menu, PanelLeftClose, PanelLeftOpen, Bell, Search, Settings, LogOut, Us
 import { getCurrentUser, logout } from '../../lib/auth'
 import { getCurrentUserActiveRole } from '../../lib/roles'
 import Button from '../ui/Button'
+import { useState, useEffect } from 'react'
 
 export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesktopSidebarCollapsed }) {
   const user = getCurrentUser()
-  const activeRole = getCurrentUserActiveRole()
+  const [activeRole, setActiveRole] = useState(getCurrentUserActiveRole())
+  const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem('currentUser') || '{}'))
 
-  // Get user data from localStorage for name display
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
+  // Listen for role changes and user data updates
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setActiveRole(getCurrentUserActiveRole())
+      setCurrentUser(JSON.parse(localStorage.getItem('currentUser') || '{}'))
+    }
+
+    // Listen for storage changes (role switch)
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also check periodically (fallback)
+    const interval = setInterval(handleStorageChange, 1000)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
+
+  // Also listen for custom events if your role switching uses events
+  useEffect(() => {
+    const handleRoleChange = () => {
+      setActiveRole(getCurrentUserActiveRole())
+    }
+
+    window.addEventListener('roleChanged', handleRoleChange)
+    return () => {
+      window.removeEventListener('roleChanged', handleRoleChange)
+    }
+  }, [])
   
   const getRoleDisplayName = (role) => {
     const roleNames = {
@@ -56,7 +86,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
   const getDisplayRole = () => {
     // For Super Admin, you can show empty or specific text
     if (activeRole === 'superadmin') {
-      return 'Administrator' // or leave empty if you prefer
+      return 'Administrator'
     }
     return getRoleDisplayName(activeRole)
   }
@@ -91,13 +121,19 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
         
         {/* Page Title - Hidden on very small screens */}
         <div className="hidden sm:block">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 truncate">Dashboard</h2>
-          <p className="text-xs sm:text-sm text-slate-500 -mt-0.5 sm:-mt-1 truncate">Welcome back to your workspace</p>
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 truncate">
+            {getRoleDisplayName(activeRole)} Dashboard
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 -mt-0.5 sm:-mt-1 truncate">
+            Welcome back{activeRole !== 'superadmin' && `, ${getUserDisplayName()}`}
+          </p>
         </div>
 
         {/* Mobile Page Title - Only on very small screens */}
         <div className="block sm:hidden">
-          <h2 className="text-base font-bold text-slate-900">Dashboard</h2>
+          <h2 className="text-base font-bold text-slate-900">
+            {getRoleDisplayName(activeRole)} Dashboard
+          </h2>
         </div>
       </div>
 
