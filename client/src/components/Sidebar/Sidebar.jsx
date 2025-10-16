@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'; // ✅ Add this import at the top
+import { NavLink, useNavigate } from 'react-router-dom'; 
 import {
   Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X,
   TrendingUp, FileText, CreditCard, Package, LayoutDashboard, ShoppingCart,
@@ -70,6 +70,7 @@ const MENU_CONFIG = {
 export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const [activeRole, setActiveRole] = useState(() => getCurrentUserActiveRole() || 'guest');
   const userRoles = getCurrentUserRoles() || [];
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const handleRoleChange = () => {
@@ -85,15 +86,20 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
   const handleRoleSwitch = (role) => {
     setCurrentUserActiveRole(role);
     setActiveRole(role);
-    // Navigate to the appropriate dashboard for the new role
+    // Navigate to the appropriate dashboard for the new role without page refresh
     const dashboardRoutes = {
-      agent: '/agents/dashboard',
-      manufacturer: '/manufacturers/dashboard',
-      truckowner: '/truck-owners/dashboard',
-      driver: '/drivers/dashboard'
+      agent: '/dashboard/agent-dashboard',
+      manufacturer: '/dashboard/manufacturer-dashboard',
+      truckowner: '/dashboard/truck-owners',
+      driver: '/dashboard/drivers'
     };
     const route = dashboardRoutes[role] || '/';
-    window.location.href = route;
+    navigate(route);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/user/login'); 
   };
 
   return (
@@ -205,10 +211,7 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
           <Button
             variant="primary"
             className={`w-full flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-200 font-medium text-sm ${isCollapsed && !mobile ? 'justify-center px-2 py-2' : 'px-3 sm:px-4 py-2 sm:py-2.5'}`}
-            onClick={() => {
-              logout();
-              window.location.href = '/user/login';
-            }}
+            onClick={handleLogout} 
           >
             <LogOut className="size-4 flex-shrink-0" />
             {(!isCollapsed || mobile) && <span className="truncate">Logout</span>}
