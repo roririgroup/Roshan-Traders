@@ -207,6 +207,24 @@ export const assignManufacturer = (orderId, manufacturer) => {
 }
 
 /**
+ * Assign truck owner to order
+ */
+export const assignTruckOwner = (orderId, truckOwner) => {
+  const idx = orders.findIndex(o => Number(o.id) === Number(orderId))
+  if (idx === -1) return false
+
+  orders[idx].assignedTruckOwner = {
+    id: truckOwner.id,
+    name: truckOwner.name,
+    companyName: truckOwner.companyName,
+    phone: truckOwner.phone
+  }
+  if (orders[idx].status === 'confirmed') orders[idx].status = 'assigned'
+  persist()
+  return true
+}
+
+/**
  * Delete order
  */
 export const deleteOrder = (orderId) => {
