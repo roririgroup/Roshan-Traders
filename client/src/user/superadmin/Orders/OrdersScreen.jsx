@@ -19,10 +19,11 @@ export default function Orders() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [manufacturers, setManufacturers] = useState([])
+  const [products, setProducts] = useState([])
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
   const [selectedOrderForAssign, setSelectedOrderForAssign] = useState(null)
   const [selectedManufacturer, setSelectedManufacturer] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('bricks')
+  const [selectedProduct, setSelectedProduct] = useState('')
   const [activeTab, setActiveTab] = useState('your-orders')
 
   const { notifications, removeNotification, showSuccessNotification, showErrorNotification } = useNotifications()
@@ -105,6 +106,25 @@ export default function Orders() {
     }
 
     fetchManufacturers()
+  }, [])
+
+  // Fetch products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/products`)
+        if (response.ok) {
+          const data = await response.json()
+          setProducts(data)
+        } else {
+          console.error('Failed to fetch products')
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      }
+    }
+
+    fetchProducts()
   }, [])
 
   const getStatusBadge = (status) => {
@@ -207,7 +227,7 @@ export default function Orders() {
         setIsAssignModalOpen(false);
         setSelectedOrderForAssign(null);
         setSelectedManufacturer('');
-        setSelectedCategory('bricks');
+        setSelectedProduct('');
       } else {
         showErrorNotification('Failed to assign order. Please try again.');
       }
@@ -218,11 +238,6 @@ export default function Orders() {
       setIsLoading(false);
     }
   };
-
-  // Filter manufacturers by selected category
-  const filteredManufacturers = manufacturers.filter(manufacturer => 
-    manufacturer.category === selectedCategory
-  )
 
   // Get orders based on active tab
   const getFilteredOrders = () => {
@@ -407,64 +422,60 @@ export default function Orders() {
           setIsAssignModalOpen(false)
           setSelectedOrderForAssign(null)
           setSelectedManufacturer('')
-          setSelectedCategory('bricks')
+          setSelectedProduct('')
         }}
         title="Assign Order to Manufacturer"
       >
         <div className="p-6">
-          {/* Product Category Selection */}
+          {/* Product Selection */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2 text-gray-700">
-              Product Category
+              Select Product
             </label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setSelectedCategory('bricks')}
-                className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-                  selectedCategory === 'bricks'
-                    ? 'bg-red-100 border-red-300 text-red-700 font-medium'
-                    : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                🧱 Brick Products
-              </button>
-              <button
-                onClick={() => setSelectedCategory('clay_roof')}
-                className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-                  selectedCategory === 'clay_roof'
-                    ? 'bg-orange-100 border-orange-300 text-orange-700 font-medium'
-                    : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                🏠 Clay Roof Products
-              </button>
-            </div>
+            <select
+              value={selectedProduct}
+              onChange={(e) => {
+                setSelectedProduct(e.target.value)
+                setSelectedManufacturer('') // Reset manufacturer when product changes
+              }}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="">Select Product</option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.name} - {product.category}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Manufacturer Select */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2 text-gray-700">
-              Manufacturer
+              Available Manufacturers
             </label>
             <select
               value={selectedManufacturer}
               onChange={(e) => setSelectedManufacturer(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              disabled={!selectedProduct}
             >
               <option value="">Select Manufacturer</option>
-              {filteredManufacturers.map((manufacturer) => (
-                <option key={manufacturer.id} value={manufacturer.id}>
-                  {manufacturer.companyName} - {manufacturer.productType}
-                </option>
-              ))}
+              {selectedProduct && manufacturers
+                .filter(manufacturer => manufacturer.category === products.find(p => p.id === selectedProduct)?.category)
+                .map((manufacturer) => (
+                  <option key={manufacturer.id} value={manufacturer.id}>
+                    {manufacturer.companyName} - {manufacturer.productType}
+                  </option>
+                ))}
             </select>
           </div>
 
           {/* Stock Display */}
           {selectedManufacturer && (
             <div className={`mb-4 p-4 rounded-lg border ${
-              selectedCategory === 'bricks' 
-                ? 'bg-red-50 border-red-200' 
+              manufacturers.find(m => m.id === selectedManufacturer)?.category === 'bricks'
+                ? 'bg-red-50 border-red-200'
                 : 'bg-orange-50 border-orange-200'
             }`}>
               {(() => {
@@ -537,7 +548,7 @@ export default function Orders() {
                 setIsAssignModalOpen(false)
                 setSelectedOrderForAssign(null)
                 setSelectedManufacturer('')
-                setSelectedCategory('bricks')
+                setSelectedProduct('')
               }}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
             >
