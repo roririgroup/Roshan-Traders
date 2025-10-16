@@ -345,9 +345,11 @@ model Order {
   deliveryAddress String?
   notes           String?
   manufacturerId  Int?
+  assignedTruckOwnerId Int?
 
   // Relations
   manufacturer    Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  assignedTruckOwner Employee? @relation(fields: [assignedTruckOwnerId], references: [id])
   items           OrderItem[]
 
   @@map("orders")
@@ -356,6 +358,7 @@ model Order {
   @@index([status])
   @@index([manufacturerId])
   @@index([customerName])
+  @@index([assignedTruckOwnerId])
 }
 
 model OrderItem {

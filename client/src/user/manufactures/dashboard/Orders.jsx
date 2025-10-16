@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
 import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink, Package, Edit, Trash2, Star, Users, RotateCcw, CreditCard } from 'lucide-react'
-import { getOrders, updateOrderStatus, addOrder } from '../../../store/ordersStore'
+import { getOrders, updateOrderStatus, addOrder, assignTruckOwner } from '../../../store/ordersStore'
 import NotificationContainer from '../../../components/ui/NotificationContainer'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
+import AssignOrderModal from '../../../components/ui/AssignOrderModal'
 import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar'
 import { getCurrentUser } from '../../../lib/auth'
@@ -37,6 +38,8 @@ export default function Orders() {
     selectedPaymentOption: ''
   })
   const [errors, setErrors] = useState({})
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [selectedOrderForAssign, setSelectedOrderForAssign] = useState(null)
 
   const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
@@ -187,6 +190,15 @@ export default function Orders() {
     if (orderFormData.selectedPaymentOption) {
       setShowPaymentOptions(false);
     }
+  };
+
+  const handleAssignOrder = (orderId, truckOwner) => {
+    assignTruckOwner(orderId, truckOwner)
+    updateOrderStatus(orderId, 'shipped')
+    setRefreshTrigger(prev => prev + 1)
+    showSuccessNotification('Order assigned successfully!')
+    setIsAssignModalOpen(false)
+    setSelectedOrderForAssign(null)
   };
   const validateForm = () => {
     const newErrors = {}
@@ -455,6 +467,19 @@ export default function Orders() {
                         Reject
                       </button>
                     </div>
+                  )}
+                  {order.status === 'confirmed' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsAssignModalOpen(true)
+                        setSelectedOrderForAssign(order)
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors cursor-pointer"
+                      disabled={isLoading}
+                    >
+                      Assign
+                    </button>
                   )}
                 </td>
               </tr>
@@ -929,6 +954,17 @@ export default function Orders() {
           </div>
         </div>
       </Modal>
+
+      {/* Assign Order Modal */}
+      <AssignOrderModal
+        isOpen={isAssignModalOpen}
+        onClose={() => {
+          setIsAssignModalOpen(false)
+          setSelectedOrderForAssign(null)
+        }}
+        order={selectedOrderForAssign}
+        onAssign={handleAssignOrder}
+      />
     </div>
   )
 }

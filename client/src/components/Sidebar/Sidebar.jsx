@@ -52,6 +52,7 @@ const MENU_CONFIG = {
   ],
   truckowner: [
     { to: '/dashboard/truck-owners', label: 'Dashboard', icon: Truck },
+    { to: '/dashboard/truck-owners/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/dashboard/truck-owners/driver-management', label: 'Driver Management', icon: Users },
     { to: '/dashboard/truck-owners/truck-management', label: 'Truck Management', icon: Truck },
     { to: '/dashboard/truck-owners/trips', label: 'Trips', icon: Package },
