@@ -36,6 +36,7 @@ import ProductsPage from "../user/superadmin/ProductsPage/ProductsPage";
 import LandingPage from "../pages/LandingPage/LandinPage";
 import EnquiryPage from "../pages/LandingPage/EnquiryPage";
 import ProductAvailability from "../user/superadmin/ProductStock/Product";
+import ActingLaboursPage from "../user/superadmin/ActingLaboursPage/ActingLaboursPage";
 // Custom hook to prevent infinite redirects
 function useSafeNavigate() {
   const location = useLocation();
@@ -220,6 +221,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <EmployeesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="acting-labours"
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <ActingLaboursPage />
             </ProtectedRoute>
           }
         />

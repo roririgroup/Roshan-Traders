@@ -24,6 +24,7 @@ const MENU_CONFIG = {
     { to: '/dashboard/agents', label: 'Agents', icon: UserRound },
     // { to: '/dashboard/companies', label: 'Companies', icon: Building2 },
     { to: '/dashboard/employees', label: 'Employees', icon: Gift },
+    { to: '/dashboard/acting-labours', label: 'Acting Labours', icon: Users },
     { to: '/dashboard/products', label: 'Products', icon: Package },
     // { to: '/dashboard/users', label: 'Users', icon: Users },
     { to: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },

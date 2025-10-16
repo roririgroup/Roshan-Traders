@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink, Package } from 'lucide-react'
+import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink, Package, Edit, Trash2, Star, Users, RotateCcw, CreditCard } from 'lucide-react'
 import { getOrders, updateOrderStatus, addOrder } from '../../../store/ordersStore'
 import NotificationContainer from '../../../components/ui/NotificationContainer'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
@@ -8,6 +8,7 @@ import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar'
 import { getCurrentUser } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
+import Modal from '../../../components/ui/Modal'
 
 export default function Orders() {
   const [products, setProducts] = useState([])
@@ -25,14 +26,17 @@ export default function Orders() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
   const [isOrderFormModalOpen, setIsOrderFormModalOpen] = useState(false)
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false)
   const [orderFormData, setOrderFormData] = useState({
     customerName: '',
     phoneNumber: '',
     deliveryAddress: '',
     quantity: 1,
     estimatedDeliveryDate: '',
-    paymentMethod: 'cod' // cod or upi
+    paymentMethod: 'cash',
+    selectedPaymentOption: ''
   })
+  const [errors, setErrors] = useState({})
 
   const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
@@ -173,9 +177,68 @@ export default function Orders() {
     setIsProductModalOpen(false)
     setIsOrderFormModalOpen(true)
   }
+  const handlePaymentOptionSelect = (paymentOption) => {
+    setOrderFormData(prev => ({
+      ...prev,
+      selectedPaymentOption: paymentOption
+    }));
+  };
+  const handlePaymentConfirm = () => {
+    if (orderFormData.selectedPaymentOption) {
+      setShowPaymentOptions(false);
+    }
+  };
+  const validateForm = () => {
+    const newErrors = {}
+
+    if (!orderFormData.customerName.trim()) {
+      newErrors.customerName = 'Customer name is required'
+    } else if (orderFormData.customerName.trim().length < 2) {
+      newErrors.customerName = 'Customer name must be at least 2 characters'
+    }
+
+    if (!orderFormData.phoneNumber.trim()) {
+      newErrors.phoneNumber = 'Phone number is required'
+    } else if (!/^\d{10}$/.test(orderFormData.phoneNumber.trim())) {
+      newErrors.phoneNumber = 'Phone number must be 10 digits'
+    }
+
+    if (!orderFormData.deliveryAddress.trim()) {
+      newErrors.deliveryAddress = 'Delivery address is required'
+    } else if (orderFormData.deliveryAddress.trim().length < 10) {
+      newErrors.deliveryAddress = 'Delivery address must be at least 10 characters'
+    }
+
+    if (!orderFormData.quantity || orderFormData.quantity < 1) {
+      newErrors.quantity = 'Quantity must be at least 1'
+    }
+
+    if (!orderFormData.estimatedDeliveryDate) {
+      newErrors.estimatedDeliveryDate = 'Estimated delivery date is required'
+    } else {
+      const selectedDate = new Date(orderFormData.estimatedDeliveryDate)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      if (selectedDate < today) {
+        newErrors.estimatedDeliveryDate = 'Delivery date cannot be in the past'
+      }
+    }
+
+    if (!orderFormData.selectedPaymentOption) {
+      newErrors.selectedPaymentOption = 'Please select a payment method'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleOrderFormSubmit = async (e) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
     setIsLoading(true)
     try {
       const totalPrice = selectedProduct.price * orderFormData.quantity
@@ -192,7 +255,7 @@ export default function Orders() {
         }],
         totalAmount: totalPrice,
         estimatedDeliveryDate: orderFormData.estimatedDeliveryDate,
-        paymentMethod: orderFormData.paymentMethod,
+        paymentMethod: orderFormData.selectedPaymentOption,
         status: 'pending',
         orderDate: new Date().toISOString(),
         userInfo: getCurrentUser()
@@ -208,8 +271,10 @@ export default function Orders() {
         deliveryAddress: '',
         quantity: 1,
         estimatedDeliveryDate: '',
-        paymentMethod: 'cod'
+        paymentMethod: 'cod',
+        selectedPaymentOption: ''
       })
+      setErrors({})
     } catch (error) {
       showErrorNotification('Failed to place order. Please try again.')
     } finally {
@@ -268,48 +333,48 @@ export default function Orders() {
     </div>
   )
 
-  // ✅ Card Layout for Products
+  // ✅ Super Admin Style Grid Layout for Products
   const renderProductsCards = (productList) => (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-      <div className="p-4 border-b border-slate-200">
-        <h3 className="text-lg font-semibold text-slate-900">Your Products</h3>
-      </div>
-      <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {productList.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-4"
-            >
-              <div className="flex flex-col">
-                <div className="w-full h-32 bg-slate-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <Package className="size-12 text-slate-400" />
-                  )}
-                </div>
-                <h4 className="text-lg font-semibold text-slate-900 mb-2">{product.name}</h4>
-                <p className="text-slate-600 text-sm mb-3 line-clamp-2">{product.description || 'No description available'}</p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xl font-bold text-[#F08344]">₹{product.price?.toLocaleString() || '0'}</span>
-                  <span className="text-sm text-slate-500">ID: #{product.id}</span>
-                </div>
-                <Button
-                  onClick={() => handleProductClick(product)}
-                  className="w-full bg-[#F08344] text-white rounded-lg hover:bg-[#e0763a] transition-colors"
-                >
-                  View Details 
-                </Button>
-              </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {productList.map((product) => (
+        <div
+          key={product.id}
+          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-gray-100 overflow-hidden"
+          onClick={() => handleProductClick(product)}
+        >
+          <div className="h-48 bg-gray-200 flex items-center justify-center">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/300x200?text=Product'
+              }}
+            />
+          </div>
+          <div className="p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
+            <div className="flex items-center mb-2">
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <span className="text-sm text-gray-600 ml-1">{product.qualityRating}</span>
             </div>
-          ))}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-2xl font-bold text-[#F08344]">₹{product.priceRange}</span>
+              <span className="text-sm text-green-600 font-medium">{product.offer}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600 mb-4">
+              <Users className="w-4 h-4 mr-1" />
+              <span>{product.buyersCount} buyers</span>
+            </div>
+            <Button
+              className="w-full bg-[#F08344] hover:bg-[#e0733a] text-white px-8 py-2 rounded-lg font-medium transition-colors duration-200"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Place Order
+            </Button>
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   )
 
@@ -555,166 +620,315 @@ export default function Orders() {
 
       {/* Product Details Modal */}
       {isProductModalOpen && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-slate-900 mb-4">Product Details</h2>
-              <div className="space-y-3">
+        <Modal
+          isOpen={isProductModalOpen}
+          onClose={() => {
+            setIsProductModalOpen(false)
+            setSelectedProduct(null)
+          }}
+          title="Product Details"
+          size="lg"
+        >
+          <div className="space-y-6">
+            <div className="flex gap-6">
+              <div className="w-1/2">
+                <img
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
+                  className="w-full h-64 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/400x300?text=Product'
+                  }}
+                />
+              </div>
+              <div className="w-1/2 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700">Quality Rating</label>
-                  <p className="text-slate-900">{selectedProduct.qualityRating || 'N/A'}</p>
+                  <h3 className="text-2xl font-bold text-gray-900">{selectedProduct.name}</h3>
+                  <div className="flex items-center mt-2">
+                    <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                    <span className="text-lg text-gray-600 ml-1">{selectedProduct.qualityRating}</span>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Price Amount</label>
-                  <p className="text-slate-900">₹{selectedProduct.priceAmount?.toLocaleString() || '0'}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl font-bold text-[#F08344]">₹{selectedProduct.priceRange}</span>
+                  <span className="text-lg text-green-600 font-medium">{selectedProduct.offer}</span>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Offer</label>
-                  <p className="text-slate-900">{selectedProduct.offer || 'No offer'}</p>
+                <div className="flex items-center text-gray-600">
+                  <Users className="w-5 h-5 mr-2" />
+                  <span>{selectedProduct.buyersCount} buyers</span>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Buyers Count</label>
-                  <p className="text-slate-900">{selectedProduct.buyersCount || 0}</p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center">
+                    <RotateCcw className="w-4 h-4 mr-2 text-green-600" />
+                    <span>Return & Exchange: {selectedProduct.returnExchange ? 'Yes' : 'No'}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CreditCard className="w-4 h-4 mr-2 text-green-600" />
+                    <span>COD: {selectedProduct.cashOnDelivery ? 'Yes' : 'No'}</span>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Return and Exchange Option</label>
-                  <p className="text-slate-900">{selectedProduct.returnExchange ? 'Available' : 'Not Available'}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Cash on Delivery Option</label>
-                  <p className="text-slate-900">{selectedProduct.cashOnDelivery ? 'Available' : 'Not Available'}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">UPI and Card Payment Options</label>
-                  <p className="text-slate-900">{selectedProduct.paymentOptions?.includes('upi') || selectedProduct.paymentOptions?.includes('card') ? 'Available' : 'Not Available'}</p>
+                <div className="text-sm text-gray-600">
+                  <p><strong>Payment Options:</strong> {selectedProduct.paymentOptions?.join(', ') || 'COD'}</p>
                 </div>
               </div>
-              <div className="flex gap-3 mt-6">
+            </div>
+            <div className="border-t pt-6">
+              <div className="flex gap-4">
                 <Button
                   onClick={() => {
                     setIsProductModalOpen(false)
                     setSelectedProduct(null)
                   }}
-                  className="flex-1 bg-slate-200 text-slate-700 hover:bg-slate-300"
+                  className="flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handlePlaceOrderClick}
-                  className="flex-1 bg-[#F08344] text-white hover:bg-[#e0763a]"
+                  className="flex-1 bg-[#F08344] text-white hover:bg-[#e0733a]"
                 >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
                   Place Order
                 </Button>
               </div>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Order Form Modal */}
-      {isOrderFormModalOpen && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-slate-900 mb-4">Place Order</h2>
-              <form onSubmit={handleOrderFormSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Customer Name</label>
-                  <input
-                    type="text"
-                    value={orderFormData.customerName}
-                    onChange={(e) => setOrderFormData({...orderFormData, customerName: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={orderFormData.phoneNumber}
-                    onChange={(e) => setOrderFormData({...orderFormData, phoneNumber: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Delivery Address</label>
-                  <textarea
-                    value={orderFormData.deliveryAddress}
-                    onChange={(e) => setOrderFormData({...orderFormData, deliveryAddress: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-                    rows={3}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={orderFormData.quantity}
-                    onChange={(e) => setOrderFormData({...orderFormData, quantity: parseInt(e.target.value) || 1})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Estimated Delivery Date</label>
-                  <input
-                    type="date"
-                    value={orderFormData.estimatedDeliveryDate}
-                    onChange={(e) => setOrderFormData({...orderFormData, estimatedDeliveryDate: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
-                  <select
-                    value={orderFormData.paymentMethod}
-                    onChange={(e) => setOrderFormData({...orderFormData, paymentMethod: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-                  >
-                    <option value="cod">Cash on Delivery</option>
-                    <option value="upi">UPI</option>
-                  </select>
-                </div>
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <p className="text-sm font-medium text-slate-700">Total Price: ₹{(selectedProduct.price * orderFormData.quantity).toLocaleString()}</p>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setIsOrderFormModalOpen(false)
-                      setSelectedProduct(null)
-                      setOrderFormData({
-                        customerName: '',
-                        phoneNumber: '',
-                        deliveryAddress: '',
-                        quantity: 1,
-                        estimatedDeliveryDate: '',
-                        paymentMethod: 'cod'
-                      })
-                    }}
-                    className="flex-1 bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex-1 bg-[#F08344] text-white hover:bg-[#e0763a] disabled:opacity-50"
-                  >
-                    {isLoading ? 'Submitting...' : 'Submit'}
-                  </Button>
-                </div>
-              </form>
+      <Modal
+        isOpen={isOrderFormModalOpen}
+        onClose={() => setIsOrderFormModalOpen(false)}
+        title="Place Order"
+        className="max-w-md"
+      >
+        <form onSubmit={handleOrderFormSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Customer Name *
+            </label>
+            <input
+              type="text"
+              value={orderFormData.customerName}
+              onChange={(e) => setOrderFormData({...orderFormData, customerName: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.customerName ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Enter customer name"
+            />
+            {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number *
+            </label>
+            <input
+              type="tel"
+              value={orderFormData.phoneNumber}
+              onChange={(e) => setOrderFormData({...orderFormData, phoneNumber: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder="Enter phone number"
+            />
+            {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Delivery Address *
+            </label>
+            <textarea
+              value={orderFormData.deliveryAddress}
+              onChange={(e) => setOrderFormData({...orderFormData, deliveryAddress: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.deliveryAddress ? 'border-red-500' : 'border-gray-300'}`}
+              rows="3"
+              placeholder="Enter delivery address"
+            />
+            {errors.deliveryAddress && <p className="text-red-500 text-sm mt-1">{errors.deliveryAddress}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Quantity *
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={orderFormData.quantity}
+              onChange={(e) => setOrderFormData({...orderFormData, quantity: parseInt(e.target.value) || 1})}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
+            />
+            {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
+          </div>
+
+          {/* Price Calculation */}
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Product Price:</span>
+              <span className="text-sm text-gray-900">₹{selectedProduct?.priceRange || "0.00"}</span>
+            </div>
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-sm font-medium text-gray-700">Quantity:</span>
+              <span className="text-sm text-gray-900">{orderFormData.quantity || 1}</span>
+            </div>
+            <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+              <span className="text-lg font-bold text-gray-900">Total Amount:</span>
+              <span className="text-lg font-bold text-[#F08344]">
+                ₹{((parseFloat(selectedProduct?.priceRange) || 0) * (orderFormData.quantity || 1)).toFixed(2)}
+              </span>
             </div>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Estimated Delivery Date *
+            </label>
+            <input
+              type="date"
+              value={orderFormData.estimatedDeliveryDate}
+              onChange={(e) => setOrderFormData({...orderFormData, estimatedDeliveryDate: e.target.value})}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.estimatedDeliveryDate ? 'border-red-500' : 'border-gray-300'}`}
+            />
+            {errors.estimatedDeliveryDate && <p className="text-red-500 text-sm mt-1">{errors.estimatedDeliveryDate}</p>}
+          </div>
+
+          {/* Payment Method */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Payment Method *
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cash"
+                  checked={orderFormData.paymentMethod === 'cash'}
+                  onChange={(e) => setOrderFormData({...orderFormData, paymentMethod: e.target.value})}
+                  className="h-4 w-4 text-[#F08344] focus:ring-[#F08344] border-gray-300"
+                />
+                <span className="ml-2 text-sm text-gray-700">Cash on Delivery</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="online"
+                  checked={orderFormData.paymentMethod === 'online'}
+                  onChange={(e) => {
+                    setOrderFormData({...orderFormData, paymentMethod: e.target.value});
+                    setShowPaymentOptions(true);
+                  }}
+                  className="h-4 w-4 text-[#F08344] focus:ring-[#F08344] border-gray-300"
+                />
+                <span className="ml-2 text-sm text-gray-700">Online Payment</span>
+              </label>
+            </div>
+            {errors.paymentMethod && <p className="text-red-500 text-sm mt-1">{errors.paymentMethod}</p>}
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsOrderFormModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+            >
+              Submit Order
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Payment Options Modal */}
+      <Modal
+        isOpen={showPaymentOptions}
+        onClose={() => setShowPaymentOptions(false)}
+        title="Choose Payment Method"
+        className="max-w-sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 mb-4">Select your preferred payment method:</p>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => handlePaymentOptionSelect('google-pay')}
+              className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-[#F08344] hover:bg-orange-50 transition-colors duration-200"
+            >
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                  <span className="text-xs font-bold text-gray-700">G</span>
+                </div>
+                <span className="font-medium text-gray-900">Google Pay</span>
+              </div>
+              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                {orderFormData.selectedPaymentOption === 'google-pay' && (
+                  <div className="w-2 h-2 bg-[#F08344] rounded-full"></div>
+                )}
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handlePaymentOptionSelect('phonepe')}
+              className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-[#F08344] hover:bg-orange-50 transition-colors duration-200"
+            >
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
+                  <span className="text-xs font-bold text-white">P</span>
+                </div>
+                <span className="font-medium text-gray-900">PhonePe</span>
+              </div>
+              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                {orderFormData.selectedPaymentOption === 'phonepe' && (
+                  <div className="w-2 h-2 bg-[#F08344] rounded-full"></div>
+                )}
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handlePaymentOptionSelect('paytm')}
+              className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-[#F08344] hover:bg-orange-50 transition-colors duration-200"
+            >
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                  <span className="text-xs font-bold text-white">P</span>
+                </div>
+                <span className="font-medium text-gray-900">Paytm</span>
+              </div>
+              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                {orderFormData.selectedPaymentOption === 'paytm' && (
+                  <div className="w-2 h-2 bg-[#F08344] rounded-full"></div>
+                )}
+              </div>
+            </button>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowPaymentOptions(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handlePaymentConfirm}
+              disabled={!orderFormData.selectedPaymentOption}
+              className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Confirm Payment
+            </Button>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }
