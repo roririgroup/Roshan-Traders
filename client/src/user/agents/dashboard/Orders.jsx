@@ -1,139 +1,265 @@
 import { useState, useEffect } from 'react'
-import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck } from 'lucide-react'
-import { getOrders } from '../../../store/ordersStore'
-import FilterBar from '../../../components/ui/FilterBar'
+import { ShoppingCart, Star, Users, RotateCcw, Truck, CreditCard } from 'lucide-react'
+import Button from '../../../components/ui/Button'
+import Modal from '../../../components/ui/Modal'
+import { getCurrentUser } from '../../../lib/auth.js' // Import current user info
+
+const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function Orders() {
-  const [orders, setOrders] = useState([])
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [products, setProducts] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
 
-  // Load orders from shared store
+  // Form state
+  const [orderForm, setOrderForm] = useState({
+    customerName: '',
+    phoneNumber: '',
+    deliveryAddress: '',
+    quantity: 1,
+    estimatedDeliveryDate: ''
+  })
+  const [errors, setErrors] = useState({})
+  const [successMessage, setSuccessMessage] = useState('') // Success message state
+
+  // Fetch products for agent page
   useEffect(() => {
-    setOrders(getOrders())
-  }, [refreshTrigger])
-
-  // Auto-refresh every 5 seconds to check for new orders
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRefreshTrigger(prev => prev + 1)
-    }, 5000)
-
-    return () => clearInterval(interval)
+    fetchProducts()
   }, [])
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="warning">Pending</Badge>
-      case 'confirmed':
-        return <Badge variant="success">Confirmed</Badge>
-      case 'shipped':
-        return <Badge variant="info">Shipped</Badge>
-      default:
-        return <Badge variant="default">{status}</Badge>
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`)
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data)
+      } else {
+        console.error('Failed to fetch products')
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error)
     }
   }
 
+  const handlePlaceOrder = (product) => {
+    setSelectedProduct(product)
+    setIsModalOpen(true)
+    // Reset form and errors
+    setOrderForm({
+      customerName: '',
+      phoneNumber: '',
+      deliveryAddress: '',
+      quantity: 1,
+      estimatedDeliveryDate: ''
+    })
+    setErrors({})
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    if (!orderForm.customerName) newErrors.customerName = 'Customer name is required'
+    if (!orderForm.phoneNumber) newErrors.phoneNumber = 'Phone number is required'
+    if (!orderForm.deliveryAddress) newErrors.deliveryAddress = 'Delivery address is required'
+    if (!orderForm.quantity || orderForm.quantity < 1) newErrors.quantity = 'Quantity must be at least 1'
+    if (!orderForm.estimatedDeliveryDate) newErrors.estimatedDeliveryDate = 'Estimated delivery date is required'
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleOrderSubmit = (e) => {
+    e.preventDefault()
+
+    if (!validateForm()) return // Stop submission if invalid
+
+    const newOrder = {
+      id: Date.now(),
+      customerName: orderForm.customerName,
+      phoneNumber: orderForm.phoneNumber,
+      deliveryAddress: orderForm.deliveryAddress,
+      items: [{ name: selectedProduct.name, quantity: orderForm.quantity }],
+      totalAmount: selectedProduct.priceRange * orderForm.quantity,
+      orderDate: new Date().toISOString(),
+      status: 'pending',
+      userInfo: getCurrentUser(),
+    }
+
+    // Save in localStorage
+    const existingOrders = JSON.parse(localStorage.getItem('agentOrders')) || []
+    localStorage.setItem('agentOrders', JSON.stringify([...existingOrders, newOrder]))
+
+    // Show success message
+    setSuccessMessage('Order placed successfully!')
+
+    // Hide message after 3 seconds
+    setTimeout(() => setSuccessMessage(''), 3000)
+
+    // Reset modal and form
+    setIsModalOpen(false)
+    setSelectedProduct(null)
+    setOrderForm({
+      customerName: '',
+      phoneNumber: '',
+      deliveryAddress: '',
+      quantity: 1,
+      estimatedDeliveryDate: ''
+    })
+    setErrors({})
+  }
+
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
-            <ShoppingCart className="size-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
-            <p className="text-slate-600">Manage customer orders and track their status</p>
-          </div>
+    <div className="p-6 max-w-7xl mx-auto">
+
+      {/* Success notification */}
+      {successMessage && (
+        <div className="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50">
+          {successMessage}
         </div>
+      )}
+
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Available Products</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map(product => (
+          <div
+            key={product.id}
+            className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
+          >
+            <div className="h-48 bg-gray-200 flex items-center justify-center">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/300x200?text=Product' }}
+              />
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
+              <div className="flex items-center mb-2">
+                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                <span className="text-sm text-gray-600 ml-1">{product.qualityRating}</span>
+              </div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl font-bold text-[#F08344]">₹{product.priceRange}</span>
+                <span className="text-sm text-green-600 font-medium">{product.offer}</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-600 mb-4">
+                <Users className="w-4 h-4 mr-1" />
+                <span>{product.buyersCount} buyers</span>
+              </div>
+
+              <div className="border-t pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="flex items-center">
+                    <RotateCcw className={`w-4 h-4 mr-1 ${product.returnExchange ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className="text-sm">Return & Exchange</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Truck className={`w-4 h-4 mr-1 ${product.cashOnDelivery ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className="text-sm">Cash on Delivery</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CreditCard className={`w-4 h-4 mr-1 ${product.paymentOptions.length > 0 ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className="text-sm">Payment: {product.paymentOptions.join(', ')}</span>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 mt-4 w-full"
+                onClick={() => handlePlaceOrder(product)}
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Place Order
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <FilterBar
-        search={search}
-        onSearchChange={setSearch}
-        placeholder="Search orders..."
-        selects={[{
-          name: 'status',
-          value: statusFilter,
-          onChange: setStatusFilter,
-          options: [
-            { value: 'all', label: 'All Status' },
-            { value: 'pending', label: 'Pending' },
-            { value: 'confirmed', label: 'Confirmed' },
-            { value: 'shipped', label: 'Shipped' },
-          ]
-        }]}
-      />
+      {/* Modal for placing order */}
+      {selectedProduct && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={`Place Order: ${selectedProduct.name}`}
+          className="max-w-md"
+        >
+          <form onSubmit={handleOrderSubmit} className="space-y-4 p-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>
+              <input
+                type="text"
+                value={orderForm.customerName}
+                onChange={(e) => setOrderForm({ ...orderForm, customerName: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.customerName ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="Enter customer name"
+              />
+              {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
+            </div>
 
-      {/* Orders Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Customer</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders
-                .filter(o => (
-                  o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-                  String(o.id).includes(search)
-                ))
-                .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-                .map((order) => (
-                <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
-                    #{order.id}
-                  </td>
-                  <td className="py-4 px-6 text-slate-900 hover:text-[#F08344] transition-colors">
-                    {order.customerName}
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="space-y-1">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="text-sm">
-                          <span className="font-medium text-slate-900">{item.name}</span>
-                          <span className="text-slate-600"> (Qty: {item.quantity})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
-                    ₹{order.totalAmount != null ? order.totalAmount.toLocaleString() : '0'}
-                  </td>
-                  <td className="py-4 px-6">
-                    {getStatusBadge(order.status)}
-                  </td>
-                  <td className="py-4 px-6 text-slate-600 hover:text-[#F08344] transition-colors">
-                    {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : '—'}
-                  </td>
-                  <td className="py-4 px-6 text-slate-600 max-w-xs truncate hover:text-[#F08344] transition-colors">
-                    {order.deliveryAddress || '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+              <input
+                type="tel"
+                value={orderForm.phoneNumber}
+                onChange={(e) => setOrderForm({ ...orderForm, phoneNumber: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="Enter phone number"
+              />
+              {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
+            </div>
 
-      {orders.length === 0 && (
-        <div className="text-center py-12">
-          <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
-          <p className="text-slate-600">Orders will appear here once customers place them</p>
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Address *</label>
+              <textarea
+                value={orderForm.deliveryAddress}
+                onChange={(e) => setOrderForm({ ...orderForm, deliveryAddress: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.deliveryAddress ? 'border-red-500' : 'border-gray-300'}`}
+                rows="3"
+                placeholder="Enter delivery address"
+              />
+              {errors.deliveryAddress && <p className="text-red-500 text-sm mt-1">{errors.deliveryAddress}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+              <input
+                type="number"
+                min="1"
+                value={orderForm.quantity}
+                onChange={(e) => setOrderForm({ ...orderForm, quantity: parseInt(e.target.value) })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
+              />
+              {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Delivery Date *</label>
+              <input
+                type="date"
+                value={orderForm.estimatedDeliveryDate}
+                onChange={(e) => setOrderForm({ ...orderForm, estimatedDeliveryDate: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.estimatedDeliveryDate ? 'border-red-500' : 'border-gray-300'}`}
+              />
+              {errors.estimatedDeliveryDate && <p className="text-red-500 text-sm mt-1">{errors.estimatedDeliveryDate}</p>}
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+              >
+                Submit Order
+              </Button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   )
