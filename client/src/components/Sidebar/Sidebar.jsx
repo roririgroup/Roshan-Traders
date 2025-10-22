@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'; // ✅ Add this import at the top
 import {
   Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X,
   TrendingUp, FileText, CreditCard, Package, LayoutDashboard, ShoppingCart,
-  DollarSign, User, BarChart3, Truck, Gift
+  DollarSign, User, BarChart3, Truck, Gift, File
 } from 'lucide-react';
 import { logout } from '../../lib/auth';
 import { getCurrentUserRole, getCurrentUserRoles, getCurrentUserActiveRole, setCurrentUserActiveRole } from '../../lib/roles';
@@ -32,6 +32,7 @@ const MENU_CONFIG = {
     { to: '/dashboard/report', label: 'Reports', icon: FileText },
     { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
     { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
+      { to : '/dashboard/project-requirement', label: 'PRD', icon: File },
   ],
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -175,6 +176,29 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
         >
           {menu.map((item) => {
             const Icon = item.icon;
+            if (item.label === 'PRD') {
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={active}
+                  onClick={mobile ? onClose : undefined}
+                  end
+                >
+                  <Icon className="size-4 sm:size-5 flex-shrink-0" />
+                  {(!isCollapsed || mobile) && (
+                    <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                      {item.label}
+                    </span>
+                  )}
+                  {(!isCollapsed || mobile) && (
+                    <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                    </div>
+                  )}
+                </NavLink>
+              );
+            }
             return (
               <NavLink
                 key={item.to}
