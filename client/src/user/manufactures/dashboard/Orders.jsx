@@ -43,21 +43,37 @@ export default function Orders() {
 
   const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
-  // ✅ Load products from API
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const response = await fetch('http://localhost:7700/api/products');
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-        setProducts([]);
-      }
+// ✅ Load products from API
+useEffect(() => {
+  async function fetchProducts() {
+    try {
+      const response = await fetch('http://localhost:7700/api/products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      setProducts([]);
     }
+  }
 
-    fetchProducts();
-  }, []);
+  fetchProducts();
+}, []);
+
+// ✅ Load manufacturers from API
+useEffect(() => {
+  async function fetchManufacturers() {
+    try {
+      const response = await fetch('http://localhost:7700/api/manufacturers');
+      const data = await response.json();
+      setManufacturers(data);
+    } catch (error) {
+      console.error('Failed to fetch manufacturers:', error);
+      setManufacturers([]);
+    }
+  }
+
+  fetchManufacturers();
+}, []);
 
   // ✅ Load orders from store
   useEffect(() => {
@@ -444,6 +460,18 @@ export default function Orders() {
                   {order.deliveryAddress || 'N/A'}
                 </td>
                 <td className="py-4 px-6">
+                  {order.status === 'pending' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleAssignClick(order)
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors cursor-pointer"
+                      disabled={isLoading}
+                    >
+                      Assign
+                    </button>
+                  )}
                   {order.status === 'in_progress' && (
                     <div className="flex gap-2">
                       <button
