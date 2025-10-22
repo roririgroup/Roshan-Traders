@@ -7,6 +7,9 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
   const user = getCurrentUser()
   const activeRole = getCurrentUserActiveRole()
 
+  // Get user data from localStorage for name display
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
+  
   const getRoleDisplayName = (role) => {
     const roleNames = {
       superadmin: 'Super Admin',
@@ -16,6 +19,46 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
       driver: 'Driver'
     }
     return roleNames[role] || role
+  }
+
+  const getUserInitials = () => {
+    // For Super Admin, always show "SA"
+    if (activeRole === 'superadmin') {
+      return 'SA'
+    }
+    
+    // For regular users, show their name initials
+    if (currentUser.firstName && currentUser.lastName) {
+      return `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
+    }
+    if (currentUser.firstName) {
+      return currentUser.firstName.charAt(0).toUpperCase()
+    }
+    return getRoleDisplayName(activeRole).charAt(0).toUpperCase()
+  }
+
+  const getUserDisplayName = () => {
+    // For Super Admin, always show "Super Admin"
+    if (activeRole === 'superadmin') {
+      return 'Super Admin'
+    }
+    
+    // For regular users, show their actual name
+    if (currentUser.firstName && currentUser.lastName) {
+      return `${currentUser.firstName} ${currentUser.lastName}`
+    }
+    if (currentUser.firstName) {
+      return currentUser.firstName
+    }
+    return getRoleDisplayName(activeRole)
+  }
+
+  const getDisplayRole = () => {
+    // For Super Admin, you can show empty or specific text
+    if (activeRole === 'superadmin') {
+      return 'Administrator' // or leave empty if you prefer
+    }
+    return getRoleDisplayName(activeRole)
   }
   
   return (
@@ -58,8 +101,6 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
         </div>
       </div>
 
-
-
       {/* Right Section */}
       <div className="flex items-center gap-1 sm:gap-3">
         {/* Search Button (Mobile & Tablet) */}
@@ -85,13 +126,21 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
           {/* User Details - Hidden on mobile */}
           <div className="hidden md:block text-right">
             <p className="text-sm font-medium text-slate-900 truncate max-w-24 lg:max-w-32">
-            {getRoleDisplayName(activeRole)}
+              {getUserDisplayName()}
+            </p>
+            <p className="text-xs text-slate-500 -mt-0.5 truncate max-w-24 lg:max-w-32">
+              {getDisplayRole()}
             </p>
           </div>
 
           {/* User Avatar */}
-          <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm">
-  {getRoleDisplayName(activeRole).charAt(0).toUpperCase()}         </div>
+          <div className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm ${
+            activeRole === 'superadmin' 
+              ? 'bg-gradient-to-br from-purple-600 to-purple-700' 
+              : 'bg-gradient-to-br from-blue-600 to-blue-700'
+          }`}>
+            {getUserInitials()}
+          </div>
         </div>
         
         {/* Logout Button */}
