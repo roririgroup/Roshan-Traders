@@ -196,8 +196,34 @@ export default function ManufacturersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-800">
+    <div className="bg-white text-gray-800">
       {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-6 py-8 lg:py-12">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-bold mb-2">Manufacturers</h1>
+              <p className="text-blue-100 text-lg">Manage and oversee all manufacturers in your network</p>
+            </div>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-xl font-semibold transition-colors duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl w-fit"
+            >
+              <Plus className="w-5 h-5" />
+              Add Manufacturer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Add Button */}
+      <button
+        onClick={() => setIsAddModalOpen(true)}
+        className="fixed bottom-6 right-6 bg-[#F08344] hover:bg-[#e0733a] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 flex items-center justify-center"
+        title="Add Manufacturer"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
 
       {/* Filters and Search Section */}
       <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-lg border-b border-gray-100 shadow-sm">
