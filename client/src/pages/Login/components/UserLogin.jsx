@@ -33,13 +33,51 @@ export default function UserLogin() {
     setIsLoading(true)
     setError('')
 
-    // Direct login without any verification
-    const res = loginUser({ phone, otp, selectedRoles })
+    // Check if user exists in approved users
+    const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+    
+    // Find user by phone number and check if their role matches selected roles
+    const approvedUser = approvedUsers.find(user => 
+      user.phone === phone && selectedRoles.includes(user.role.toLowerCase())
+    );
+
+    if (!approvedUser) {
+      // Check if user is pending approval
+      const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+      const pendingUser = pendingUsers.find(user => user.phone === phone);
+      
+      if (pendingUser) {
+        setError('Your account is pending admin approval. Please wait for approval email/SMS.');
+      } else {
+        setError('No approved account found with this phone number and role. Please sign up first.');
+      }
+      setIsLoading(false)
+      return;
+    }
+
+    // Direct login for approved users
+    const res = loginUser({ 
+      phone, 
+      otp, 
+      selectedRoles,
+      userData: approvedUser // Pass the full user data including name
+    })
+    
     if (!res.success) {
       setError(res.error || 'Login failed')
       setIsLoading(false)
       return
     }
+
+    // Store user info for displaying in top right corner
+    localStorage.setItem('currentUser', JSON.stringify({
+      id: approvedUser.id,
+      firstName: approvedUser.firstName,
+      lastName: approvedUser.lastName,
+      phone: approvedUser.phone,
+      role: approvedUser.role,
+      email: approvedUser.email
+    }));
 
     // Redirect based on first selected role
     const firstRole = selectedRoles[0]
@@ -63,7 +101,7 @@ export default function UserLogin() {
   const userTypes = [
     { value: 'agent', label: 'Agent', icon: <User className="w-5 h-5" /> },
     { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-5 h-5" /> },
-    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
+    { value: 'truckowner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
     { value: 'driver', label: 'Driver', icon: <Wrench className="w-5 h-5" /> }
   ]
 
@@ -85,12 +123,12 @@ export default function UserLogin() {
           <div className="p-6 sm:p-8">
             <div className="mb-6 ">
               <h1 className="text-2xl font-semibold tracking-tight text-center mr-3">User Login</h1>
-              <p className="mt-1 text-sm text-gray-600 text-center">Use default credentials to login instantly</p>
+              <p className="mt-1 text-sm text-gray-600 text-center">Login with approved account only</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Select User Roles (Multiple allowed)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Select Your Approved Role</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {userTypes.map((type) => {
                     const isSelected = selectedRoles.includes(type.value)
@@ -143,12 +181,12 @@ export default function UserLogin() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
-                    placeholder="Enter mobile number"
+                    placeholder="Enter registered mobile number"
                     required
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Default: 9876543210
+                  Use the phone number you registered with
                 </p>
               </div>
 
@@ -169,7 +207,7 @@ export default function UserLogin() {
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Default: 1234 (or any OTP will work)
+                  Enter any OTP (demo purpose)
                 </p>
               </div>
 
@@ -185,7 +223,7 @@ export default function UserLogin() {
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
-                {isLoading ? 'Logging in...' : 'Login Instantly'}
+                {isLoading ? 'Logging in...' : 'Login'}
               </Button>
 
               <div className="mt-6 text-center text-sm">
@@ -200,14 +238,14 @@ export default function UserLogin() {
                   </button>
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  For demo purposes, you can login with any credentials
+                  Your account needs admin approval before you can login
                 </p>
               </div>
             </form>
 
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-xs text-blue-700 text-center">
-                <strong>Demo Instructions:</strong> Just click "Login Instantly" with default values or enter any phone number and OTP
+                <strong>Note:</strong> Only approved accounts can login. Check your email/SMS for approval notification.
               </p>
             </div>
 
