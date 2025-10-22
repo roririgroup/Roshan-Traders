@@ -31,7 +31,7 @@ const MENU_CONFIG = {
     { to: '/dashboard/paymentreports', label: 'Payment Reports', icon: CreditCard },
     { to: '/dashboard/report', label: 'Reports', icon: FileText },
     { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
-    { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
+    // { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
       { to : '/dashboard/project-requirement', label: 'PRD', icon: File },
   ],
   agent: [
