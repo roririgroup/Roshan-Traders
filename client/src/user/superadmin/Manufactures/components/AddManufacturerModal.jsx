@@ -30,6 +30,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
     location: '',
     rating: '',
     image: '',
+    products: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -60,6 +61,15 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
     setFormData(prev => ({
       ...prev,
       founders: newFounders,
+    }));
+  };
+
+  const handleProductChange = (product) => {
+    setFormData(prev => ({
+      ...prev,
+      products: prev.products.includes(product)
+        ? prev.products.filter(p => p !== product)
+        : [...prev.products, product],
     }));
   };
 
@@ -194,6 +204,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
         location: '',
         rating: '',
         image: '',
+        products: [],
       });
       setErrors({});
     } catch (error) {
@@ -410,6 +421,24 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
           >
             Add Founder
           </button>
+        </div>
+
+        {/* Products */}
+        <div className="border-t pt-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Products</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {['Red Bricks', 'Clay', 'Wood', 'Clay Tiles', 'Soil', 'M-Sand'].map((product) => (
+              <label key={product} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.products.includes(product)}
+                  onChange={() => handleProductChange(product)}
+                  className="mr-2"
+                />
+                {product}
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Arrays */}

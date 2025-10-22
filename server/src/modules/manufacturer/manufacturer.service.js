@@ -1,9 +1,12 @@
 const prisma = require('../../shared/lib/db.js');
 
+/**
+ * @param {any} payload
+ */
 const createManufacturer = async (payload) => {
   try {
     console.log('createManufacturer called with payload:', JSON.stringify(payload, null, 2));
-    
+
     const {
       companyName,
       businessType,
@@ -20,6 +23,7 @@ const createManufacturer = async (payload) => {
       rating,
       image,
       userId,
+      products,
     } = payload;
 
     let specializations = payload.specializations;
@@ -51,7 +55,7 @@ const createManufacturer = async (payload) => {
       businessType: businessType || null,
       gstNumber: gstNumber || null,
       panNumber: panNumber || null,
-      businessAddress: businessAddress ? JSON.stringify({ address: businessAddress }) : null,
+      businessAddress: businessAddress ? JSON.stringify({ address: businessAddress }) : undefined,
       websiteUrl: websiteUrl || null,
       description: description || null,
       established: established ? parseInt(established) : null,
@@ -95,7 +99,7 @@ const createManufacturer = async (payload) => {
   if (founders && founders.length > 0) {
     console.log('Creating founders...');
     await prisma.founder.createMany({
-      data: founders.map(founder => ({
+      data: founders.map((/** @type {any} */ founder) => ({
         name: founder.name,
         experience: founder.experience,
         qualification: founder.qualification,
@@ -179,6 +183,22 @@ const createManufacturer = async (payload) => {
     }
   }
 
+  // Handle products
+  if (products && products.length > 0) {
+    console.log('Creating products...');
+    for (const productName of products) {
+      const productId = `${manufacturer.id}_${productName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
+      await prisma.product.create({
+        data: {
+          id: productId,
+          name: productName,
+          category: 'General', // Default category, can be updated later
+          manufacturerId: manufacturer.id,
+        },
+      });
+    }
+  }
+
     // Transform the response to match frontend expectations
     const result = {
       ...manufacturer,
@@ -186,7 +206,7 @@ const createManufacturer = async (payload) => {
       achievementsList: [],
       certificationsList: [],
     };
-    
+
     console.log('Manufacturer created successfully:', result);
     return result;
     
@@ -240,6 +260,9 @@ const getAllManufacturers = async () => {
   }));
 };
 
+/**
+ * @param {any} id
+ */
 const getManufacturerById = async (id) => {
   const manufacturer = await prisma.manufacturer.findUnique({
     where: { id: parseInt(id) },
@@ -278,6 +301,10 @@ const getManufacturerById = async (id) => {
   };
 };
 
+/**
+ * @param {any} id
+ * @param {any} payload
+ */
 const updateManufacturer = async (id, payload) => {
   // For simplicity, update only basic fields; full update would require handling relations
   const { companyName, businessType, gstNumber, panNumber, businessAddress, websiteUrl, description, established, location, rating, image } = payload;
@@ -328,6 +355,9 @@ const updateManufacturer = async (id, payload) => {
   };
 };
 
+/**
+ * @param {any} id
+ */
 const deleteManufacturer = async (id) => {
   return await prisma.manufacturer.delete({
     where: { id: parseInt(id) },
