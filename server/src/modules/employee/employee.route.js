@@ -15,6 +15,10 @@ router.get('/', async (req, res) => {
 
 // GET /api/employees/:id - Get employee by ID
 router.get('/:id', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   try {
     const employee = await getEmployeeById(req.params.id);
     if (!employee) {
@@ -33,17 +37,24 @@ router.post('/', async (req, res) => {
     res.status(201).json(employee);
   } catch (error) {
     console.error('Error creating employee:', error);
-    res.status(400).json({ message: error.message || 'Failed to create employee' });
+    const message = error instanceof Error ? error.message : 'Failed to create employee';
+    res.status(400).json({ message });
   }
 });
 
 // PUT /api/employees/:id - Update employee
 router.put('/:id', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   try {
     const employee = await updateEmployee(req.params.id, req.body);
     res.json(employee);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update employee' });
+    console.error('Error updating employee:', error);
+    const message = error instanceof Error ? error.message : 'Failed to update employee';
+    res.status(400).json({ message });
   }
 });
 

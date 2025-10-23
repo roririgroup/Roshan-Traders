@@ -14,14 +14,12 @@ const EmployeesPage = () => {
   }, []);
 
   const fetchEmployees = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('http://localhost:7700/api/employees');
-      if (response.ok) {
-        const data = await response.json();
-        setEmployees(data);
-      } else {
-        console.error('Failed to fetch employees');
-      }
+      if (!response.ok) throw new Error('Failed to fetch employees');
+      const data = await response.json();
+      setEmployees(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching employees:', error);
     } finally {
@@ -33,67 +31,75 @@ const EmployeesPage = () => {
     try {
       const response = await fetch('http://localhost:7700/api/employees', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(employeeData),
       });
 
-      if (response.ok) {
-        const newEmployee = await response.json();
-        setEmployees([...employees, newEmployee]);
-        alert('Employee added successfully!');
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
         alert(errorData.message || 'Failed to add employee');
+        return;
       }
+
+      const newEmployee = await response.json();
+      setEmployees((prev) => [...prev, newEmployee]);
+      alert('Employee added successfully!');
+      setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error adding employee:', error);
       alert('Error adding employee');
     }
   };
 
-  const handleAssignTask = async (employeeId, taskDetails) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setEmployees(prevEmployees =>
-        prevEmployees.map(emp =>
-          emp.id === employeeId
-            ? {
-                ...emp,
-                status: "On Job",
-                currentOrder: taskDetails
-              }
-            : emp
-        )
-      );
-    } catch (error) {
-      console.error('Error assigning task:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleAssignTask = (employeeId, taskDetails) => {
+    setEmployees((prevEmployees) =>
+      prevEmployees.map((emp) =>
+        emp.id === employeeId
+          ? { ...emp, status: 'On Job', currentOrder: taskDetails }
+          : emp
+      )
+    );
   };
 
   const handleRemoveEmployee = async (employeeId) => {
-    if (window.confirm('Are you sure you want to remove this employee?')) {
-      try {
-        const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
-          method: 'DELETE',
-        });
+    if (!window.confirm('Are you sure you want to remove this employee?')) return;
 
-        if (response.ok) {
-          setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
-          alert('Employee removed successfully!');
-        } else {
-          alert('Failed to remove employee');
-        }
-      } catch (error) {
-        console.error('Error removing employee:', error);
-        alert('Error removing employee');
+    try {
+      const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to remove employee');
+      setEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
+      alert('Employee removed successfully!');
+    } catch (error) {
+      console.error('Error removing employee:', error);
+      alert('Error removing employee');
+    }
+  };
+
+  const handleEditEmployee = async (employeeId, updatedEmployee) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedEmployee),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to update employee');
+        return;
       }
+
+      const updatedEmp = await response.json();
+      setEmployees((prev) =>
+        prev.map((emp) => (emp.id === employeeId ? updatedEmp : emp))
+      );
+      alert('Employee updated successfully!');
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      alert('Error updating employee');
     }
   };
 
@@ -114,26 +120,23 @@ const EmployeesPage = () => {
         </Button>
       </div>
 
-      {/* Debug: Check if employees data is loaded */}
       <div className="mb-4 text-sm text-gray-600">
         Total employees: {employees.length}
       </div>
 
       <div className="grid gap-4">
         {employees.length > 0 ? (
-          employees.map(employee => (
+          employees.map((employee) => (
             <EmployeeCard
               key={employee.id}
               employee={employee}
-              onAssign={handleAssignTask}
               onRemoveClick={handleRemoveEmployee}
+              onEdit={handleEditEmployee}
               isLoading={isLoading}
             />
           ))
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            No employees found
-          </div>
+          <div className="text-center py-8 text-gray-500">No employees found</div>
         )}
       </div>
 
