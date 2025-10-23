@@ -5,27 +5,41 @@ export default function PRDPage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastModified, setLastModified] = useState(null);
 
-  useEffect(() => {
-    const loadDocument = async () => {
-      try {
-        const response = await fetch('/Project Requirement & Vision Document.docx');
-        if (!response.ok) {
-          throw new Error('Failed to load document');
-        }
+  const loadDocument = async () => {
+    try {
+      setLoading(true);
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/Project Requirement & Vision Document.docx?t=${timestamp}`);
+      if (!response.ok) {
+        throw new Error('Failed to load document');
+      }
+
+      // Check if document has been modified
+      const newLastModified = response.headers.get('last-modified');
+      if (newLastModified && newLastModified !== lastModified) {
+        setLastModified(newLastModified);
         const arrayBuffer = await response.arrayBuffer();
         const result = await mammoth.convertToHtml({ arrayBuffer });
         setContent(result.value);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error loading document:', err);
-        setError('Failed to load document. Please try downloading it instead.');
-        setLoading(false);
       }
-    };
+      setLoading(false);
+    } catch (err) {
+      console.error('Error loading document:', err);
+      setError('Failed to load document. Please try downloading it instead.');
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadDocument();
   }, []);
+
+  const handleRefresh = () => {
+    loadDocument();
+  };
 
   if (loading) {
     return (
@@ -68,6 +82,12 @@ export default function PRDPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Project Requirement & Vision Document</h1>
           <p className="text-slate-600">View the complete project documentation</p>
+          <button
+            onClick={handleRefresh}
+            className="mt-4 px-4 py-2 bg-[#F08344] text-white rounded-lg hover:bg-[#e0763a] transition-colors"
+          >
+            Refresh Document
+          </button>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6">
