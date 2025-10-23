@@ -44,7 +44,7 @@ export default function ManufacturersPage() {
           location: manufacturer.location,
           specialization: manufacturer.specializations?.map(s => s.specialization.name).join(', ') || 'General',
           rating: manufacturer.rating,
-          productsCount: manufacturer._count?.products || 0,
+          productsCount: manufacturer.productsCount || 0,
           turnover: manufacturer.companyInfo?.annualTurnover || 'N/A',
           exportCountries: manufacturer.companyInfo?.exportCountries?.length || 0,
           established: manufacturer.established,
