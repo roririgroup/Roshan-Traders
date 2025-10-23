@@ -4,6 +4,7 @@ import ManufacturerCard from './ManufactureCard';
 import CallToAction from './components/CallToAction';
 import AddManufacturerModal from './components/AddManufacturerModal';
 import EditManufacturerModal from './components/EditManufacturerModal';
+import { getAllManufacturers } from './manufactures';
 import {
   Search,
   Filter,
@@ -56,10 +57,17 @@ export default function ManufacturersPage() {
         }));
         setManufacturers(mappedManufacturers);
       } else {
-        console.error('Failed to fetch manufacturers');
+        // Fallback to local data if API fails
+        const localManufacturers = getAllManufacturers();
+        setManufacturers(localManufacturers);
+        console.log('Using local manufacturers data as fallback');
       }
     } catch (error) {
       console.error('Error fetching manufacturers:', error);
+      // Fallback to local data if API fails
+      const localManufacturers = getAllManufacturers();
+      setManufacturers(localManufacturers);
+      console.log('Using local manufacturers data as fallback');
     } finally {
       setLoading(false);
     }

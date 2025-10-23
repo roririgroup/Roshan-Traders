@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -32,7 +32,7 @@ import {
   Clock3,
   AlertCircle,
 } from 'lucide-react';
-import { getManufacturerById } from '../manufactures';
+import { getManufacturerById } from '../manufactures.js';
 
 // StatCard Component
 function StatCard({ icon, label, value, color, gradient }) {
@@ -82,11 +82,100 @@ function ActionButton({ icon, label, onClick, variant = 'primary' }) {
 
 export default function ManufacturerDetailsPage() {
   const { manufacturerId } = useParams();
-  const manufacturer = getManufacturerById(manufacturerId);
+  const [manufacturer, setManufacturer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('orders'); // Set orders as default tab
   const [isFavorited, setIsFavorited] = useState(false);
 
-  if (!manufacturer) {
+  useEffect(() => {
+    fetchManufacturer();
+  }, [manufacturerId]);
+
+  const fetchManufacturer = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}`);
+      if (response.ok) {
+        const data = await response.json();
+        // Transform API data to match the expected format
+        const transformedManufacturer = {
+          id: data.id,
+          name: data.companyName,
+          location: data.location,
+          specialization: data.specializations?.map(s => s.specialization.name).join(', ') || 'General',
+          established: data.established,
+          rating: data.rating,
+          image: data.image,
+          logo: data.logo || data.image,
+          description: data.description,
+          founder: data.founders?.[0] ? {
+            name: data.founders[0].name,
+            experience: data.founders[0].experience || 'N/A',
+            qualification: data.founders[0].qualification || 'N/A'
+          } : null,
+          contact: {
+            phone: data.contact?.phone || 'N/A',
+            email: data.contact?.email || 'N/A',
+            website: data.contact?.website || 'N/A',
+            address: data.contact?.address || 'N/A'
+          },
+          products: data.products || [],
+          productsCount: data.productsCount || 0,
+          turnover: data.companyInfo?.annualTurnover || 'N/A',
+          exportCountries: data.companyInfo?.exportCountries?.length || 0,
+          teamSize: data.companyInfo?.employees || 0,
+          specializations: data.specializations?.map(s => s.specialization.name) || [],
+          achievements: data.achievements || [],
+          orders: data.orders || [],
+          companyInfo: {
+            certifications: data.companyInfo?.certifications || []
+          }
+        };
+        setManufacturer(transformedManufacturer);
+      } else {
+        // Fallback to local data if API fails
+        const localManufacturer = getManufacturerById(manufacturerId);
+        if (localManufacturer) {
+          setManufacturer(localManufacturer);
+        } else {
+          setError('Manufacturer not found');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching manufacturer:', error);
+      // Fallback to local data
+      const localManufacturer = getManufacturerById(manufacturerId);
+      if (localManufacturer) {
+        setManufacturer(localManufacturer);
+      } else {
+        setError('Failed to load manufacturer details');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center p-12 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md mx-auto">
+          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <Award className="w-10 h-10 text-blue-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Loading Manufacturer Details
+          </h2>
+          <p className="text-gray-600 mb-8">Please wait while we fetch the manufacturer information...</p>
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !manufacturer) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center p-12 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md mx-auto">
@@ -94,11 +183,13 @@ export default function ManufacturerDetailsPage() {
             <Award className="w-10 h-10 text-red-500" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Manufacturer Not Found
+            {error || 'Manufacturer Not Found'}
           </h2>
-          <p className="text-gray-600 mb-8">The manufacturer you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 mb-8">
+            {error ? 'Failed to load manufacturer details. Please try again.' : 'The manufacturer you\'re looking for doesn\'t exist or has been removed.'}
+          </p>
           <Link
-            to="/manufacturers"
+            to="/dashboard/manufacturers"
             className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200 font-semibold"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
