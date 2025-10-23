@@ -167,6 +167,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
         certifications: formData.certifications ? formData.certifications.split(',').map(s => s.trim()).filter(s => s) : [],
         founders: formData.founders.filter(f => f.name.trim()),
         // userId: 1, // Remove this to let backend create system user automatically
+        productIds: formData.products, // Map products array to productIds for backend
       };
 
       console.log('Payload to submit:', payload);

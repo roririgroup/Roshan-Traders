@@ -167,7 +167,7 @@ model Manufacturer {
   certifications  ManufacturerCertification[]
   specializations ManufacturerSpecialization[]
   achievements    ManufacturerAchievement[]
-  products        Product[]
+  manufacturerProducts ManufacturerProduct[]
   orders          Order[]
 
   @@map("manufacturers")
@@ -300,7 +300,6 @@ model Product {
   category       String
   priceRange     String?
   imageUrl       String?
-  manufacturerId Int?
   qualityRating  Float     @default(4.0)
   offer          String?
   buyersCount    Int       @default(0)
@@ -311,14 +310,13 @@ model Product {
   isActive       Boolean   @default(true)
 
   // Relations
-  manufacturer   Manufacturer?     @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
   attributes     ProductAttribute[]
   orderItems     OrderItem[]
+  manufacturerProducts ManufacturerProduct[]
 
   @@map("products")
   @@index([name])
   @@index([category])
-  @@index([manufacturerId])
 }
 
 model ProductAttribute {
@@ -392,12 +390,28 @@ model Employee {
 
   // Relations
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedOrders Order[]
 
   @@map("employees")
   @@index([userId])
   @@index([employeeCode])
   @@index([role])
   @@index([status])
+}
+
+model ManufacturerProduct {
+  id             Int     @id @default(autoincrement())
+  manufacturerId Int
+  productId      String
+
+  // Relations
+  manufacturer   Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([manufacturerId, productId])
+  @@map("manufacturer_products")
+  @@index([manufacturerId])
+  @@index([productId])
 }
 
 model AuditLog {

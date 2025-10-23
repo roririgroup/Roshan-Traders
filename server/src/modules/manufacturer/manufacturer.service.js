@@ -24,6 +24,7 @@ const createManufacturer = async (payload) => {
       image,
       userId,
       products,
+      productIds,
     } = payload;
 
     let specializations = payload.specializations;
@@ -183,19 +184,25 @@ const createManufacturer = async (payload) => {
     }
   }
 
-  // Handle products
-  if (products && products.length > 0) {
-    console.log('Creating products...');
-    for (const productName of products) {
-      const productId = `${manufacturer.id}_${productName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
-      await prisma.product.create({
-        data: {
-          id: productId,
-          name: productName,
-          category: 'General', // Default category, can be updated later
-          manufacturerId: manufacturer.id,
-        },
+  // Handle products - link existing products via ManufacturerProduct
+  const productsToLink = productIds || products;
+  if (productsToLink && productsToLink.length > 0) {
+    console.log('Linking products to manufacturer...');
+    for (const productName of productsToLink) {
+      // Find product by name
+      const product = await prisma.product.findFirst({
+        where: { name: productName },
       });
+      if (product) {
+        await prisma.manufacturerProduct.create({
+          data: {
+            manufacturerId: manufacturer.id,
+            productId: product.id,
+          },
+        });
+      } else {
+        console.warn(`Product with name "${productName}" not found, skipping.`);
+      }
     }
   }
 
@@ -237,14 +244,20 @@ const getAllManufacturers = async () => {
           certification: true,
         },
       },
-      products: {
-        select: {
-          id: true,
+      manufacturerProducts: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              category: true,
+            },
+          },
         },
       },
       _count: {
         select: {
-          products: true,
+          manufacturerProducts: true,
         },
       },
     },
@@ -256,7 +269,7 @@ const getAllManufacturers = async () => {
     specializationsList: manufacturer.specializations.map(s => s.specialization.name),
     achievementsList: manufacturer.achievements.map(a => a.achievement.name),
     certificationsList: manufacturer.certifications.map(c => c.certification.name),
-    productsCount: manufacturer._count.products,
+    productsCount: manufacturer._count.manufacturerProducts,
   }));
 };
 
@@ -285,7 +298,11 @@ const getManufacturerById = async (id) => {
           certification: true,
         },
       },
-      products: true,
+      manufacturerProducts: {
+        include: {
+          product: true,
+        },
+      },
       orders: true,
     },
   });
