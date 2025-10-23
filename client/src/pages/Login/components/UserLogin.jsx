@@ -9,11 +9,14 @@ import { User, Factory, Wrench, Phone, Key, Loader2, Truck } from 'lucide-react'
 
 export default function UserLogin() {
   const navigate = useNavigate()
-  const [phone, setPhone] = useState('9876543210') // Default phone number
-  const [otp, setOtp] = useState('1234') // Default OTP
-  const [selectedRoles, setSelectedRoles] = useState(['agent']) // Default to agent
+  const [phone, setPhone] = useState('') // Default phone number
+  const [otp, setOtp] = useState('') // Default OTP
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showRoleSelection, setShowRoleSelection] = useState(false)
+  const [userData, setUserData] = useState(null)
+  const [availableRoles, setAvailableRoles] = useState([])
+  const [selectedRole, setSelectedRole] = useState('')
 
   if (isAuthenticated()) {
     return <Navigate to="/" replace />
@@ -21,12 +24,39 @@ export default function UserLogin() {
 
   function handleSubmit(e) {
     e.preventDefault()
+
+    // If in role selection mode, handle role selection
+    if (showRoleSelection) {
+      if (!selectedRole) {
+        setError('Please select a role to continue')
+        return
+      }
+
+      // Update user info with selected role
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      localStorage.setItem('currentUser', JSON.stringify({
+        ...currentUser,
+        selectedRole: selectedRole
+      }));
+
+      // Redirect based on selected role
+      if (selectedRole === 'agent') {
+        navigate('/agents/dashboard')
+      } else if (selectedRole === 'manufacturer') {
+        navigate('/manufacturers/dashboard')
+      } else if (selectedRole === 'truckowner') {
+        navigate('/truck-owners/dashboard')
+      } else if (selectedRole === 'driver') {
+        navigate('/drivers/dashboard')
+      } else {
+        navigate('/')
+      }
+      return;
+    }
+
+    // Initial login flow
     if (!phone || !otp) {
       setError('Please enter both mobile number and OTP')
-      return
-    }
-    if (selectedRoles.length === 0) {
-      setError('Please select at least one role')
       return
     }
 
@@ -35,41 +65,75 @@ export default function UserLogin() {
 
     // Check if user exists in approved users
     const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
-    
-    // Find user by phone number and check if their role matches selected roles
-    const approvedUser = approvedUsers.find(user => 
-      user.phone === phone && selectedRoles.includes(user.role.toLowerCase())
-    );
+    const approvedUser = approvedUsers.find(user => user.phone === phone);
 
     if (!approvedUser) {
       // Check if user is pending approval
       const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
       const pendingUser = pendingUsers.find(user => user.phone === phone);
-      
+
       if (pendingUser) {
         setError('Your account is pending admin approval. Please wait for approval email/SMS.');
       } else {
-        setError('No approved account found with this phone number and role. Please sign up first.');
+        setError('No approved account found with this phone number. Please sign up first.');
       }
       setIsLoading(false)
       return;
     }
 
-    // Direct login for approved users
-    const res = loginUser({ 
-      phone, 
-      otp, 
-      selectedRoles,
-      userData: approvedUser // Pass the full user data including name
+    // Handle both single role (string) and multiple roles (array)
+    const userRoles = Array.isArray(approvedUser.role) ? approvedUser.role : [approvedUser.role];
+    const normalizedUserRoles = userRoles.map(role => role.toLowerCase().replace(' ', ''));
+
+    // If user has multiple roles, authenticate first then show role selection
+    if (normalizedUserRoles.length > 1) {
+      // Authenticate the user
+      const res = loginUser({
+        phone,
+        otp,
+        selectedRoles: normalizedUserRoles,
+        userData: approvedUser
+      })
+
+      if (!res.success) {
+        setError(res.error || 'Login failed')
+        setIsLoading(false)
+        return
+      }
+
+      // Store user info
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: approvedUser.id,
+        firstName: approvedUser.firstName,
+        lastName: approvedUser.lastName,
+        phone: approvedUser.phone,
+        role: approvedUser.role,
+        email: approvedUser.email
+      }));
+
+      // Show role selection after successful login
+      setUserData(approvedUser);
+      setAvailableRoles(normalizedUserRoles);
+      setShowRoleSelection(true);
+      setIsLoading(false);
+      return;
+    }
+
+    // Single role user - proceed with login
+    const res = loginUser({
+      phone,
+      otp,
+      selectedRoles: normalizedUserRoles,
+      userData: approvedUser
     })
-    
+
     if (!res.success) {
       setError(res.error || 'Login failed')
       setIsLoading(false)
       return
     }
 
-    // Store user info for displaying in top right corner
+    // Store user info
     localStorage.setItem('currentUser', JSON.stringify({
       id: approvedUser.id,
       firstName: approvedUser.firstName,
@@ -79,13 +143,13 @@ export default function UserLogin() {
       email: approvedUser.email
     }));
 
-    // Redirect based on first selected role
-    const firstRole = selectedRoles[0]
+    // Redirect based on role
+    const firstRole = normalizedUserRoles[0]
     if (firstRole === 'agent') {
       navigate('/agents/dashboard')
     } else if (firstRole === 'manufacturer') {
       navigate('/manufacturers/dashboard')
-    } else if (firstRole === 'truckOwner') {
+    } else if (firstRole === 'truckowner') {
       navigate('/truck-owners/dashboard')
     } else if (firstRole === 'driver') {
       navigate('/drivers/dashboard')
@@ -127,47 +191,45 @@ export default function UserLogin() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Select Your Approved Role</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {userTypes.map((type) => {
-                    const isSelected = selectedRoles.includes(type.value)
-                    return (
-                      <button
-                        key={type.value}
-                        type="button"
-                        onClick={() => {
-                          if (isSelected) {
-                            setSelectedRoles(prev => prev.filter(r => r !== type.value))
-                          } else {
-                            setSelectedRoles(prev => [...prev, type.value])
-                          }
-                        }}
-                        className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${
-                          isSelected
-                            ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
-                        }`}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          {type.icon}
-                          <span className="text-xs">{type.label}</span>
-                        </div>
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 w-3 h-3 bg-indigo-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs">✓</span>
-                          </div>
-                        )}
-                      </button>
-                    )
-                  })}
+              {showRoleSelection && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Select Your Role</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {userTypes
+                      .filter(type => availableRoles.includes(type.value))
+                      .map((type) => {
+                        const isSelected = selectedRole === type.value
+                        return (
+                          <button
+                            key={type.value}
+                            type="button"
+                            onClick={() => setSelectedRole(type.value)}
+                            className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${
+                              isSelected
+                                ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+                            }`}
+                          >
+                            <div className="flex flex-col items-center gap-1">
+                              {type.icon}
+                              <span className="text-xs">{type.label}</span>
+                            </div>
+                            {isSelected && (
+                              <div className="absolute top-1 right-1 w-3 h-3 bg-indigo-600 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs">✓</span>
+                              </div>
+                            )}
+                          </button>
+                        )
+                      })}
+                  </div>
+                  {selectedRole && (
+                    <p className="text-xs text-indigo-600 mt-2">
+                      Selected: {userTypes.find(t => t.value === selectedRole)?.label}
+                    </p>
+                  )}
                 </div>
-                {selectedRoles.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Selected: {selectedRoles.map(role => userTypes.find(t => t.value === role)?.label).join(', ')}
-                  </p>
-                )}
-              </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
@@ -179,7 +241,13 @@ export default function UserLogin() {
                     inputMode="tel"
                     autoComplete="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                      const newPhone = e.target.value;
+                      setPhone(newPhone);
+                      setShowRoleSelection(false);
+                      setSelectedRole('');
+                      setError('');
+                    }}
                     className="w-full pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
                     placeholder="Enter registered mobile number"
                     required
@@ -220,10 +288,10 @@ export default function UserLogin() {
               <Button
                 type="submit"
                 className="w-full h-11 rounded-xl text-[15px] flex items-center justify-center gap-2 cursor-pointer"
-                disabled={isLoading}
+                disabled={isLoading || (showRoleSelection && !selectedRole)}
               >
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? 'Logging in...' : showRoleSelection ? 'Continue' : 'Login'}
               </Button>
 
               <div className="mt-6 text-center text-sm">
