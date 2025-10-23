@@ -92,7 +92,7 @@ const SignUpApprovalPage = () => {
 
   const filteredUsers = () => {
     let users = [];
-    
+
     switch(activeTab) {
       case 'pending':
         users = pendingUsers;
@@ -109,7 +109,7 @@ const SignUpApprovalPage = () => {
 
     // Apply search filter
     if (searchTerm) {
-      users = users.filter(user => 
+      users = users.filter(user =>
         user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -119,7 +119,10 @@ const SignUpApprovalPage = () => {
 
     // Apply role filter
     if (roleFilter !== 'all') {
-      users = users.filter(user => user.role?.toLowerCase() === roleFilter.toLowerCase());
+      users = users.filter(user => {
+        const userRoles = Array.isArray(user.role) ? user.role : [user.role];
+        return userRoles.some(role => role?.toLowerCase() === roleFilter.toLowerCase());
+      });
     }
 
     return users;
@@ -299,10 +302,19 @@ const SignUpApprovalPage = () => {
                               {user.firstName} {user.lastName}
                             </h3>
                             <div className="flex flex-wrap gap-2 mt-1 sm:mt-0">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                                {getRoleIcon(user.role)}
-                                <span className="ml-1">{user.role}</span>
-                              </span>
+                              {Array.isArray(user.role) ? (
+                                user.role.map((role, index) => (
+                                  <span key={index} className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(role)}`}>
+                                    {getRoleIcon(role)}
+                                    <span className="ml-1">{role}</span>
+                                  </span>
+                                ))
+                              ) : (
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                                  {getRoleIcon(user.role)}
+                                  <span className="ml-1">{user.role}</span>
+                                </span>
+                              )}
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
                                 {user.status?.charAt(0).toUpperCase() + user.status?.slice(1)}
                               </span>
