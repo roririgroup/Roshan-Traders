@@ -3,31 +3,29 @@ import Button from '../../../components/ui/Button';
 import Badge from "../../../components/ui/Badge";
 import { Card } from "../../../components/ui/Card";
 import { EMPLOYEE_STATUS_CONFIG } from "./employeeConstants";
-import AssignTaskModal from "./AssignTaskModal"; // Import the modal
+import EditEmployeeModal from "./EditEmployeeModal"; // Import the edit modal
 
-const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
+const EmployeeCard = ({ employee, onRemoveClick, onEdit, isLoading }) => {
   const { id, name, role, status, image } = employee;
   const statusConfig = EMPLOYEE_STATUS_CONFIG[status];
-  const isAvailable = status === "Available";
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleImageError = (e) => {
     e.currentTarget.src = "/placeholder-avatar.png";
   };
 
-  const handleAssignClick = () => {
-    setIsModalOpen(true);
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
   };
 
-  const handleTaskSubmit = (taskDetails) => {
-    // Call the parent's onAssign function with employee ID and task details
-    onAssign(id, taskDetails);
-    setIsModalOpen(false);
+  const handleEditSubmit = (updatedEmployee) => {
+    onEdit(id, updatedEmployee);
+    setIsEditModalOpen(false);
   };
 
   return (
@@ -71,30 +69,19 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
           </div>
 
           <div className="flex gap-2">
-            {isAvailable ? (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleAssignClick}
-                disabled={isLoading}
-                aria-label={`Assign tasks to ${name}`}
-                className="shrink-0"
-              >
-                Assign
-              </Button>
-            ) : (
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled
-                className="shrink-0"
-              >
-                Busy
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEditClick}
+              disabled={isLoading}
+              aria-label={`Edit ${name}`}
+              className="shrink-0"
+            >
+              Edit
+            </Button>
 
             <button
-              className="border border-gray-300 text-black px-3 py-1.5 rounded-lg cursor-pointer 
+              className="border border-gray-300 text-black px-3 py-1.5 rounded-lg cursor-pointer
                          hover:bg-red-600 hover:text-white transition text-sm"
               onClick={() => onRemoveClick(id)}
             >
@@ -104,13 +91,13 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
         </div>
       </Card>
 
-      <AssignTaskModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        employee={employee}
-        onSubmit={handleTaskSubmit}
-        isLoading={isLoading}
-      />
+      {isEditModalOpen && (
+        <EditEmployeeModal
+          onClose={handleEditModalClose}
+          employee={employee}
+          onEdit={handleEditSubmit}
+        />
+      )}
     </>
   );
 };
