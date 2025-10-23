@@ -62,6 +62,10 @@ export default function ActingLaboursPage() {
       const driversResponse = await fetch('http://localhost:7700/api/drivers');
       const driversData = driversResponse.ok ? await driversResponse.json() : [];
 
+      // Fetch acting labours
+      const actingLaboursResponse = await fetch('http://localhost:7700/api/acting-labours');
+      const actingLaboursData = actingLaboursResponse.ok ? await actingLaboursResponse.json() : [];
+
       // Fetch manufacturers
       const manufacturersResponse = await fetch('http://localhost:7700/api/manufacturers');
       const manufacturersData = manufacturersResponse.ok ? await manufacturersResponse.json() : [];
@@ -70,7 +74,7 @@ export default function ActingLaboursPage() {
       const truckOwnersResponse = await fetch('http://localhost:7700/api/truck-owners');
       const truckOwnersData = truckOwnersResponse.ok ? await truckOwnersResponse.json() : [];
 
-      // Combine labours (only drivers, acting labours added separately)
+      // Combine labours (drivers + acting labours)
       const combinedLabours = [
         ...driversData.map(driver => ({
           id: `driver-${driver.id}`,
@@ -85,6 +89,24 @@ export default function ActingLaboursPage() {
           assignedTo: driver.assignedTo,
           assignedType: driver.assignedType,
           originalData: driver
+        })),
+        ...actingLaboursData.map(labour => ({
+          id: `acting-${labour.id}`,
+          name: labour.name,
+          type: labour.type.toLowerCase(),
+          phone: labour.phone,
+          email: labour.email,
+          location: labour.location,
+          status: labour.status.toLowerCase(),
+          rating: labour.rating || 0,
+          experience: labour.experience || 0,
+          assignedTo: labour.assignedToId ? (
+            labour.assignedToType === 'manufacturer' ?
+              manufacturersData.find(m => m.id === labour.assignedToId)?.companyName :
+              truckOwnersData.find(t => t.id === labour.assignedToId)?.companyName || truckOwnersData.find(t => t.id === labour.assignedToId)?.name
+          ) : null,
+          assignedType: labour.assignedToType === 'truck_owner' ? 'truckOwner' : labour.assignedToType,
+          originalData: labour
         }))
       ];
 
@@ -126,48 +148,83 @@ export default function ActingLaboursPage() {
     }
 
     try {
-      const assignmentData = {
-        labourId: selectedLabour.id,
-        labourType: selectedLabour.type,
-        assignTo: assignmentForm.assignTo,
-        assignType: assignmentForm.assignType,
-        role: assignmentForm.role
-      };
+      // Find the target ID based on the selected name
+      let assignedToId = null;
+      let assignedToType = assignmentForm.assignType;
 
-      // Here you would make an API call to save the assignment
-      // For now, we'll update the local state
-      const updatedLabours = labours.map(labour =>
-        labour.id === selectedLabour.id
-          ? { ...labour, assignedTo: assignmentForm.assignTo, assignedType: assignmentForm.assignType }
-          : labour
-      );
+      if (assignedToType === 'manufacturer') {
+        const manufacturer = manufacturers.find(m => m.companyName === assignmentForm.assignTo);
+        assignedToId = manufacturer?.id;
+        assignedToType = 'manufacturer';
+      } else if (assignedToType === 'truckOwner') {
+        const truckOwner = truckOwners.find(t => (t.companyName || t.name) === assignmentForm.assignTo);
+        assignedToId = truckOwner?.id;
+        assignedToType = 'truck_owner';
+      }
 
-      setLabours(updatedLabours);
+      if (!assignedToId) {
+        alert('Selected target not found');
+        return;
+      }
+
+      // Extract the actual labour ID (remove prefix for acting labours)
+      const labourId = selectedLabour.id.startsWith('acting-') ? selectedLabour.id.replace('acting-', '') : selectedLabour.id;
+
+      // Make API call to assign labour
+      const response = await fetch(`http://localhost:7700/api/acting-labours/${labourId}/assign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          assignedToId: assignedToId,
+          assignedToType: assignedToType
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to assign labour');
+      }
+
+      // Refresh data to get updated state
+      await fetchData();
       setIsAssignModalOpen(false);
       setSelectedLabour(null);
       alert('Labour assigned successfully!');
 
     } catch (error) {
       console.error('Error assigning labour:', error);
-      alert('Failed to assign labour');
+      alert(`Failed to assign labour: ${error.message}`);
     }
   };
 
   const handleUnassign = async (labourId) => {
     if (window.confirm('Are you sure you want to unassign this labour?')) {
       try {
-        const updatedLabours = labours.map(labour =>
-          labour.id === labourId
-            ? { ...labour, assignedTo: null, assignedType: null }
-            : labour
-        );
+        // Extract the actual labour ID (remove prefix for acting labours)
+        const actualLabourId = labourId.startsWith('acting-') ? labourId.replace('acting-', '') : labourId;
 
-        setLabours(updatedLabours);
+        // Make API call to unassign labour
+        const response = await fetch(`http://localhost:7700/api/acting-labours/${actualLabourId}/unassign`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to unassign labour');
+        }
+
+        // Refresh data to get updated state
+        await fetchData();
         alert('Labour unassigned successfully!');
 
       } catch (error) {
         console.error('Error unassigning labour:', error);
-        alert('Failed to unassign labour');
+        alert(`Failed to unassign labour: ${error.message}`);
       }
     }
   };
@@ -179,22 +236,30 @@ export default function ActingLaboursPage() {
     }
 
     try {
-      const newLabour = {
-        id: `acting-${Date.now()}`,
-        name: addForm.name,
-        type: addForm.type,
-        phone: addForm.phone,
-        email: addForm.email || '',
-        location: addForm.location,
-        status: 'available',
-        rating: addForm.rating || 0,
-        experience: addForm.experience || 0,
-        assignedTo: null,
-        assignedType: null,
-        isActing: true // Mark as acting labour
-      };
+      // Make API call to add acting labour
+      const response = await fetch('http://localhost:7700/api/acting-labours', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: addForm.name,
+          type: addForm.type.toUpperCase(),
+          phone: addForm.phone,
+          email: addForm.email || null,
+          location: addForm.location,
+          experience: addForm.experience || 0,
+          rating: addForm.rating || 0
+        })
+      });
 
-      setLabours([...labours, newLabour]);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add labour');
+      }
+
+      // Refresh data to get updated state
+      await fetchData();
       setIsAddModalOpen(false);
       setAddForm({
         name: '',
@@ -209,7 +274,7 @@ export default function ActingLaboursPage() {
 
     } catch (error) {
       console.error('Error adding labour:', error);
-      alert('Failed to add labour');
+      alert(`Failed to add labour: ${error.message}`);
     }
   };
 
