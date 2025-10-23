@@ -11,7 +11,7 @@ const Signup = () => {
     email: "",
     contact: "",
     address: "",
-    role: "", 
+    role: [], // Changed to array for multiple roles
     password: "",
     confirmPassword: "",
   });
@@ -20,8 +20,14 @@ const Signup = () => {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, selectedOptions } = e.target;
+    if (name === 'role') {
+      // Handle multiple role selection
+      const selectedRoles = Array.from(selectedOptions, option => option.value);
+      setFormData((prev) => ({ ...prev, [name]: selectedRoles }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -191,22 +197,32 @@ const Signup = () => {
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 ">
-                Role
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Role (Select multiple if applicable)
               </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full h-9 border border-gray-300 rounded-lg px-3 text-sm focus:outline-none focus:border-[#555] transition-all"
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="Agent">Agent</option>
-                <option value="Manufacturer">Manufacturer</option>
-                <option value="Truck Owner">Truck Owner</option>
-                <option value="Driver">Driver</option>
-              </select>
+              <div className="grid grid-cols-2 gap-3">
+                {['Agent', 'Manufacturer', 'Truck Owner', 'Driver'].map((role) => (
+                  <label key={role} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="role"
+                      value={role}
+                      checked={formData.role.includes(role)}
+                      onChange={(e) => {
+                        const { value, checked } = e.target;
+                        setFormData((prev) => ({
+                          ...prev,
+                          role: checked
+                            ? [...prev.role, value]
+                            : prev.role.filter((r) => r !== value)
+                        }));
+                      }}
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm text-gray-700">{role}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             {/* Password & Confirm Password */}
