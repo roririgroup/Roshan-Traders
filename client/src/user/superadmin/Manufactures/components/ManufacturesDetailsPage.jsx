@@ -92,6 +92,11 @@ export default function ManufacturerDetailsPage() {
     fetchManufacturer();
   }, [manufacturerId]);
 
+  // Refresh the content to show the About Company tab first
+  useEffect(() => {
+    setActiveTab('about');
+  }, []);
+
   const fetchManufacturer = async () => {
     try {
       setLoading(true);
