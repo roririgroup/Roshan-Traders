@@ -57,6 +57,7 @@ const createManufacturer = async (payload) => {
 
   // Create manufacturer
   console.log('Creating manufacturer with data...');
+  // @ts-ignore
   const manufacturer = await prisma.manufacturer.create({
     data: {
       companyName,
@@ -70,6 +71,7 @@ const createManufacturer = async (payload) => {
       location: location || null,
       rating: rating ? parseFloat(rating) : 4.0,
       image: image || null,
+      exportCountriesCount: companyInfo?.exportCountries ? parseInt(companyInfo.exportCountries) : 0,
       userId: userIdToUse,
     },
   });
@@ -219,6 +221,7 @@ const createManufacturer = async (payload) => {
       specializationsList: [],
       achievementsList: [],
       certificationsList: [],
+      productsCount: 0,
     };
 
     console.log('Manufacturer created successfully:', result);
@@ -276,7 +279,8 @@ const getAllManufacturers = async () => {
     specializationsList: manufacturer.specializations.map(s => s.specialization.name),
     achievementsList: manufacturer.achievements.map(a => a.achievement.name),
     certificationsList: manufacturer.certifications.map(c => c.certification.name),
-    productsCount: manufacturer._count.manufacturerProducts,
+    productsCount: manufacturer.manufacturerProducts.length,
+    exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
   }));
 };
 
@@ -322,6 +326,8 @@ const getManufacturerById = async (id) => {
     specializationsList: manufacturer.specializations.map(s => s.specialization.name),
     achievementsList: manufacturer.achievements.map(a => a.achievement.name),
     certificationsList: manufacturer.certifications.map(c => c.certification.name),
+    productsCount: manufacturer.manufacturerProducts.length,
+    exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
   };
 };
 
@@ -354,6 +360,7 @@ const updateManufacturer = async (id, payload) => {
     } = payload;
 
     // Update basic manufacturer fields
+    // @ts-ignore
     const manufacturer = await prisma.manufacturer.update({
       where: { id: parseInt(id) },
       data: {
@@ -368,6 +375,7 @@ const updateManufacturer = async (id, payload) => {
         location: location || null,
         rating: rating ? parseFloat(rating) : 4.0,
         image: image || null,
+        exportCountriesCount: companyInfo?.exportCountries ? parseInt(companyInfo.exportCountries) : 0,
       },
     });
 
@@ -597,7 +605,8 @@ const updateManufacturer = async (id, payload) => {
       specializationsList: updatedManufacturer.specializations.map(s => s.specialization.name),
       achievementsList: updatedManufacturer.achievements.map(a => a.achievement.name),
       certificationsList: updatedManufacturer.certifications.map(c => c.certification.name),
-      productsCount: updatedManufacturer._count.manufacturerProducts,
+      productsCount: updatedManufacturer.manufacturerProducts.length,
+      exportCountriesCount: updatedManufacturer.companyInfo?.exportCountries || 0,
     };
 
     console.log('Manufacturer updated successfully');

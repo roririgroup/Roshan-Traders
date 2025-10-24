@@ -47,7 +47,7 @@ export default function ManufacturersPage() {
           rating: manufacturer.rating,
           productsCount: manufacturer.productsCount || 0,
           turnover: manufacturer.companyInfo?.annualTurnover || 'N/A',
-          exportCountries: manufacturer.companyInfo?.exportCountries?.length || 0,
+          exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
           established: manufacturer.established,
           image: manufacturer.image,
           founder: manufacturer.founders?.[0] ? { name: manufacturer.founders[0].name } : null,

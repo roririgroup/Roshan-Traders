@@ -140,23 +140,24 @@ model Agent {
 }
 
 model Manufacturer {
-  id              Int       @id @default(autoincrement())
-  userId          Int       @unique
-  companyName     String
-  businessType    String?
-  gstNumber       String?   @unique
-  panNumber       String?   @unique
-  businessAddress Json?     // {street, city, state, pincode, country}
-  websiteUrl      String?
-  isVerified      Boolean   @default(false)
-  verifiedById    Int?
-  verifiedAt      DateTime?
-  description     String?
-  established     Int?
-  location        String?
-  rating          Float     @default(4.0)
-  image           String?
-  createdAt       DateTime  @default(now())
+  id                  Int       @id @default(autoincrement())
+  userId              Int       @unique
+  companyName         String
+  businessType        String?
+  gstNumber           String?   @unique
+  panNumber           String?   @unique
+  businessAddress     Json?     // {street, city, state, pincode, country}
+  websiteUrl          String?
+  isVerified          Boolean   @default(false)
+  verifiedById        Int?
+  verifiedAt          DateTime?
+  description         String?
+  established         Int?
+  location            String?
+  rating              Float     @default(4.0)
+  image               String?
+  exportCountriesCount Int      @default(0)
+  createdAt           DateTime  @default(now())
 
   // Relations
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
