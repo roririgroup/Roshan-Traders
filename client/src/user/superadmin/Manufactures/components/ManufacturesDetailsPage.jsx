@@ -132,7 +132,10 @@ export default function ManufacturerDetailsPage() {
           teamSize: data.companyInfo?.employees || 0,
           specializations: data.specializations?.map(s => s.specialization.name) || [],
           achievements: data.achievements || [],
-          orders: data.orders || [],
+          orders: (data.orders || []).map(order => ({
+            ...order,
+            items: order.items || []
+          })),
           companyInfo: {
             certifications: data.companyInfo?.certifications || []
           }
