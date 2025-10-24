@@ -33,7 +33,7 @@ export default function ManufacturersPage() {
   useEffect(() => {
     fetchManufacturers();
   }, []);
-
+  
   const fetchManufacturers = async () => {
     try {
       const response = await fetch('http://localhost:7700/api/manufacturers');

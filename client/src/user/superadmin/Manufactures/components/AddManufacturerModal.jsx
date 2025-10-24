@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../../../../components/ui/Modal';
 import Button from '../../../../components/ui/Button';
 
+
 const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     companyName: '',
