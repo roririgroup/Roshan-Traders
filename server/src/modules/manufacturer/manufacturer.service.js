@@ -1,6 +1,13 @@
 const prisma = require('../../shared/lib/db.js');
 
 /**
+ * @typedef {Object} Founder
+ * @property {string} name
+ * @property {string} experience
+ * @property {string} qualification
+ */
+
+/**
  * @param {any} payload
  */
 const createManufacturer = async (payload) => {
@@ -100,7 +107,7 @@ const createManufacturer = async (payload) => {
   if (founders && founders.length > 0) {
     console.log('Creating founders...');
     await prisma.founder.createMany({
-      data: founders.map((/** @type {any} */ founder) => ({
+      data: founders.map((/** @type {Founder} */ founder) => ({
         name: founder.name,
         experience: founder.experience,
         qualification: founder.qualification,
@@ -323,53 +330,283 @@ const getManufacturerById = async (id) => {
  * @param {any} payload
  */
 const updateManufacturer = async (id, payload) => {
-  // For simplicity, update only basic fields; full update would require handling relations
-  const { companyName, businessType, gstNumber, panNumber, businessAddress, websiteUrl, description, established, location, rating, image } = payload;
+  try {
+    console.log('updateManufacturer called with payload:', JSON.stringify(payload, null, 2));
 
-  const manufacturer = await prisma.manufacturer.update({
-    where: { id: parseInt(id) },
-    data: {
+    const {
       companyName,
       businessType,
       gstNumber,
       panNumber,
       businessAddress,
       websiteUrl,
+      contact,
+      companyInfo,
+      founders,
+      specializations,
+      achievements,
+      certifications,
       description,
       established,
       location,
       rating,
       image,
-    },
-    include: {
-      contact: true,
-      companyInfo: true,
-      founders: true,
-      specializations: {
-        include: {
-          specialization: true,
-        },
-      },
-      achievements: {
-        include: {
-          achievement: true,
-        },
-      },
-      certifications: {
-        include: {
-          certification: true,
-        },
-      },
-    },
-  });
+    } = payload;
 
-  // Transform the response to match frontend expectations
-  return {
-    ...manufacturer,
-    specializationsList: manufacturer.specializations.map(s => s.specialization.name),
-    achievementsList: manufacturer.achievements.map(a => a.achievement.name),
-    certificationsList: manufacturer.certifications.map(c => c.certification.name),
-  };
+    // Update basic manufacturer fields
+    const manufacturer = await prisma.manufacturer.update({
+      where: { id: parseInt(id) },
+      data: {
+        companyName,
+        businessType: businessType || null,
+        gstNumber: gstNumber || null,
+        panNumber: panNumber || null,
+        businessAddress: businessAddress ? JSON.stringify({ address: businessAddress }) : undefined,
+        websiteUrl: websiteUrl || null,
+        description: description || null,
+        established: established ? parseInt(established) : null,
+        location: location || null,
+        rating: rating ? parseFloat(rating) : 4.0,
+        image: image || null,
+      },
+    });
+
+    console.log('Manufacturer basic fields updated');
+
+    // Update or create contact
+    if (contact) {
+      const existingContact = await prisma.contact.findFirst({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      if (existingContact) {
+        await prisma.contact.update({
+          where: { id: existingContact.id },
+          data: {
+            phone: contact.phone,
+            email: contact.email,
+            website: contact.website,
+            address: contact.address,
+          },
+        });
+      } else {
+        await prisma.contact.create({
+          data: {
+            phone: contact.phone,
+            email: contact.email,
+            website: contact.website,
+            address: contact.address,
+            manufacturerId: parseInt(id),
+          },
+        });
+      }
+    }
+
+    // Update or create companyInfo
+    if (companyInfo) {
+      const existingCompanyInfo = await prisma.companyInfo.findFirst({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      if (existingCompanyInfo) {
+        await prisma.companyInfo.update({
+          where: { id: existingCompanyInfo.id },
+          data: {
+            employees: companyInfo.employees,
+            annualTurnover: companyInfo.annualTurnover,
+            exportCountries: companyInfo.exportCountries,
+          },
+        });
+      } else {
+        await prisma.companyInfo.create({
+          data: {
+            employees: companyInfo.employees,
+            annualTurnover: companyInfo.annualTurnover,
+            exportCountries: companyInfo.exportCountries,
+            manufacturerId: parseInt(id),
+          },
+        });
+      }
+    }
+
+    // Update founders - delete existing and create new
+    if (founders !== undefined) {
+      await prisma.founder.deleteMany({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      if (founders && founders.length > 0) {
+        await prisma.founder.createMany({
+          data: founders.map((/** @type {Founder} */ founder) => ({
+            name: founder.name,
+            experience: founder.experience,
+            qualification: founder.qualification,
+            manufacturerId: parseInt(id),
+          })),
+        });
+      }
+    }
+
+    // Update specializations
+    if (specializations !== undefined) {
+      // Delete existing specializations
+      await prisma.manufacturerSpecialization.deleteMany({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      // Handle specializations
+      let specsToAdd = specializations;
+      if (typeof specsToAdd === 'string') {
+        specsToAdd = specsToAdd.split(',').map(s => s.trim()).filter(s => s);
+      }
+
+      if (specsToAdd && specsToAdd.length > 0) {
+        for (const specName of specsToAdd) {
+          let specialization = await prisma.specialization.findFirst({
+            where: { name: specName },
+          });
+          if (!specialization) {
+            specialization = await prisma.specialization.create({
+              data: { name: specName },
+            });
+          }
+          await prisma.manufacturerSpecialization.create({
+            data: {
+              manufacturerId: parseInt(id),
+              specializationId: specialization.id,
+            },
+          });
+        }
+      }
+    }
+
+    // Update achievements
+    if (achievements !== undefined) {
+      // Delete existing achievements
+      await prisma.manufacturerAchievement.deleteMany({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      // Handle achievements
+      let achsToAdd = achievements;
+      if (typeof achsToAdd === 'string') {
+        achsToAdd = achsToAdd.split(',').map(s => s.trim()).filter(s => s);
+      }
+
+      if (achsToAdd && achsToAdd.length > 0) {
+        for (const achName of achsToAdd) {
+          let achievement = await prisma.achievement.findFirst({
+            where: { name: achName },
+          });
+          if (!achievement) {
+            achievement = await prisma.achievement.create({
+              data: { name: achName },
+            });
+          }
+          await prisma.manufacturerAchievement.create({
+            data: {
+              manufacturerId: parseInt(id),
+              achievementId: achievement.id,
+            },
+          });
+        }
+      }
+    }
+
+    // Update certifications
+    if (certifications !== undefined) {
+      // Delete existing certifications
+      await prisma.manufacturerCertification.deleteMany({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      // Handle certifications
+      let certsToAdd = certifications;
+      if (typeof certsToAdd === 'string') {
+        certsToAdd = certsToAdd.split(',').map(s => s.trim()).filter(s => s);
+      }
+
+      if (certsToAdd && certsToAdd.length > 0) {
+        for (const certName of certsToAdd) {
+          let certification = await prisma.certification.findFirst({
+            where: { name: certName },
+          });
+          if (!certification) {
+            certification = await prisma.certification.create({
+              data: { name: certName },
+            });
+          }
+          await prisma.manufacturerCertification.create({
+            data: {
+              manufacturerId: parseInt(id),
+              certificationId: certification.id,
+            },
+          });
+        }
+      }
+    }
+
+    // Fetch updated manufacturer with all relations
+    const updatedManufacturer = await prisma.manufacturer.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        contact: true,
+        companyInfo: true,
+        founders: true,
+        specializations: {
+          include: {
+            specialization: true,
+          },
+        },
+        achievements: {
+          include: {
+            achievement: true,
+          },
+        },
+        certifications: {
+          include: {
+            certification: true,
+          },
+        },
+        manufacturerProducts: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                category: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            manufacturerProducts: true,
+          },
+        },
+      },
+    });
+
+    if (!updatedManufacturer) {
+      throw new Error('Manufacturer not found after update');
+    }
+
+    // Transform the response to match frontend expectations
+    const result = {
+      ...updatedManufacturer,
+      specializationsList: updatedManufacturer.specializations.map(s => s.specialization.name),
+      achievementsList: updatedManufacturer.achievements.map(a => a.achievement.name),
+      certificationsList: updatedManufacturer.certifications.map(c => c.certification.name),
+      productsCount: updatedManufacturer._count.manufacturerProducts,
+    };
+
+    console.log('Manufacturer updated successfully');
+    return result;
+
+  } catch (error) {
+    console.error('Error in updateManufacturer:', error);
+    throw error;
+  }
 };
 
 /**
