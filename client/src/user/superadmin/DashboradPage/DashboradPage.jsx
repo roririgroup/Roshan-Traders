@@ -59,6 +59,7 @@ export default function SuperAdminDashboard() {
   const [stats, setStats] = useState({
     totalManufacturers: 0,
     totalAgents: 0,
+    totalActingLabours: 0,
     totalEmployees: 0,
     totalUsers: 0,
     pendingPayments: 0,
@@ -117,8 +118,8 @@ export default function SuperAdminDashboard() {
           />
            <StatCard
             title="Acting Labour "
-            value={stats.totalAgents}
-            icon={UserCheck}           
+            value={stats.totalActingLabours}
+            icon={UserCheck}
             color={{ bg: "bg-green-100", text: "text-green-600" }}
           />
           <StatCard
@@ -150,8 +151,8 @@ export default function SuperAdminDashboard() {
             />
              <StatCard
               title="Total Revenue"
-              value={stats.pendingPayments}
-              icon={TrendingUp}             
+              value={stats.revenue}
+              icon={TrendingUp}
               color={{ bg: "bg-yellow-100", text: "text-yellow-600" }}
             />
           </div>

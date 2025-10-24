@@ -161,9 +161,10 @@ const deleteAdmin = async (id) => {
 
 const getDashboardStats = async () => {
   // Get filtered counts from database (only active/verified records)
-  const [totalManufacturers, totalAgents, totalEmployees, totalUsers, pendingPayments, totalRevenue] = await Promise.all([
+  const [totalManufacturers, totalAgents, totalActingLabours, totalEmployees, totalUsers, pendingPayments, totalRevenue] = await Promise.all([
     prisma.manufacturer.count({ where: { isVerified: true } }),
     prisma.agent.count({ where: { isApproved: true } }),
+    prisma.actingLabour.count({ where: { status: 'AVAILABLE' } }),
     prisma.employee.count({ where: { status: { not: 'Unavailable' } } }),
     prisma.user.count({ where: { isActive: true } }),
     prisma.order.count({ where: { status: 'PENDING' } }),
@@ -180,6 +181,7 @@ const getDashboardStats = async () => {
   return {
     totalManufacturers,
     totalAgents,
+    totalActingLabours,
     totalEmployees,
     totalUsers,
     pendingPayments,
