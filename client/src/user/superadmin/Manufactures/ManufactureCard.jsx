@@ -75,7 +75,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
                   </div>
                   <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-3 text-center hover:scale-105 transition">
                     <Globe className="w-5 h-5 text-amber-600 mx-auto mb-1" />
-                    <div className="text-lg font-extrabold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">{manufacturer.exportCountries}+</div>
+                    <div className="text-lg font-extrabold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">{manufacturer.exportCountriesCount || manufacturer.exportCountries || 0}+</div>
                     <div className="text-xs text-amber-700 font-medium">Countries</div>
                   </div>
                   <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-3 text-center hover:scale-105 transition">
@@ -205,7 +205,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-500">Export Countries</span>
-              <span className="font-semibold text-gray-900">{manufacturer.exportCountries}+</span>
+              <span className="font-semibold text-gray-900">{manufacturer.exportCountriesCount || manufacturer.exportCountries || 0}+</span>
             </div>
           </div>
 

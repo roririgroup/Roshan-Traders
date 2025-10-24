@@ -120,10 +120,10 @@ export default function ManufacturerDetailsPage() {
             website: data.contact?.website || 'N/A',
             address: data.contact?.address || 'N/A'
           },
-          products: data.products || [],
+          products: data.manufacturerProducts ? data.manufacturerProducts.map(mp => mp.product) : [],
           productsCount: data.productsCount || 0,
           turnover: data.companyInfo?.annualTurnover || 'N/A',
-          exportCountries: data.companyInfo?.exportCountries?.length || 0,
+          exportCountries: data.exportCountriesCount || data.companyInfo?.exportCountries?.length || 0,
           teamSize: data.companyInfo?.employees || 0,
           specializations: data.specializations?.map(s => s.specialization.name) || [],
           achievements: data.achievements || [],
@@ -699,45 +699,55 @@ export default function ManufacturerDetailsPage() {
                       <h3 className="text-2xl font-bold text-gray-800 mb-2">Our Product Portfolio</h3>
                       <p className="text-gray-600">High-quality products designed to meet your specific requirements</p>
                     </div>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {manufacturer.products.map((product) => (
-                        <div
-                          key={product.id}
-                          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                        >
-                          <div className="relative overflow-hidden rounded-xl mb-4">
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
-                            />
-                            <div className="absolute top-4 right-4">
-                              <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
+
+                    {manufacturer.products && manufacturer.products.length > 0 ? (
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {manufacturer.products.map((product) => (
+                          <div
+                            key={product.id}
+                            className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                          >
+                            {product.image && (
+                              <div className="relative overflow-hidden rounded-xl mb-4">
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
+                                />
+                                <div className="absolute top-4 right-4">
+                                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
+                                    {product.category}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
+                            <h4 className="font-bold text-xl text-gray-800 mb-3">
+                              {product.name}
+                            </h4>
+
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-lg font-semibold text-blue-600">
                                 {product.category}
                               </span>
+                              {/* <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
+                                View Details
+                              </button> */}
                             </div>
+
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                              {product.description || `Premium quality ${product.name.toLowerCase()} designed for durability and aesthetic appeal.`}
+                            </p>
                           </div>
-                          
-                          <h4 className="font-bold text-xl text-gray-800 mb-3">
-                            {product.name}
-                          </h4>
-                          
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-2xl font-bold text-blue-600">
-                              {product.priceRange}
-                            </span>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
-                              View Details
-                            </button>
-                          </div>
-                          
-                          <p className="text-gray-600 text-sm leading-relaxed">
-                            Premium quality {product.name.toLowerCase()} designed for durability and aesthetic appeal.
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-700 mb-2">No Products Found</h3>
+                        <p className="text-gray-500">This manufacturer doesn't have any products yet.</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
