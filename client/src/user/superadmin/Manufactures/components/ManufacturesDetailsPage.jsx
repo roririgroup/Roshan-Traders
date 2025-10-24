@@ -443,13 +443,7 @@ export default function ManufacturerDetailsPage() {
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6">
                 <nav className="flex flex-wrap gap-3" aria-label="Tabs">
-                  <TabButton
-                    active={activeTab === 'orders'}
-                    onClick={() => setActiveTab('orders')}
-                  >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Orders ({totalOrders})
-                  </TabButton>
+                 
                   <TabButton
                     active={activeTab === 'about'}
                     onClick={() => setActiveTab('about')}
@@ -470,6 +464,13 @@ export default function ManufacturerDetailsPage() {
                   >
                     <FileText className="w-5 h-5 mr-2" />
                     Certifications
+                  </TabButton>
+                   <TabButton
+                    active={activeTab === 'orders'}
+                    onClick={() => setActiveTab('orders')}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Orders ({totalOrders})
                   </TabButton>
                 </nav>
               </div>
