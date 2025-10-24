@@ -189,7 +189,7 @@ export default function ManufacturerDetailsPage() {
             {error ? 'Failed to load manufacturer details. Please try again.' : 'The manufacturer you\'re looking for doesn\'t exist or has been removed.'}
           </p>
           <Link
-            to="/dashboard/manufacturers"
+            to="/Manufactures/ManufacturersPage"
             className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200 font-semibold"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -224,7 +224,7 @@ export default function ManufacturerDetailsPage() {
         <div className="relative z-10 bg-white/10 backdrop-blur-md border-b border-white/20">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link
-              to="/manufacturers"
+              to="/dashboard/manufacturers"
               className="inline-flex items-center text-white hover:text-blue-200 font-semibold transition-colors duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
