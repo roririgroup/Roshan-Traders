@@ -4,11 +4,11 @@ import {
   Building2,
   TrendingUp,
   DollarSign,
-  Package,
   UserCheck,
   AlertCircle,
   BarChart3,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ${className}`}>
@@ -56,16 +56,30 @@ const StatCard = ({ title, value, trend, description, icon: Icon, color }) => (
 );
 
 export default function SuperAdminDashboard() {
-  const stats = {
-    totalManufacturers: 45,
-    totalAgents: 128,
-    totalEmployees: 342,
-    totalUsers: 510,
-    pendingPayments: 23,
-    totalReports: 89,
-    revenue: "$125,430",
-    availableBricks: 12450,
-  };
+  const [stats, setStats] = useState({
+    totalManufacturers: 0,
+    totalAgents: 0,
+    totalEmployees: 0,
+    totalUsers: 0,
+    pendingPayments: 0,
+    revenue: "$0",
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('http://localhost:7700/api/admin-auth/stats');
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -121,7 +135,7 @@ export default function SuperAdminDashboard() {
             <div className="w-1 h-6 bg-gradient-to-b from-pink-600 to-orange-600 rounded-full"></div>
             Operations Overview
           </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <StatCard
               title="Users"
               value={stats.totalUsers}
@@ -137,22 +151,6 @@ export default function SuperAdminDashboard() {
               trend="-3%"
               description="from last month"
               color={{ bg: "bg-yellow-100", text: "text-yellow-600" }}
-            />
-            <StatCard
-              title="Reports"
-              value={stats.totalReports}
-              icon={BarChart3}
-              trend="+10%"
-              description="from last month"
-              color={{ bg: "bg-red-100", text: "text-red-600" }}
-            />
-            <StatCard
-              title="Available Bricks"
-              value={stats.availableBricks.toLocaleString()}
-              icon={Package}
-              trend="+5%"
-              description="increase today"
-              color={{ bg: "bg-orange-100", text: "text-orange-600" }}
             />
           </div>
         </div>
