@@ -1,5 +1,14 @@
 const prisma = require('../../shared/lib/db.js');
 
+/**
+ * @param {Object} payload
+ * @param {string} payload.customerName
+ * @param {string} payload.phoneNumber
+ * @param {string} payload.deliveryAddress
+ * @param {number} payload.quantity
+ * @param {string} payload.estimatedDeliveryDate
+ * @param {string} payload.productId
+ */
 const createOrder = async (payload) => {
   const {
     customerName,
@@ -19,7 +28,13 @@ const createOrder = async (payload) => {
     throw new Error('Product not found');
   }
 
-  const unitPrice = parseFloat(product.priceRange.split('-')[0]) || 0; // Assume priceRange is "min-max"
+  // Handle priceRange - extract first price from range or use default
+  let unitPrice = 0;
+  if (product.priceRange) {
+    const priceParts = product.priceRange.split('-');
+    unitPrice = parseFloat(priceParts[0].trim()) || 0;
+  }
+
   const totalAmount = quantity * unitPrice;
 
   // Create order
@@ -65,6 +80,9 @@ const getAllOrders = async () => {
   });
 };
 
+/**
+ * @param {string} id
+ */
 const getOrderById = async (id) => {
   return await prisma.order.findUnique({
     where: { id },
@@ -79,6 +97,10 @@ const getOrderById = async (id) => {
   });
 };
 
+/**
+ * @param {string} id
+ * @param {string} manufacturerId
+ */
 const assignOrder = async (id, manufacturerId) => {
   return await prisma.order.update({
     where: { id },
@@ -86,6 +108,10 @@ const assignOrder = async (id, manufacturerId) => {
   });
 };
 
+/**
+ * @param {string} id
+ * @param {'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'} status
+ */
 const updateOrderStatus = async (id, status) => {
   return await prisma.order.update({
     where: { id },
@@ -93,6 +119,9 @@ const updateOrderStatus = async (id, status) => {
   });
 };
 
+/**
+ * @param {string} id
+ */
 const deleteOrder = async (id) => {
   // Delete order items first
   await prisma.orderItem.deleteMany({
