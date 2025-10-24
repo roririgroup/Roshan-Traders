@@ -57,7 +57,6 @@ const createManufacturer = async (payload) => {
 
   // Create manufacturer
   console.log('Creating manufacturer with data...');
-  // @ts-ignore
   const manufacturer = await prisma.manufacturer.create({
     data: {
       companyName,
@@ -71,7 +70,6 @@ const createManufacturer = async (payload) => {
       location: location || null,
       rating: rating ? parseFloat(rating) : 4.0,
       image: image || null,
-      exportCountriesCount: companyInfo?.exportCountries ? parseInt(companyInfo.exportCountries) : 0,
       userId: userIdToUse,
     },
   });
@@ -95,11 +93,12 @@ const createManufacturer = async (payload) => {
   // Create companyInfo if provided
   if (companyInfo && (companyInfo.employees || companyInfo.annualTurnover || companyInfo.exportCountries)) {
     console.log('Creating company info...');
+    const exportCountriesCount = companyInfo.exportCountries ? parseInt(companyInfo.exportCountries) : 0;
     await prisma.companyInfo.create({
       data: {
-        employees: companyInfo.employees,
+        employees: companyInfo.employees ? parseInt(companyInfo.employees) : null,
         annualTurnover: companyInfo.annualTurnover,
-        exportCountries: companyInfo.exportCountries,
+        exportCountries: exportCountriesCount,
         manufacturerId: manufacturer.id,
       },
     });
@@ -359,8 +358,19 @@ const updateManufacturer = async (id, payload) => {
       image,
     } = payload;
 
-    // Update basic manufacturer fields
-    // @ts-ignore
+    // Fetch existing manufacturer first to get userId
+    const existingManufacturer = await prisma.manufacturer.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!existingManufacturer) {
+      throw new Error('Manufacturer not found');
+    }
+
+    // Update basic manufacturer fields while preserving userId
     const manufacturer = await prisma.manufacturer.update({
       where: { id: parseInt(id) },
       data: {
@@ -375,7 +385,7 @@ const updateManufacturer = async (id, payload) => {
         location: location || null,
         rating: rating ? parseFloat(rating) : 4.0,
         image: image || null,
-        exportCountriesCount: companyInfo?.exportCountries ? parseInt(companyInfo.exportCountries) : 0,
+        userId: existingManufacturer.userId, // Preserve the userId relationship
       },
     });
 
