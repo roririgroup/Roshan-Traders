@@ -106,25 +106,25 @@ export default function SuperAdminDashboard() {
           <StatCard
             title="Manufacturers"
             value={stats.totalManufacturers}
-            icon={Factory}
-            trend="+12%"
-            description="from last month"
+            icon={Factory}           
             color={{ bg: "bg-blue-100", text: "text-blue-600" }}
           />
           <StatCard
             title="Agents"
             value={stats.totalAgents}
-            icon={UserCheck}
-            trend="+8%"
-            description="from last month"
+            icon={UserCheck}           
+            color={{ bg: "bg-green-100", text: "text-green-600" }}
+          />
+           <StatCard
+            title="Acting Labour "
+            value={stats.totalAgents}
+            icon={UserCheck}           
             color={{ bg: "bg-green-100", text: "text-green-600" }}
           />
           <StatCard
             title="Employees"
             value={stats.totalEmployees}
-            icon={Users}
-            trend="+15%"
-            description="from last month"
+            icon={Users}          
             color={{ bg: "bg-purple-100", text: "text-purple-600" }}
           />
         </div>
@@ -139,24 +139,26 @@ export default function SuperAdminDashboard() {
             <StatCard
               title="Users"
               value={stats.totalUsers}
-              icon={Users}
-              trend="+20%"
-              description="from last month"
+              icon={Users}             
               color={{ bg: "bg-pink-100", text: "text-pink-600" }}
             />
             <StatCard
               title="Pending Payments"
               value={stats.pendingPayments}
-              icon={AlertCircle}
-              trend="-3%"
-              description="from last month"
+              icon={AlertCircle}             
+              color={{ bg: "bg-red-100", text: "text-red-600" }}
+            />
+             <StatCard
+              title="Total Revenue"
+              value={stats.pendingPayments}
+              icon={TrendingUp}             
               color={{ bg: "bg-yellow-100", text: "text-yellow-600" }}
             />
           </div>
         </div>
 
         {/* Enhanced Revenue Card */}
-        <Card className="w-full bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
+        {/* <Card className="w-full bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-gray-900">
               <div className="p-2.5 bg-green-100 rounded-xl">
@@ -169,10 +171,9 @@ export default function SuperAdminDashboard() {
             <div className="text-5xl font-bold text-gray-900 mb-3">{stats.revenue}</div>
             <div className="flex items-center gap-2 bg-green-100 w-fit px-3 py-2 rounded-lg">
               <TrendingUp className="h-4 w-4 text-green-600" />
-              <p className="text-sm text-green-700 font-semibold">+20.1% from last month</p>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
