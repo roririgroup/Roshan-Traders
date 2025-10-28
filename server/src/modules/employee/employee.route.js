@@ -1,15 +1,20 @@
 const { Router } = require('express');
+const { serializeBigInt } = require('../../shared/lib/json.js');
 const { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, deleteEmployee } = require('./employee.service.js');
 
 const router = Router();
 
-// GET /api/employees - Get all employees
+// GET /api/employees - Get all employees (with optional filters)
 router.get('/', async (req, res) => {
   try {
-    const employees = await getAllEmployees();
-    res.json(employees);
+    const excludeLabours = req.query.excludeLabours === 'true';
+    const onlyLabours = req.query.onlyLabours === 'true';
+    
+    const employees = await getAllEmployees({ excludeLabours, onlyLabours });
+    res.json(serializeBigInt(employees));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch employees' });
+    console.error('Error fetching employees:', error.stack || error);
+    res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
   }
 });
 
@@ -24,9 +29,10 @@ router.get('/:id', async (req, res) => {
     if (!employee) {
       return res.status(404).json({ message: 'Employee not found' });
     }
-    res.json(employee);
+    res.json(serializeBigInt(employee));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch employee' });
+    console.error('Error fetching employee:', error.stack || error);
+    res.status(500).json({ message: 'Failed to fetch employee', error: error.message });
   }
 });
 
