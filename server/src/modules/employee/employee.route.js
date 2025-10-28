@@ -4,6 +4,11 @@ const { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, delete
 
 const router = Router();
 
+// Helper to send serialized response
+const sendSerializedResponse = (res, data) => {
+  res.json(serializeBigInt(data));
+};
+
 // GET /api/employees - Get all employees (with optional filters)
 router.get('/', async (req, res) => {
   try {
@@ -11,7 +16,7 @@ router.get('/', async (req, res) => {
     const onlyLabours = req.query.onlyLabours === 'true';
     
     const employees = await getAllEmployees({ excludeLabours, onlyLabours });
-    res.json(serializeBigInt(employees));
+    sendSerializedResponse(res, employees);
   } catch (error) {
     console.error('Error fetching employees:', error.stack || error);
     res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
@@ -40,7 +45,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const employee = await createEmployee(req.body);
-    res.status(201).json(employee);
+    sendSerializedResponse(res.status(201), employee);
   } catch (error) {
     console.error('Error creating employee:', error);
     const message = error instanceof Error ? error.message : 'Failed to create employee';
@@ -56,7 +61,7 @@ router.put('/:id', async (req, res) => {
 
   try {
     const employee = await updateEmployee(req.params.id, req.body);
-    res.json(employee);
+    sendSerializedResponse(res, employee);
   } catch (error) {
     console.error('Error updating employee:', error);
     const message = error instanceof Error ? error.message : 'Failed to update employee';
