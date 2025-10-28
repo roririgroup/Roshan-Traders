@@ -241,6 +241,8 @@ export default function ManufacturerDetailsPage() {
           </div>
         </div>
 
+        
+
         {/* Hero Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
           <div className="flex flex-col lg:flex-row items-start lg:items-end gap-8">
