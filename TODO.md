@@ -1,14 +1,26 @@
-# Dashboard Stats Implementation
+# TODO: Fix BigInt Serialization Error
 
-## Backend Changes
-- [x] Add `getDashboardStats` function to `server/src/modules/admin/admin.service.js`
-- [x] Add GET route `/stats` to `server/src/modules/admin/admin.route.js`
+## Problem
+- Error: "TypeError: Do not know how to serialize a BigInt" occurs when Express tries to JSON.stringify responses containing BigInt values from Prisma.
+- This affects API endpoints like /api/admins/approved-users, /api/agents, /api/manufacturers, etc.
 
-## Frontend Changes
-- [x] Remove "Reports" and "Available Bricks" StatCard components from `client/src/user/superadmin/DashboradPage/DashboradPage.jsx`
-- [x] Replace hardcoded stats object with API call to fetch real data
-- [x] Update remaining StatCard components to use fetched data
+## Root Cause
+- Prisma schema uses BigInt for IDs (e.g., User.id, Agent.id, Manufacturer.id).
+- JavaScript's JSON.stringify cannot serialize BigInt values directly.
+- When res.json() is called, it fails on BigInt fields.
 
-## Testing
-- [ ] Test the API endpoint to ensure it returns correct counts
-- [ ] Verify the dashboard displays real data after changes
+## Solution
+- Convert all BigInt ID fields to strings in service layer responses.
+- Apply this fix to all affected services: admin.service.js, agent.service.js, manufacturer.service.js, and any others returning BigInt IDs.
+
+## Steps
+- [ ] Modify admin.service.js getApprovedUsers to convert BigInt IDs to strings
+- [ ] Modify agent.service.js functions to convert BigInt IDs to strings
+- [ ] Modify manufacturer.service.js functions to convert BigInt IDs to strings
+- [ ] Test the affected API endpoints to ensure they return valid JSON
+- [ ] Verify frontend components (SignUpApprovalPage, AgentsPage, ManufacturesPage) work correctly
+
+## Files to Edit
+- server/src/modules/admin/admin.service.js
+- server/src/modules/agent/agent.service.js
+- server/src/modules/manufacturer/manufacturer.service.js

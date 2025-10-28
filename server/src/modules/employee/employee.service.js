@@ -61,6 +61,12 @@ const createEmployee = async (payload) => {
     });
   }
 
+  // Prevent creating truck owners or drivers through employee module
+  const normalizedRole = (role || 'Loader').toLowerCase();
+  if (normalizedRole === 'truck owner' || normalizedRole === 'driver') {
+    throw new Error('Truck owners and drivers should be created through the acting labours module');
+  }
+
   // Create employee
   const employee = await prisma.employee.create({
     data: {
@@ -95,8 +101,24 @@ const createEmployee = async (payload) => {
   };
 };
 
-const getAllEmployees = async () => {
+const getAllEmployees = async (filters = {}) => {
+  const { excludeLabours, onlyLabours } = filters;
+
+  const where = {};
+  if (excludeLabours) {
+    // Exclude truck owners and drivers
+    where.role = {
+      notIn: ['Truck Owner', 'Driver']
+    };
+  } else if (onlyLabours) {
+    // Only include truck owners and drivers
+    where.role = {
+      in: ['Truck Owner', 'Driver']
+    };
+  }
+
   const employees = await prisma.employee.findMany({
+    where,
     include: {
       user: {
         include: {
@@ -108,7 +130,7 @@ const getAllEmployees = async () => {
 
   // Transform the response to match frontend expectations
   return employees.map(employee => ({
-    id: employee.id,
+  id: employee.id,
     name: employee.user.profile?.fullName || 'Unknown',
     phone: employee.user.phoneNumber,
     email: employee.user.profile?.email || '',
