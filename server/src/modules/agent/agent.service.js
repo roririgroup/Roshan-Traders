@@ -68,14 +68,15 @@ const createAgent = async (payload) => {
 
   // Transform the response to match frontend expectations
   return {
-    id: agent.id,
-    name: agent.user.profile?.fullName || 'Unknown',
-    phone: agent.user.phoneNumber,
-    email: agent.user.profile?.email || '',
-    location: agent.assignedArea || '',
-    status: agent.isApproved ? 'active' : 'inactive',
+    id: agent.id.toString(),
+    userId: agent.userId.toString(),
+    name: agent?.user?.profile?.fullName || 'Unknown',
+    phone: agent?.user?.phoneNumber || '',
+    email: agent?.user?.profile?.email || '',
+    location: agent?.assignedArea || '',
+    status: agent?.isApproved ? 'active' : 'inactive',
     referrals: 0, // Default value since not in schema
-    image: agent.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: agent?.user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
     createdAt: agent.createdAt,
     agentCode: agent.agentCode,
     commissionRate: agent.commissionRate,
@@ -96,14 +97,15 @@ const getAllAgents = async () => {
 
   // Transform the response to match frontend expectations
   return agents.map(agent => ({
-    id: agent.id,
-    name: agent.user.profile?.fullName || 'Unknown',
-    phone: agent.user.phoneNumber,
-    email: agent.user.profile?.email || '',
-    location: agent.assignedArea || '',
-    status: agent.isApproved ? 'active' : 'inactive',
+    id: agent.id.toString(),
+    userId: agent.userId.toString(),
+    name: agent?.user?.profile?.fullName || 'Unknown',
+    phone: agent?.user?.phoneNumber || '',
+    email: agent?.user?.profile?.email || '',
+    location: agent?.assignedArea || '',
+    status: agent?.isApproved ? 'active' : 'inactive',
     referrals: 0, // Default value since not in schema
-    image: agent.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: agent?.user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
     createdAt: agent.createdAt,
     agentCode: agent.agentCode,
     commissionRate: agent.commissionRate,
@@ -127,14 +129,14 @@ const getAgentById = async (id) => {
 
   // Transform the response to match frontend expectations
   return {
-    id: agent.id,
-    name: agent.user.profile?.fullName || 'Unknown',
-    phone: agent.user.phoneNumber,
-    email: agent.user.profile?.email || '',
-    location: agent.assignedArea || '',
-    status: agent.isApproved ? 'active' : 'inactive',
+    id: agent.id.toString(),
+    name: agent?.user?.profile?.fullName || 'Unknown',
+    phone: agent?.user?.phoneNumber || '',
+    email: agent?.user?.profile?.email || '',
+    location: agent?.assignedArea || '',
+    status: agent?.isApproved ? 'active' : 'inactive',
     referrals: 0, // Default value since not in schema
-    image: agent.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: agent?.user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
     createdAt: agent.createdAt,
     agentCode: agent.agentCode,
     commissionRate: agent.commissionRate,
@@ -196,14 +198,14 @@ const updateAgent = async (id, payload) => {
 
   // Transform the response to match frontend expectations
   return {
-    id: updatedAgent.id,
-    name: updatedAgent.user.profile?.fullName || 'Unknown',
-    phone: updatedAgent.user.phoneNumber,
-    email: updatedAgent.user.profile?.email || '',
-    location: updatedAgent.assignedArea || '',
-    status: updatedAgent.isApproved ? 'active' : 'inactive',
+    id: updatedAgent.id.toString(),
+    name: updatedAgent?.user?.profile?.fullName || 'Unknown',
+    phone: updatedAgent?.user?.phoneNumber || '',
+    email: updatedAgent?.user?.profile?.email || '',
+    location: updatedAgent?.assignedArea || '',
+    status: updatedAgent?.isApproved ? 'active' : 'inactive',
     referrals: 0, // Default value since not in schema
-    image: updatedAgent.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: updatedAgent?.user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
     createdAt: updatedAgent.createdAt,
     agentCode: updatedAgent.agentCode,
     commissionRate: updatedAgent.commissionRate,

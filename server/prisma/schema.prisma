@@ -15,6 +15,12 @@ enum UserType {
   ADMIN
 }
 
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -29,12 +35,16 @@ enum OrderStatus {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
+  id           BigInt       @id @default(autoincrement())
   phoneNumber  String    @unique
   countryCode  String    @default("+91")
   userType     UserType
+  roles        String[]  // Array of roles: ['Agent', 'Manufacturer', 'Truck Owner', 'Driver']
+  status       UserStatus @default(PENDING)
   isVerified   Boolean   @default(false)
   isActive     Boolean   @default(true)
+  approvedAt   DateTime?
+  rejectedAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   lastLogin    DateTime?
@@ -52,13 +62,14 @@ model User {
 
   @@map("users")
   @@index([userType])
+  @@index([status])
   @@index([isVerified])
   @@index([createdAt])
 }
 
 model UserProfile {
-  id              Int      @id @default(autoincrement())
-  userId          Int      @unique
+  id              BigInt      @id @default(autoincrement())
+  userId          BigInt      @unique
   fullName        String?
   email           String?   @unique
   profileImageUrl String?
@@ -77,7 +88,7 @@ model UserProfile {
 }
 
 model OTP {
-  id          Int      @id @default(autoincrement())
+  id          BigInt      @id @default(autoincrement())
   phoneNumber String
   otpCode     String
   userType    UserType
@@ -97,8 +108,8 @@ model OTP {
 }
 
 model LoginSession {
-  id           Int      @id @default(autoincrement())
-  userId       Int
+  id           BigInt      @id @default(autoincrement())
+  userId       BigInt
   sessionToken String   @unique @db.VarChar(500)
   expiresAt    DateTime
   createdAt    DateTime @default(now())
@@ -113,18 +124,18 @@ model LoginSession {
 }
 
 model Agent {
-  id             Int       @id @default(autoincrement())
-  userId         Int       @unique
+  id             BigInt       @id @default(autoincrement())
+  userId         BigInt       @unique
   agentCode      String    @unique
   commissionRate Float     @default(0.0)
   totalEarnings  Float     @default(0.0)
   assignedArea   String?
   isApproved     Boolean   @default(false)
-  approvedById   Int?
+  approvedById   BigInt?
   approvedAt     DateTime?
   bankDetails    Json?     // {accountNumber, ifscCode, bankName, accountHolderName}
   createdAt      DateTime  @default(now())
-  supervisorId   Int?
+  supervisorId   BigInt?
 
   // Relations
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -140,8 +151,8 @@ model Agent {
 }
 
 model Manufacturer {
-  id                  Int       @id @default(autoincrement())
-  userId              Int       @unique
+  id                  BigInt       @id @default(autoincrement())
+  userId              BigInt       @unique
   companyName         String
   businessType        String?
   gstNumber           String?   @unique
@@ -149,7 +160,7 @@ model Manufacturer {
   businessAddress     Json?     // {street, city, state, pincode, country}
   websiteUrl          String?
   isVerified          Boolean   @default(false)
-  verifiedById        Int?
+  verifiedById        BigInt?
   verifiedAt          DateTime?
   description         String?
   established         Int?
@@ -180,11 +191,11 @@ model Manufacturer {
 }
 
 model Founder {
-  id             Int     @id @default(autoincrement())
+  id             BigInt     @id @default(autoincrement())
   name           String
   experience     String?
   qualification  String?
-  manufacturerId Int
+  manufacturerId BigInt
 
   // Relations
   manufacturer   Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -194,11 +205,11 @@ model Founder {
 }
 
 model CompanyInfo {
-  id              Int    @id @default(autoincrement())
+  id              BigInt    @id @default(autoincrement())
   employees       Int?
   annualTurnover  String?
   exportCountries Int?
-  manufacturerId  Int    @unique
+  manufacturerId  BigInt    @unique
 
   // Relations
   manufacturer    Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -207,12 +218,12 @@ model CompanyInfo {
 }
 
 model Contact {
-  id             Int     @id @default(autoincrement())
+  id             BigInt     @id @default(autoincrement())
   phone          String?
   email          String?
   website        String?
   address        String?
-  manufacturerId Int     @unique
+  manufacturerId BigInt     @unique
 
   // Relations
   manufacturer   Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -221,7 +232,7 @@ model Contact {
 }
 
 model Certification {
-  id          Int                         @id @default(autoincrement())
+  id          BigInt                         @id @default(autoincrement())
   name        String
   description String?
 
@@ -233,8 +244,8 @@ model Certification {
 }
 
 model ManufacturerCertification {
-  manufacturerId  Int
-  certificationId Int
+  manufacturerId  BigInt
+  certificationId BigInt
 
   // Relations
   manufacturer   Manufacturer  @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -246,7 +257,7 @@ model ManufacturerCertification {
 }
 
 model Specialization {
-  id   Int    @id @default(autoincrement())
+  id   BigInt    @id @default(autoincrement())
   name String
 
   // Relations
@@ -257,8 +268,8 @@ model Specialization {
 }
 
 model ManufacturerSpecialization {
-  manufacturerId   Int
-  specializationId Int
+  manufacturerId   BigInt
+  specializationId BigInt
 
   // Relations
   manufacturer    Manufacturer   @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -270,7 +281,7 @@ model ManufacturerSpecialization {
 }
 
 model Achievement {
-  id   Int    @id @default(autoincrement())
+  id   BigInt    @id @default(autoincrement())
   name String
   year Int?
 
@@ -283,8 +294,8 @@ model Achievement {
 }
 
 model ManufacturerAchievement {
-  manufacturerId Int
-  achievementId  Int
+  manufacturerId BigInt
+  achievementId  BigInt
 
   // Relations
   manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -321,7 +332,7 @@ model Product {
 }
 
 model ProductAttribute {
-  id             Int     @id @default(autoincrement())
+  id             BigInt     @id @default(autoincrement())
   attributeType  String
   attributeValue String
   productId      String
@@ -343,11 +354,11 @@ model Order {
   totalAmount     Float
   deliveryAddress String?
   notes           String?
-  manufacturerId  Int?
-  assignedTruckOwnerId Int?
+  manufacturerId  BigInt?
+  assignedTruckOwnerId BigInt?
 
   // Relations
-  manufacturer    Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  manufacturer    Manufacturer? @relation(fields: [manufacturerId], references: [id])
   assignedTruckOwner Employee? @relation(fields: [assignedTruckOwnerId], references: [id])
   items           OrderItem[]
 
@@ -361,7 +372,7 @@ model Order {
 }
 
 model OrderItem {
-  id         Int     @id @default(autoincrement())
+  id         BigInt     @id @default(autoincrement())
   productId  String
   orderId    String
   quantity   Int
@@ -378,8 +389,8 @@ model OrderItem {
 }
 
 model Employee {
-  id             Int       @id @default(autoincrement())
-  userId         Int       @unique
+  id             BigInt       @id @default(autoincrement())
+  userId         BigInt       @unique
   employeeCode   String    @unique
   role           String    // Truck Owner, Loader, etc.
   status         String    @default("Available") // Available, On Job, Unavailable
@@ -401,8 +412,8 @@ model Employee {
 }
 
 model ManufacturerProduct {
-  id             Int     @id @default(autoincrement())
-  manufacturerId Int
+  id             BigInt     @id @default(autoincrement())
+  manufacturerId BigInt
   productId      String
 
   // Relations
@@ -416,8 +427,8 @@ model ManufacturerProduct {
 }
 
 model AuditLog {
-  id          Int      @id @default(autoincrement())
-  userId      Int?
+  id          BigInt      @id @default(autoincrement())
+  userId      BigInt?
   action      String   // login, login_failed, otp_sent, otp_verified, etc.
   description String?
   ipAddress   String?
@@ -446,7 +457,7 @@ enum LabourStatus {
 }
 
 model ActingLabour {
-  id             Int           @id @default(autoincrement())
+  id             BigInt           @id @default(autoincrement())
   name           String
   type           LabourType
   phone          String
@@ -455,7 +466,7 @@ model ActingLabour {
   status         LabourStatus  @default(AVAILABLE)
   rating         Float         @default(0.0)
   experience     Int           @default(0) // years of experience
-  assignedToId   Int?          // ID of manufacturer or employee (truck owner)
+  assignedToId   BigInt?          // ID of manufacturer or employee (truck owner)
   assignedToType String?       // 'manufacturer' or 'truck_owner'
   assignedAt     DateTime?
   createdAt      DateTime      @default(now())

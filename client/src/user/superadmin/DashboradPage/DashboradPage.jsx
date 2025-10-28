@@ -69,7 +69,7 @@ export default function SuperAdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:7700/api/admin-auth/stats');
+        const response = await fetch('http://localhost:7700/api/admins/stats');
         if (response.ok) {
           const data = await response.json();
           setStats(data);

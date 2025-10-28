@@ -48,6 +48,7 @@ const createManufacturer = async (payload) => {
         data: {
           phoneNumber: `SYSTEM_MANUFACTURER_${Date.now()}`, // Unique system phone for manufacturer
           userType: 'MANUFACTURER',
+          roles: ['Manufacturer'],
           isVerified: true,
         },
       });
@@ -275,11 +276,13 @@ const getAllManufacturers = async () => {
   // Transform the response to match frontend expectations
   return manufacturers.map(manufacturer => ({
     ...manufacturer,
-    specializationsList: manufacturer.specializations.map(s => s.specialization.name),
-    achievementsList: manufacturer.achievements.map(a => a.achievement.name),
-    certificationsList: manufacturer.certifications.map(c => c.certification.name),
-    productsCount: manufacturer.manufacturerProducts.length,
-    exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
+    id: manufacturer.id.toString(),
+    userId: manufacturer.userId.toString(),
+    specializationsList: manufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
+    achievementsList: manufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
+    certificationsList: manufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
+    productsCount: manufacturer?.manufacturerProducts?.length || 0,
+    exportCountriesCount: manufacturer?.companyInfo?.exportCountries || 0,
   }));
 };
 
@@ -322,11 +325,13 @@ const getManufacturerById = async (id) => {
   // Transform the response to match frontend expectations
   return {
     ...manufacturer,
-    specializationsList: manufacturer.specializations.map(s => s.specialization.name),
-    achievementsList: manufacturer.achievements.map(a => a.achievement.name),
-    certificationsList: manufacturer.certifications.map(c => c.certification.name),
-    productsCount: manufacturer.manufacturerProducts.length,
-    exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
+    id: manufacturer.id.toString(),
+    userId: manufacturer.userId.toString(),
+    specializationsList: manufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
+    achievementsList: manufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
+    certificationsList: manufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
+    productsCount: manufacturer?.manufacturerProducts?.length || 0,
+    exportCountriesCount: manufacturer?.companyInfo?.exportCountries || 0,
   };
 };
 
@@ -612,11 +617,13 @@ const updateManufacturer = async (id, payload) => {
     // Transform the response to match frontend expectations
     const result = {
       ...updatedManufacturer,
-      specializationsList: updatedManufacturer.specializations.map(s => s.specialization.name),
-      achievementsList: updatedManufacturer.achievements.map(a => a.achievement.name),
-      certificationsList: updatedManufacturer.certifications.map(c => c.certification.name),
-      productsCount: updatedManufacturer.manufacturerProducts.length,
-      exportCountriesCount: updatedManufacturer.companyInfo?.exportCountries || 0,
+      id: updatedManufacturer.id.toString(),
+      userId: updatedManufacturer.userId.toString(),
+      specializationsList: updatedManufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
+      achievementsList: updatedManufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
+      certificationsList: updatedManufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
+      productsCount: updatedManufacturer?.manufacturerProducts?.length || 0,
+      exportCountriesCount: updatedManufacturer?.companyInfo?.exportCountries || 0,
     };
 
     console.log('Manufacturer updated successfully');

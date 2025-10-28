@@ -5,8 +5,8 @@ const actingLabourService = require('./acting_labour.service');
 // Get all acting labours with optional filters
 router.get('/', async (req, res) => {
   try {
-    const { type, status, assignedToType, search } = req.query;
-    /** @type {{type?:string,status?:string,assignedToType?:string,search?:string}} */
+    const { type, status, assignedToType, search, includeEmployees } = req.query;
+    /** @type {{type?:string,status?:string,assignedToType?:string,search?:string,includeEmployees?:boolean}} */
     const filters = {};
 
     /**
@@ -24,6 +24,8 @@ router.get('/', async (req, res) => {
     if (status) filters.status = toStringValue(status);
     if (assignedToType) filters.assignedToType = toStringValue(assignedToType);
     if (search) filters.search = toStringValue(search);
+    // Parse includeEmployees as boolean
+    filters.includeEmployees = includeEmployees === 'true' || includeEmployees === '1';
 
     const labours = await actingLabourService.getAllActingLabours(filters);
     res.json(labours);
