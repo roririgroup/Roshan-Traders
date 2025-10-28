@@ -22,8 +22,6 @@ router.get('/', async (req, res) => {
 
     sendSerializedResponse(res, employees);
 
-    res.json(serializeBigInt(employees));
-
   } catch (error) {
     console.error('Error fetching employees:', error.stack || error);
     res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
