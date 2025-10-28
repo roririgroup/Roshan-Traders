@@ -27,6 +27,10 @@ class ActingLabourService {
       };
     };
 
+    
+
+
+
     try {
       const { type, status, assignedToType, search } = filters;
 
@@ -89,14 +93,21 @@ class ActingLabourService {
       // Transform employees to match acting labour format
       const transformedEmployees = employees.map(transformEmployee);
       
-      // Add source field to acting labours
+
+      // Add source field to acting labours and ensure id is a string
       const transformedActingLabours = actingLabours.map(l => ({
         ...l,
+        id: l.id.toString(),
         source: 'acting_labour'
       }));
 
       // Combine and return both sets
-      return [...transformedActingLabours, ...transformedEmployees];
+      return [...transformedActingLabours, ...transformedEmployees].map(labour => ({
+        ...labour,
+        id: labour.id.toString(),
+        assignedToId: labour.assignedToId?.toString() || null
+      }));
+
     } catch (error) {
       console.error('Error fetching acting labours:', error);
       throw new Error('Failed to fetch acting labours');
