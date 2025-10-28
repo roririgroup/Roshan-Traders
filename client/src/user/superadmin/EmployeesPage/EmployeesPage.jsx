@@ -1,13 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import EmployeeCard from './EmployeeCard';
 import AddEmployeeModal from './AddEmployeeModal';
 import { Plus } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 
+const initialEmployees = [
+  {
+    id: '1',
+    name: 'John Smith',
+    role: 'Manager',
+    status: 'Available',
+    phone: '+91 98765 43210',
+    email: 'john@example.com',
+    location: 'Ahmedabad'
+  },
+  {
+    id: '2',
+    name: 'Sarah Wilson',
+    role: 'HR',
+    status: 'Available',
+    phone: '+91 98765 43211',
+    email: 'sarah@example.com',
+    location: 'Mumbai'
+  }
+];
+
 const EmployeesPage = () => {
-  const [employees, setEmployees] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [employees, setEmployees] = useState(initialEmployees);
+  const [isLoading, setIsLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   const [error, setError] = useState(null);
 
   const fetchEmployees = async () => {
@@ -70,6 +92,18 @@ const EmployeesPage = () => {
       setError(error.message);
       // Keep modal open so user can fix the error
     }
+
+
+  const handleAddEmployee = (employeeData) => {
+    const newEmployee = {
+      id: String(Date.now()),
+      ...employeeData,
+      status: 'Available'
+    };
+    setEmployees(prev => [...prev, newEmployee]);
+    alert('Employee added successfully!');
+    setIsAddModalOpen(false);
+
   };
 
   const handleAssignTask = async (employeeId, taskDetails) => {
@@ -96,8 +130,9 @@ const EmployeesPage = () => {
     }
   };
 
-  const handleRemoveEmployee = async (employeeId) => {
+  const handleRemoveEmployee = (employeeId) => {
     if (!window.confirm('Are you sure you want to remove this employee?')) return;
+
     
     try {
       const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
@@ -137,6 +172,17 @@ const EmployeesPage = () => {
       console.error('Error updating employee:', error);
       alert(error.message);
     }
+
+    setEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
+    alert('Employee removed successfully!');
+  };
+
+  const handleEditEmployee = (employeeId, updatedEmployee) => {
+    setEmployees((prev) =>
+      prev.map((emp) => (emp.id === employeeId ? {...emp, ...updatedEmployee} : emp))
+    );
+    alert('Employee updated successfully!');
+
   };
 
   return (

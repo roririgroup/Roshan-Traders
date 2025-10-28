@@ -4,10 +4,13 @@ const { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, delete
 
 const router = Router();
 
+
 // Helper to send serialized response
 const sendSerializedResponse = (res, data) => {
   res.json(serializeBigInt(data));
 };
+
+
 
 // GET /api/employees - Get all employees (with optional filters)
 router.get('/', async (req, res) => {
@@ -16,7 +19,11 @@ router.get('/', async (req, res) => {
     const onlyLabours = req.query.onlyLabours === 'true';
     
     const employees = await getAllEmployees({ excludeLabours, onlyLabours });
+
     sendSerializedResponse(res, employees);
+
+    res.json(serializeBigInt(employees));
+
   } catch (error) {
     console.error('Error fetching employees:', error.stack || error);
     res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
