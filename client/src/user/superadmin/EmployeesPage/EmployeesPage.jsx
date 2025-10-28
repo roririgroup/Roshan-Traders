@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EmployeeCard from './EmployeeCard';
 import AddEmployeeModal from './AddEmployeeModal';
 import { Plus } from 'lucide-react';
@@ -130,7 +130,7 @@ const EmployeesPage = () => {
     }
   };
 
-  const handleRemoveEmployee = (employeeId) => {
+  const handleRemoveEmployee = async (employeeId) => {
     if (!window.confirm('Are you sure you want to remove this employee?')) return;
 
     
