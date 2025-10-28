@@ -24,7 +24,8 @@ router.get('/', async (req, res) => {
       if (Array.isArray(v)) return typeof v[0] === 'string' ? v[0] : String(v[0]);
       if (typeof v === 'string') return v;
       return String(v);
-    };
+    }; 
+    
 
     if (type) filters.type = toStringValue(type);
     if (status) filters.status = toStringValue(status);

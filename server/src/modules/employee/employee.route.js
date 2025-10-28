@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/employees/:id - Get employee by ID
 router.get('/:id', async (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
