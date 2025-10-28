@@ -49,7 +49,8 @@ export default function Orders() {
             })) || [],
             manufacturerName: order.manufacturer ? order.manufacturer.companyName : null,
             orderDate: order.orderDate,
-            deliveryDate: order.deliveryDate
+            deliveryDate: order.deliveryDate,
+            estimatedDeliveryDate: order.estimatedDeliveryDate
           }))
 
           setOrders(transformedOrders)
@@ -372,7 +373,7 @@ export default function Orders() {
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Date</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Estimated Delivery Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Manufacturer</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
@@ -410,7 +411,7 @@ export default function Orders() {
                   {order.deliveryAddress || 'N/A'}
                 </td>
                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
-                  {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : 'N/A'}
+                  {order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toLocaleDateString() : 'N/A'}
                 </td>
                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
                   {order.manufacturerName || 'Not Assigned'}
