@@ -43,17 +43,34 @@ const createManufacturer = async (payload) => {
     // If no userId provided, create a new user for the manufacturer
     if (!userIdToUse) {
       console.log('No userId provided, creating new manufacturer user...');
-      // Create a new user for the manufacturer
+
+      // Validate that phone number is provided
+      if (!contact || !contact.phone) {
+        throw new Error('Phone number is required for manufacturer user creation');
+      }
+
+      // Check if phone number already exists
+      const existingUser = await prisma.user.findUnique({
+        where: { phoneNumber: contact.phone }
+      });
+
+      if (existingUser) {
+        throw new Error('Phone number already registered');
+      }
+
+      // Create a new user for the manufacturer with actual phone number and approved status
       const systemUser = await prisma.user.create({
         data: {
-          phoneNumber: `SYSTEM_MANUFACTURER_${Date.now()}`, // Unique system phone for manufacturer
+          phoneNumber: contact.phone, // Use actual phone number as primary login
           userType: 'MANUFACTURER',
           roles: ['Manufacturer'],
+          status: 'APPROVED', // Set as approved by default
           isVerified: true,
+          isActive: true,
         },
       });
       userIdToUse = systemUser.id;
-      console.log('Created new user with ID:', userIdToUse);
+      console.log('Created new approved user with ID:', userIdToUse, 'and phone:', contact.phone);
     }
 
   // Create manufacturer
