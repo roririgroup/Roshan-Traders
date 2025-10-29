@@ -282,9 +282,11 @@ const getAllManufacturers = async () => {
           },
         },
       },
+      orders: true,
       _count: {
         select: {
           manufacturerProducts: true,
+          orders: true,
         },
       },
     },
@@ -298,7 +300,8 @@ const getAllManufacturers = async () => {
     specializationsList: manufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
     achievementsList: manufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
     certificationsList: manufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
-    productsCount: manufacturer?.manufacturerProducts?.length || 0,
+    productsCount: manufacturer?._count?.manufacturerProducts || 0,
+    ordersCount: manufacturer?._count?.orders || 0,
     exportCountriesCount: manufacturer?.companyInfo?.exportCountries || 0,
   }));
 };

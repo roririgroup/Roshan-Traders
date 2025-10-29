@@ -101,14 +101,11 @@ class ActingLabourService {
       }));
 
       // Combine and return both sets
-
       return [...transformedActingLabours, ...transformedEmployees].map(labour => ({
         ...labour,
         id: labour.id.toString(),
         assignedToId: labour.assignedToId?.toString() || null
       }));
-
-      return [...transformedActingLabours, ...transformedEmployees];
 
     } catch (error) {
       console.error('Error fetching acting labours:', error);
