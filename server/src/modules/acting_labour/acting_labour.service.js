@@ -92,17 +92,11 @@ class ActingLabourService {
 
       // Transform employees to match acting labour format
       const transformedEmployees = employees.map(transformEmployee);
-      
 
       // Add source field to acting labours and ensure id is a string
       const transformedActingLabours = actingLabours.map(l => ({
         ...l,
         id: l.id.toString(),
-
-      // Add source field to acting labours
-      const transformedActingLabours = actingLabours.map(l => ({
-        ...l,
-
         source: 'acting_labour'
       }));
 
