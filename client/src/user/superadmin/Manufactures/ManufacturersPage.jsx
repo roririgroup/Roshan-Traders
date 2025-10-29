@@ -47,11 +47,11 @@ export default function ManufacturersPage() {
           rating: manufacturer.rating,
           productsCount: manufacturer.productsCount || 0,
           turnover: manufacturer.companyInfo?.annualTurnover || 'N/A',
-          exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
+          exportCountriesCount: manufacturer.exportCountriesCount || 0,
           established: manufacturer.established,
           image: manufacturer.image,
           founder: manufacturer.founders?.[0] ? { name: manufacturer.founders[0].name } : null,
-          ordersCount: manufacturer.orders?.length || 0,
+          ordersCount: manufacturer.ordersCount || 0,
           gradient: 'from-blue-500/20 to-purple-500/20',
           description: manufacturer.description,
         }));
