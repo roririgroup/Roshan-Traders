@@ -193,13 +193,14 @@ const getPendingUsers = async () => {
   const users = await prisma.user.findMany({
     where: { status: 'PENDING' },
     include: {
-      profile: true
+      profile: true,
+      manufacturer: true
     }
   });
 
   return users.map(user => ({
     id: user.id,
-    fullName: user.profile?.fullName || 'Unknown',
+    fullName: user.roles?.includes('Manufacturer') ? (user.manufacturer?.companyName || user.profile?.fullName || 'Unknown') : (user.profile?.fullName || 'Unknown'),
     email: user.profile?.email || '',
     phoneNumber: user.phoneNumber,
     roles: user.roles,
@@ -221,7 +222,7 @@ const getApprovedUsers = async () => {
 
   return users.map(user => ({
     id: user.id.toString(),
-    fullName: user.profile?.fullName || 'Unknown',
+    fullName: user.roles?.includes('Manufacturer') ? (user.manufacturer?.companyName || user.profile?.fullName || 'Unknown') : (user.profile?.fullName || 'Unknown'),
     email: user.profile?.email || '',
     phoneNumber: user.phoneNumber,
     roles: user.roles,
@@ -239,13 +240,14 @@ const getRejectedUsers = async () => {
   const users = await prisma.user.findMany({
     where: { status: 'REJECTED' },
     include: {
-      profile: true
+      profile: true,
+      manufacturer: true
     }
   });
 
   return users.map(user => ({
     id: user.id.toString(),
-    fullName: user.profile?.fullName || 'Unknown',
+    fullName: user.roles?.includes('Manufacturer') ? (user.manufacturer?.companyName || user.profile?.fullName || 'Unknown') : (user.profile?.fullName || 'Unknown'),
     email: user.profile?.email || '',
     phoneNumber: user.phoneNumber,
     roles: user.roles,

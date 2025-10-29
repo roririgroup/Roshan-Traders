@@ -103,15 +103,23 @@ export default function UserLogin() {
           return
         }
 
-        // Store user info
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: approvedUser.id,
-          firstName: approvedUser.name?.split(' ')[0] || '',
-          lastName: approvedUser.name?.split(' ').slice(1).join(' ') || '',
-          phone: approvedUser.phone,
-          role: approvedUser.roles,
-          email: approvedUser.email
-        }));
+      // Store user info with appropriate display name based on user type
+      let displayName = approvedUser.name || 'Unknown';
+      if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
+        displayName = approvedUser.companyName;
+      } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
+        displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
+      }
+
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: approvedUser.id,
+        firstName: displayName.split(' ')[0] || '',
+        lastName: displayName.split(' ').slice(1).join(' ') || '',
+        phone: approvedUser.phone,
+        role: approvedUser.roles,
+        email: approvedUser.email,
+        displayName: displayName
+      }));
 
         // Show role selection after successful login
         setUserData(approvedUser);
@@ -135,14 +143,22 @@ export default function UserLogin() {
         return
       }
 
-      // Store user info
+      // Store user info with appropriate display name based on user type
+      let displayName = approvedUser.name || 'Unknown';
+      if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
+        displayName = approvedUser.companyName;
+      } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
+        displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
+      }
+
       localStorage.setItem('currentUser', JSON.stringify({
         id: approvedUser.id,
-        firstName: approvedUser.name?.split(' ')[0] || '',
-        lastName: approvedUser.name?.split(' ').slice(1).join(' ') || '',
+        firstName: displayName.split(' ')[0] || '',
+        lastName: displayName.split(' ').slice(1).join(' ') || '',
         phone: approvedUser.phone,
         role: approvedUser.roles,
-        email: approvedUser.email
+        email: approvedUser.email,
+        displayName: displayName
       }));
 
       // Redirect based on role
