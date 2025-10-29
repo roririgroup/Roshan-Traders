@@ -739,6 +739,10 @@ function EnquiryPage() {
             <form onSubmit={async (e) => {
               e.preventDefault();
 
+              // Calculate estimated delivery date
+              const estimatedDeliveryDate = new Date();
+              estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 7);
+
               // Collect all order data
               const orderData = {
                 customerName: orderFormData.name,
@@ -755,6 +759,7 @@ function EnquiryPage() {
                 }],
                 totalAmount: calculateTotalCost(),
                 paymentMethod: selectedPaymentMethod,
+                estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
                 status: 'PENDING'
               };
 
@@ -843,6 +848,19 @@ function EnquiryPage() {
                   <div className="flex justify-between">
                     <span>Payment Method:</span>
                     <span className="font-medium capitalize">{selectedPaymentMethod || 'Not selected'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Estimated Delivery:</span>
+                    <span className="font-medium">{(() => {
+                      const today = new Date();
+                      const deliveryDate = new Date(today);
+                      deliveryDate.setDate(today.getDate() + 7); // Add 7 days for estimated delivery
+                      return deliveryDate.toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      });
+                    })()}</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between font-semibold">
                     <span>Total Amount:</span>

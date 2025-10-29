@@ -356,6 +356,7 @@ model Order {
   notes           String?
   manufacturerId  BigInt?
   assignedTruckOwnerId BigInt?
+  estimatedDeliveryDate DateTime?
 
   // Relations
   manufacturer    Manufacturer? @relation(fields: [manufacturerId], references: [id])
