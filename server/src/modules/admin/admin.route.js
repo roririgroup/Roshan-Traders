@@ -11,7 +11,8 @@ const {
   getApprovedUsers,
   getRejectedUsers,
   approveUser,
-  rejectUser
+  rejectUser,
+  checkUserStatus
 } = require('./admin.service.js');
 
 const router = Router();
@@ -144,6 +145,17 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting admin:', error);
     res.status(500).json({ message: 'Failed to delete admin' });
+  }
+});
+
+// GET /api/admins/check-user-status/:phone - Check user status by phone number
+router.get('/check-user-status/:phone', async (req, res) => {
+  try {
+    const userStatus = await checkUserStatus(req.params.phone);
+    res.json(serializeBigInt(userStatus));
+  } catch (error) {
+    console.error('Error checking user status:', error);
+    res.status(500).json({ message: 'Failed to check user status' });
   }
 });
 

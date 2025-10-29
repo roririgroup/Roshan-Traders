@@ -382,6 +382,99 @@ const rejectUser = async (userId, adminId) => {
   return updatedUser;
 };
 
+const checkUserStatus = async (phoneNumber) => {
+  const user = await prisma.user.findUnique({
+    where: { phoneNumber },
+    include: {
+      profile: true,
+      agent: true,
+      manufacturer: true,
+      employee: true
+    }
+  });
+
+  if (!user) {
+    return { exists: false, status: null, message: 'User not found. Please sign up first.' };
+  }
+
+  let userType = user.userType;
+  let additionalData = {};
+
+  if (user.agent) {
+    userType = 'Agent';
+    additionalData = {
+      agentCode: user.agent.agentCode,
+      commissionRate: user.agent.commissionRate,
+      totalEarnings: user.agent.totalEarnings,
+      assignedArea: user.agent.assignedArea,
+      isApproved: user.agent.isApproved,
+    };
+  } else if (user.manufacturer) {
+    userType = 'Manufacturer';
+    additionalData = {
+      companyName: user.manufacturer.companyName,
+      gstNumber: user.manufacturer.gstNumber,
+      isVerified: user.manufacturer.isVerified,
+      rating: user.manufacturer.rating,
+      location: user.manufacturer.location,
+    };
+  } else if (user.employee) {
+    userType = 'Employee';
+    additionalData = {
+      employeeCode: user.employee.employeeCode,
+      role: user.employee.role,
+      status: user.employee.status,
+      salary: user.employee.salary,
+      hireDate: user.employee.hireDate,
+    };
+  }
+
+  const userData = {
+    id: user.id.toString(),
+    name: user?.profile?.fullName || 'Unknown',
+    email: user?.profile?.email || '',
+    phone: user?.phoneNumber || '',
+    roles: user.roles,
+    userType: userType,
+    status: user.status,
+    createdAt: user.createdAt,
+    approvedAt: user.approvedAt,
+    rejectedAt: user.rejectedAt,
+    ...additionalData,
+  };
+
+  switch (user.status) {
+    case 'APPROVED':
+      return {
+        exists: true,
+        status: 'APPROVED',
+        message: 'User is approved and can login.',
+        user: userData
+      };
+    case 'PENDING':
+      return {
+        exists: true,
+        status: 'PENDING',
+        message: 'Your account is pending admin approval. Please wait for approval email/SMS.',
+        user: userData
+      };
+    case 'REJECTED':
+      return {
+        exists: true,
+        status: 'REJECTED',
+        message: 'Your account has been rejected. Please contact support for more information.',
+        user: userData
+      };
+    default:
+      return {
+        exists: true,
+        status: user.status,
+        message: 'Unknown user status. Please contact support.',
+        user: userData
+      };
+  }
+};
+
 module.exports = {
   createAdmin,
   getAllAdmins,
@@ -393,5 +486,6 @@ module.exports = {
   getApprovedUsers,
   getRejectedUsers,
   approveUser,
-  rejectUser
+  rejectUser,
+  checkUserStatus
 };

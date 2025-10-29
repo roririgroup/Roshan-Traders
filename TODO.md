@@ -1,26 +1,16 @@
-# TODO: Fix BigInt Serialization Error
+# TODO: Update Login System for User Approval
 
-## Problem
-- Error: "TypeError: Do not know how to serialize a BigInt" occurs when Express tries to JSON.stringify responses containing BigInt values from Prisma.
-- This affects API endpoints like /api/admins/approved-users, /api/agents, /api/manufacturers, etc.
+## Backend Changes
+- [ ] Add `checkUserStatus` function in `server/src/modules/admin/admin.service.js`
+- [ ] Add GET `/api/admins/check-user-status/:phone` endpoint in `server/src/modules/admin/admin.route.js`
 
-## Root Cause
-- Prisma schema uses BigInt for IDs (e.g., User.id, Agent.id, Manufacturer.id).
-- JavaScript's JSON.stringify cannot serialize BigInt values directly.
-- When res.json() is called, it fails on BigInt fields.
+## Frontend Changes
+- [ ] Update `client/src/pages/Login/components/UserLogin.jsx` to call the new API endpoint
+- [ ] Remove localStorage mock data usage ('approvedUsers', 'pendingUsers')
+- [ ] Handle different user statuses (APPROVED, PENDING, REJECTED) with appropriate messages
 
-## Solution
-- Convert all BigInt ID fields to strings in service layer responses.
-- Apply this fix to all affected services: admin.service.js, agent.service.js, manufacturer.service.js, and any others returning BigInt IDs.
-
-## Steps
-- [ ] Modify admin.service.js getApprovedUsers to convert BigInt IDs to strings
-- [ ] Modify agent.service.js functions to convert BigInt IDs to strings
-- [ ] Modify manufacturer.service.js functions to convert BigInt IDs to strings
-- [ ] Test the affected API endpoints to ensure they return valid JSON
-- [ ] Verify frontend components (SignUpApprovalPage, AgentsPage, ManufacturesPage) work correctly
-
-## Files to Edit
-- server/src/modules/admin/admin.service.js
-- server/src/modules/agent/agent.service.js
-- server/src/modules/manufacturer/manufacturer.service.js
+## Testing
+- [ ] Test login with approved user
+- [ ] Test login with pending user (should show pending message)
+- [ ] Test login with rejected user (should show rejected message)
+- [ ] Test login with non-existent user (should show signup message)

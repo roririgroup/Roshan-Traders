@@ -121,7 +121,6 @@ const EmployeesPage = () => {
   const handleRemoveEmployee = async (employeeId) => {
     if (!window.confirm('Are you sure you want to remove this employee?')) return;
 
-    
     try {
       const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
         method: 'DELETE',
