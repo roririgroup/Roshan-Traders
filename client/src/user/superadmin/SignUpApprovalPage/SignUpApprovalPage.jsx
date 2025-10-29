@@ -37,18 +37,34 @@ const SignUpApprovalPage = () => {
       const rejected = await rejectedRes.json();
 
       // Transform data to match frontend expectations
-      const transformUser = (user) => ({
-        id: user.id,
-        firstName: user.fullName?.split(' ')[0] || '',
-        lastName: user.fullName?.split(' ').slice(1).join(' ') || '',
-        email: user.email,
-        phone: user.phoneNumber,
-        role: user.roles,
-        status: user.status?.toLowerCase(),
-        createdAt: user.createdAt,
-        approvedAt: user.approvedAt,
-        rejectedAt: user.rejectedAt
-      });
+      const transformUser = (user) => {
+        const fullName = user.fullName;
+        let displayName = fullName;
+
+        // For manufacturers, always show the name as is (company name)
+        if (user.roles?.includes('manufacturer')) {
+          displayName = fullName || 'Unknown Manufacturer';
+        } else if (!fullName || fullName === 'Unknown') {
+          displayName = user.phoneNumber ? `Phone: ${user.phoneNumber}` : 'Unknown User';
+        }
+
+        const nameParts = displayName.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        return {
+          id: user.id,
+          firstName,
+          lastName,
+          email: user.email,
+          phone: user.phoneNumber,
+          role: user.roles,
+          status: user.status?.toLowerCase(),
+          createdAt: user.createdAt,
+          approvedAt: user.approvedAt,
+          rejectedAt: user.rejectedAt
+        };
+      };
 
       setPendingUsers(pending.map(transformUser));
       setApprovedUsers(approved.map(transformUser));
