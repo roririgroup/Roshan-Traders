@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EmployeeCard from './EmployeeCard';
 import AddEmployeeModal from './AddEmployeeModal';
 import { Plus } from 'lucide-react';
@@ -92,18 +92,6 @@ const EmployeesPage = () => {
       setError(error.message);
       // Keep modal open so user can fix the error
     }
-
-
-  const handleAddEmployee = (employeeData) => {
-    const newEmployee = {
-      id: String(Date.now()),
-      ...employeeData,
-      status: 'Available'
-    };
-    setEmployees(prev => [...prev, newEmployee]);
-    alert('Employee added successfully!');
-    setIsAddModalOpen(false);
-
   };
 
   const handleAssignTask = async (employeeId, taskDetails) => {
@@ -130,10 +118,9 @@ const EmployeesPage = () => {
     }
   };
 
-  const handleRemoveEmployee = (employeeId) => {
+  const handleRemoveEmployee = async (employeeId) => {
     if (!window.confirm('Are you sure you want to remove this employee?')) return;
 
-    
     try {
       const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
         method: 'DELETE',
@@ -172,17 +159,6 @@ const EmployeesPage = () => {
       console.error('Error updating employee:', error);
       alert(error.message);
     }
-
-    setEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
-    alert('Employee removed successfully!');
-  };
-
-  const handleEditEmployee = (employeeId, updatedEmployee) => {
-    setEmployees((prev) =>
-      prev.map((emp) => (emp.id === employeeId ? {...emp, ...updatedEmployee} : emp))
-    );
-    alert('Employee updated successfully!');
-
   };
 
   return (
