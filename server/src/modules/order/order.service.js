@@ -67,7 +67,7 @@ const createOrder = async (payload) => {
 };
 
 const getAllOrders = async () => {
-  return await prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     include: {
       items: {
         include: {
@@ -78,6 +78,8 @@ const getAllOrders = async () => {
     },
     orderBy: { orderDate: 'desc' },
   });
+
+  return orders;
 };
 
 /**

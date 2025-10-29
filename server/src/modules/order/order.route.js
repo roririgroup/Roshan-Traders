@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const { serializeBigInt } = require('../../shared/lib/json.js');
 const { createOrder, getAllOrders, getOrderById, assignOrder, updateOrderStatus, deleteOrder } = require('./order.service.js');
 
 const router = Router();
@@ -7,9 +8,10 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const orders = await getAllOrders();
-    res.json(orders);
+    res.json(serializeBigInt(orders));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch orders' });
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
   }
 });
 
