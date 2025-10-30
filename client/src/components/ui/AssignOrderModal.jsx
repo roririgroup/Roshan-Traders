@@ -98,22 +98,34 @@ export default function AssignOrderModal({ isOpen, onClose, order, onAssign }) {
         {/* Order Summary */}
         <div className="bg-slate-50 p-4 rounded-lg">
           <h3 className="text-lg font-semibold text-slate-900 mb-3">Order Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Package className="size-4 text-slate-500" />
-              <span className="text-sm text-slate-700">Order #{order?.id}</span>
+              <span className="text-sm font-medium text-slate-700">Item Quantity:</span>
+              <span className="text-sm text-slate-900">
+                {order?.items?.reduce((total, item) => total + item.quantity, 0) || 0}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <User className="size-4 text-slate-500" />
-              <span className="text-sm text-slate-700">{order?.customerName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-slate-500" />
-              <span className="text-sm text-slate-700">{order?.deliveryAddress}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <DollarSign className="size-4 text-slate-500" />
-              <span className="text-sm text-slate-700">₹{order?.totalAmount?.toLocaleString()}</span>
+            {order?.phoneNumber && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-slate-700">Phone:</span>
+                <span className="text-sm text-slate-900">{order.phoneNumber}</span>
+              </div>
+            )}
+            {order?.estimatedDeliveryDate && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-slate-700">Delivery Date:</span>
+                <span className="text-sm text-slate-900">
+                  {new Date(order.estimatedDeliveryDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            <div className="flex items-start gap-2">
+              <MapPin className="size-4 text-slate-500 mt-0.5" />
+              <div>
+                <span className="text-sm font-medium text-slate-700">Delivery Address:</span>
+                <p className="text-sm text-slate-900 mt-1">{order?.deliveryAddress}</p>
+              </div>
             </div>
           </div>
         </div>
