@@ -33,7 +33,7 @@ export default function ManufacturersPage() {
   useEffect(() => {
     fetchManufacturers();
   }, []);
-  
+
   const fetchManufacturers = async () => {
     try {
       const response = await fetch('http://localhost:7700/api/manufacturers');
@@ -47,11 +47,11 @@ export default function ManufacturersPage() {
           rating: manufacturer.rating,
           productsCount: manufacturer.productsCount || 0,
           turnover: manufacturer.companyInfo?.annualTurnover || 'N/A',
-          exportCountriesCount: manufacturer.exportCountriesCount || 0,
+          exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
           established: manufacturer.established,
           image: manufacturer.image,
           founder: manufacturer.founders?.[0] ? { name: manufacturer.founders[0].name } : null,
-          ordersCount: manufacturer.ordersCount || 0,
+          ordersCount: manufacturer.orders?.length || 0,
           gradient: 'from-blue-500/20 to-purple-500/20',
           description: manufacturer.description,
         }));

@@ -33,7 +33,6 @@ export default function ActingLaboursPage() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isAddTruckOwnerModalOpen, setIsAddTruckOwnerModalOpen] = useState(false);
   const [selectedLabour, setSelectedLabour] = useState(null);
   const [assignmentForm, setAssignmentForm] = useState({
     assignTo: '',
@@ -49,16 +48,6 @@ export default function ActingLaboursPage() {
     experience: 0,
     rating: 0
   });
-  const [addTruckOwnerForm, setAddTruckOwnerForm] = useState({
-    name: '',
-    companyName: '',
-    phone: '',
-    email: '',
-    address: '',
-    licenseNumber: '',
-    vehicleType: '',
-    vehicleCapacity: ''
-  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,48 +58,57 @@ export default function ActingLaboursPage() {
     try {
       setLoading(true);
 
-      const [actingLaboursResponse, manufacturersResponse, employeesResponse] = await Promise.all([
-        fetch('http://localhost:7700/api/acting-labours'),
-        fetch('http://localhost:7700/api/manufacturers'),
-        fetch('http://localhost:7700/api/employees?onlyLabours=true')
-      ]);
+      // Fetch drivers (from truck owners)
+      const driversResponse = await fetch('http://localhost:7700/api/drivers');
+      const driversData = driversResponse.ok ? await driversResponse.json() : [];
 
-      const actingLabours = actingLaboursResponse.ok ? await actingLaboursResponse.json() : [];
+      // Fetch acting labours
+      const actingLaboursResponse = await fetch('http://localhost:7700/api/acting-labours');
+      const actingLaboursData = actingLaboursResponse.ok ? await actingLaboursResponse.json() : [];
+
+      // Fetch manufacturers
+      const manufacturersResponse = await fetch('http://localhost:7700/api/manufacturers');
       const manufacturersData = manufacturersResponse.ok ? await manufacturersResponse.json() : [];
-      const employeeLabours = employeesResponse.ok ? await employeesResponse.json() : [];
-      
-      // Combine both acting labours and employee labours
-      const allLaboursData = [
-        ...actingLabours,
-        ...employeeLabours.map(emp => ({
-          ...emp,
-          source: 'employee'
+
+      // Fetch truck owners
+      const truckOwnersResponse = await fetch('http://localhost:7700/api/truck-owners');
+      const truckOwnersData = truckOwnersResponse.ok ? await truckOwnersResponse.json() : [];
+
+      // Combine labours (drivers + acting labours)
+      const combinedLabours = [
+        ...driversData.map(driver => ({
+          id: `driver-${driver.id}`,
+          name: driver.name,
+          type: 'driver',
+          phone: driver.phone,
+          email: driver.email,
+          location: driver.location,
+          status: driver.status || 'available',
+          rating: driver.rating || 0,
+          experience: driver.experience || 0,
+          assignedTo: driver.assignedTo,
+          assignedType: driver.assignedType,
+          originalData: driver
+        })),
+        ...actingLaboursData.map(labour => ({
+          id: `acting-${labour.id}`,
+          name: labour.name,
+          type: labour.type.toLowerCase(),
+          phone: labour.phone,
+          email: labour.email,
+          location: labour.location,
+          status: labour.status.toLowerCase(),
+          rating: labour.rating || 0,
+          experience: labour.experience || 0,
+          assignedTo: labour.assignedToId ? (
+            labour.assignedToType === 'manufacturer' ?
+              manufacturersData.find(m => m.id === labour.assignedToId)?.companyName :
+              truckOwnersData.find(t => t.id === labour.assignedToId)?.companyName || truckOwnersData.find(t => t.id === labour.assignedToId)?.name
+          ) : null,
+          assignedType: labour.assignedToType === 'truck_owner' ? 'truckOwner' : labour.assignedToType,
+          originalData: labour
         }))
       ];
-
-      // Filter truck owners for assignment dropdown
-      const truckOwnersData = allLaboursData.filter(l => l.source === 'employee' && l.role === 'Truck Owner');
-
-      // Transform and combine all labours into a consistent format
-      const combinedLabours = allLaboursData.map((labour) => ({
-        id: labour.source === 'employee' ? `emp_${labour.id}` : `acting-${labour.id}`,
-        name: labour.name || 'Unknown',
-        type: (labour.type || labour.role || '').toLowerCase(),
-        phone: labour.phone || '',
-        email: labour.email || '',
-        location: labour.location || 'Not specified',
-        status: (labour.status || 'available').toLowerCase(),
-        rating: Number(labour.rating) || 0,
-        experience: Number(labour.experience) || 0,
-        assignedTo: labour.assignedToId 
-          ? (labour.assignedToType === 'manufacturer'
-              ? manufacturersData.find(m => m.id === labour.assignedToId)?.companyName 
-              : truckOwnersData.find(t => t.id === labour.assignedToId)?.name)
-          : null,
-        assignedType: labour.assignedToType === 'truck_owner' ? 'truckOwner' : labour.assignedToType,
-        originalData: labour,
-        source: labour.source || 'acting_labour'
-      }));
 
       setLabours(combinedLabours);
       setManufacturers(manufacturersData);
@@ -280,54 +278,6 @@ export default function ActingLaboursPage() {
     }
   };
 
-  const handleAddTruckOwner = async () => {
-    if (!addTruckOwnerForm.name || !addTruckOwnerForm.phone) {
-      alert('Please fill in all required fields (Name, Phone)');
-      return;
-    }
-
-    try {
-      // Make API call to add truck owner as employee
-      const response = await fetch('http://localhost:7700/api/employees', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: addTruckOwnerForm.name,
-          phone: addTruckOwnerForm.phone,
-          email: addTruckOwnerForm.email || null,
-          role: 'Truck Owner',
-          status: 'Available'
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add truck owner');
-      }
-
-      // Refresh data to get updated state
-      await fetchData();
-      setIsAddTruckOwnerModalOpen(false);
-      setAddTruckOwnerForm({
-        name: '',
-        companyName: '',
-        phone: '',
-        email: '',
-        address: '',
-        licenseNumber: '',
-        vehicleType: '',
-        vehicleCapacity: ''
-      });
-      alert('Truck owner added successfully!');
-
-    } catch (error) {
-      console.error('Error adding truck owner:', error);
-      alert(`Failed to add truck owner: ${error.message}`);
-    }
-  };
-
   const getStatusIcon = (status) => {
     switch (status) {
       case 'available':
@@ -400,7 +350,7 @@ export default function ActingLaboursPage() {
               />
             </div>
 
-            {/* Filters and Add Buttons */}
+            {/* Filters and Add Button */}
             <div className="flex flex-wrap gap-3 items-center">
               {/* Add Labour Button */}
               <Button
@@ -409,16 +359,6 @@ export default function ActingLaboursPage() {
               >
                 <Plus className="w-4 h-4" />
                 Add Labour
-              </Button>
-
-              {/* Add Truck Owner Button */}
-              <Button
-                onClick={() => setIsAddTruckOwnerModalOpen(true)}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Truck className="w-4 h-4" />
-                Add Truck Owner
               </Button>
 
               {/* Type Filter */}
@@ -769,162 +709,6 @@ export default function ActingLaboursPage() {
             </Button>
             <Button onClick={handleAddLabour}>
               Add Labour
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Add Truck Owner Modal */}
-      <Modal
-        isOpen={isAddTruckOwnerModalOpen}
-        onClose={() => {
-          setIsAddTruckOwnerModalOpen(false);
-          setAddTruckOwnerForm({
-            name: '',
-            companyName: '',
-            phone: '',
-            email: '',
-            address: '',
-            licenseNumber: '',
-            vehicleType: '',
-            vehicleCapacity: ''
-          });
-        }}
-        title="Add Truck Owner"
-      >
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Owner Name *
-            </label>
-            <input
-              type="text"
-              value={addTruckOwnerForm.name}
-              onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter owner name"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Company Name
-            </label>
-            <input
-              type="text"
-              value={addTruckOwnerForm.companyName}
-              onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, companyName: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter company name (optional)"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone *
-            </label>
-            <input
-              type="text"
-              value={addTruckOwnerForm.phone}
-              onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, phone: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter phone number"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={addTruckOwnerForm.email}
-              onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, email: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter email address (optional)"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Address *
-            </label>
-            <textarea
-              value={addTruckOwnerForm.address}
-              onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, address: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter full address"
-              rows="3"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                License Number
-              </label>
-              <input
-                type="text"
-                value={addTruckOwnerForm.licenseNumber}
-                onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, licenseNumber: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="License number (optional)"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Vehicle Type
-              </label>
-              <select
-                value={addTruckOwnerForm.vehicleType}
-                onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, vehicleType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select vehicle type</option>
-                <option value="truck">Truck</option>
-                <option value="trailer">Trailer</option>
-                <option value="container">Container</option>
-                <option value="lorry">Lorry</option>
-                <option value="pickup">Pickup</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Vehicle Capacity
-            </label>
-            <input
-              type="text"
-              value={addTruckOwnerForm.vehicleCapacity}
-              onChange={(e) => setAddTruckOwnerForm({ ...addTruckOwnerForm, vehicleCapacity: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 10 tons, 20 ft container (optional)"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsAddTruckOwnerModalOpen(false);
-                setAddTruckOwnerForm({
-                  name: '',
-                  companyName: '',
-                  phone: '',
-                  email: '',
-                  address: '',
-                  licenseNumber: '',
-                  vehicleType: '',
-                  vehicleCapacity: ''
-                });
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleAddTruckOwner}>
-              Add Truck Owner
             </Button>
           </div>
         </div>

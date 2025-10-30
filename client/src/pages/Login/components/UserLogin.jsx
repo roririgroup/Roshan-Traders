@@ -22,7 +22,7 @@ export default function UserLogin() {
     return <Navigate to="/" replace />
   }
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault()
 
     // If in role selection mode, handle role selection
@@ -63,73 +63,31 @@ export default function UserLogin() {
     setIsLoading(true)
     setError('')
 
-    try {
-      // Check user status from backend
-      const statusResponse = await fetch(`/api/admins/check-user-status/${phone}`);
-      const userStatus = await statusResponse.json();
+    // Check if user exists in approved users
+    const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+    const approvedUser = approvedUsers.find(user => user.phone === phone);
 
-      if (!userStatus.exists) {
-        setError(userStatus.message);
-        setIsLoading(false);
-        return;
+    if (!approvedUser) {
+      // Check if user is pending approval
+      const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+      const pendingUser = pendingUsers.find(user => user.phone === phone);
+
+      if (pendingUser) {
+        setError('Your account is pending admin approval. Please wait for approval email/SMS.');
+      } else {
+        setError('No approved account found with this phone number. Please sign up first.');
       }
+      setIsLoading(false)
+      return;
+    }
 
-      if (userStatus.status !== 'APPROVED') {
-        setError(userStatus.message);
-        setIsLoading(false);
-        return;
-      }
+    // Handle both single role (string) and multiple roles (array)
+    const userRoles = Array.isArray(approvedUser.role) ? approvedUser.role : [approvedUser.role];
+    const normalizedUserRoles = userRoles.map(role => role.toLowerCase().replace(' ', ''));
 
-      // User is approved, proceed with login
-      const approvedUser = userStatus.user;
-
-      // Handle both single role (string) and multiple roles (array)
-      const userRoles = Array.isArray(approvedUser.roles) ? approvedUser.roles : [approvedUser.roles];
-      const normalizedUserRoles = userRoles.map(role => role.toLowerCase().replace(' ', ''));
-
-      // If user has multiple roles, authenticate first then show role selection
-      if (normalizedUserRoles.length > 1) {
-        // Authenticate the user
-        const res = loginUser({
-          phone,
-          otp,
-          selectedRoles: normalizedUserRoles,
-          userData: approvedUser
-        })
-
-        if (!res.success) {
-          setError(res.error || 'Login failed')
-          setIsLoading(false)
-          return
-        }
-
-      // Store user info with appropriate display name based on user type
-      let displayName = approvedUser.name || 'Unknown';
-      if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
-        displayName = approvedUser.companyName;
-      } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
-        displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
-      }
-
-      localStorage.setItem('currentUser', JSON.stringify({
-        id: approvedUser.id,
-        firstName: displayName.split(' ')[0] || '',
-        lastName: displayName.split(' ').slice(1).join(' ') || '',
-        phone: approvedUser.phone,
-        role: approvedUser.roles,
-        email: approvedUser.email,
-        displayName: displayName
-      }));
-
-        // Show role selection after successful login
-        setUserData(approvedUser);
-        setAvailableRoles(normalizedUserRoles);
-        setShowRoleSelection(true);
-        setIsLoading(false);
-        return;
-      }
-
-      // Single role user - proceed with login
+    // If user has multiple roles, authenticate first then show role selection
+    if (normalizedUserRoles.length > 1) {
+      // Authenticate the user
       const res = loginUser({
         phone,
         otp,
@@ -143,41 +101,60 @@ export default function UserLogin() {
         return
       }
 
-      // Store user info with appropriate display name based on user type
-      let displayName = approvedUser.name || 'Unknown';
-      if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
-        displayName = approvedUser.companyName;
-      } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
-        displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
-      }
-
+      // Store user info
       localStorage.setItem('currentUser', JSON.stringify({
         id: approvedUser.id,
-        firstName: displayName.split(' ')[0] || '',
-        lastName: displayName.split(' ').slice(1).join(' ') || '',
+        firstName: approvedUser.firstName,
+        lastName: approvedUser.lastName,
         phone: approvedUser.phone,
-        role: approvedUser.roles,
-        email: approvedUser.email,
-        displayName: displayName
+        role: approvedUser.role,
+        email: approvedUser.email
       }));
 
-      // Redirect based on role
-      const firstRole = normalizedUserRoles[0]
-      if (firstRole === 'agent') {
-        navigate('/agents/dashboard')
-      } else if (firstRole === 'manufacturer') {
-        navigate('/manufacturers/dashboard')
-      } else if (firstRole === 'truckowner') {
-        navigate('/truck-owners/dashboard')
-      } else if (firstRole === 'driver') {
-        navigate('/drivers/dashboard')
-      } else {
-        navigate('/')
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Network error. Please try again.');
+      // Show role selection after successful login
+      setUserData(approvedUser);
+      setAvailableRoles(normalizedUserRoles);
+      setShowRoleSelection(true);
       setIsLoading(false);
+      return;
+    }
+
+    // Single role user - proceed with login
+    const res = loginUser({
+      phone,
+      otp,
+      selectedRoles: normalizedUserRoles,
+      userData: approvedUser
+    })
+
+    if (!res.success) {
+      setError(res.error || 'Login failed')
+      setIsLoading(false)
+      return
+    }
+
+    // Store user info
+    localStorage.setItem('currentUser', JSON.stringify({
+      id: approvedUser.id,
+      firstName: approvedUser.firstName,
+      lastName: approvedUser.lastName,
+      phone: approvedUser.phone,
+      role: approvedUser.role,
+      email: approvedUser.email
+    }));
+
+    // Redirect based on role
+    const firstRole = normalizedUserRoles[0]
+    if (firstRole === 'agent') {
+      navigate('/agents/dashboard')
+    } else if (firstRole === 'manufacturer') {
+      navigate('/manufacturers/dashboard')
+    } else if (firstRole === 'truckowner') {
+      navigate('/truck-owners/dashboard')
+    } else if (firstRole === 'driver') {
+      navigate('/drivers/dashboard')
+    } else {
+      navigate('/')
     }
   }
 

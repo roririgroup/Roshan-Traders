@@ -18,4 +18,3 @@ const InfoCard = ({ children, title, icon }) => (
 )
 
 export default InfoCard
-

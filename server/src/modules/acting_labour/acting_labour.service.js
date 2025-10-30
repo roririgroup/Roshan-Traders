@@ -5,32 +5,9 @@ const prisma = /** @type {any} */ (new PrismaClient());
 class ActingLabourService {
   // Get all acting labours with optional filters
   /**
-   * @param {{type?:string,status?:string,assignedToType?:string,search?:string,includeEmployees?:boolean}} filters
+   * @param {{type?:string,status?:string,assignedToType?:string,search?:string}} filters
    */
   async getAllActingLabours(filters = {}) {
-    const transformEmployee = (employee) => {
-      let type = 'LOADMAN';
-      if (employee.role === 'Driver') type = 'DRIVER';
-      else if (employee.role === 'Truck Owner') type = 'TRUCK_OWNER';
-      return {
-        id: `emp_${employee.id}`,
-        name: employee.user.profile?.fullName || 'Unknown',
-        type,
-        phone: employee.user.phoneNumber,
-        email: employee.user.profile?.email || null,
-        location: employee.user.profile?.address?.city || 'Unknown',
-        status: employee.status === 'Available' ? 'AVAILABLE' : 'BUSY',
-        rating: 0.0,
-        experience: 0,
-        source: 'employee',
-        role: employee.role
-      };
-    };
-
-    
-
-
-
     try {
       const { type, status, assignedToType, search } = filters;
 
@@ -57,56 +34,12 @@ class ActingLabourService {
         ];
       }
 
-      const [actingLabours, employees] = await Promise.all([
-        // Fetch acting labours
-        prisma.actingLabour.findMany({
-          where,
-          orderBy: { createdAt: 'desc' }
-        }),
-        
-        // Fetch employees (drivers and truck owners) if requested
-        filters.includeEmployees ? prisma.employee.findMany({
-          where: {
-            OR: [
-              { role: 'Driver' },
-              { role: 'Truck Owner' }
-            ],
-            ...(search ? {
-              OR: [
-                { user: { profile: { fullName: { contains: search, mode: 'insensitive' } } } },
-                { user: { phoneNumber: { contains: search } } }
-              ]
-            } : {}),
-            // Match status if specified
-            ...(status ? {
-              status: status === 'AVAILABLE' ? 'Available' : 'Busy'
-            } : {})
-          },
-          include: {
-            user: {
-              include: { profile: true }
-            }
-          }
-        }) : Promise.resolve([])
-      ]);
+      const labours = await prisma.actingLabour.findMany({
+        where,
+        orderBy: { createdAt: 'desc' }
+      });
 
-      // Transform employees to match acting labour format
-      const transformedEmployees = employees.map(transformEmployee);
-
-      // Add source field to acting labours and ensure id is a string
-      const transformedActingLabours = actingLabours.map(l => ({
-        ...l,
-        id: l.id.toString(),
-        source: 'acting_labour'
-      }));
-
-      // Combine and return both sets
-      return [...transformedActingLabours, ...transformedEmployees].map(labour => ({
-        ...labour,
-        id: labour.id.toString(),
-        assignedToId: labour.assignedToId?.toString() || null
-      }));
-
+      return labours;
     } catch (error) {
       console.error('Error fetching acting labours:', error);
       throw new Error('Failed to fetch acting labours');
