@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
@@ -12,6 +12,7 @@ export default function Employees() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [activeTab, setActiveTab] = useState('agent')
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -19,6 +20,29 @@ export default function Employees() {
     role: 'agent',
     status: 'active'
   })
+
+  // Get manufacturer ID from localStorage or context (you'll need to implement this based on your auth system)
+  const manufacturerId = 1 // Replace with actual manufacturer ID from auth context
+
+  // Fetch employees from API
+  const fetchEmployees = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees?role=${activeTab}`)
+      const result = await response.json()
+      if (result.success) {
+        setAgents(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchEmployees()
+  }, [activeTab])
 
   const tabs = [
     { id: 'agent', label: 'Agents', icon: User },
@@ -53,30 +77,74 @@ export default function Employees() {
     setIsModalOpen(true)
   }
 
-  const handleDeleteAgent = (agentId) => {
+  const handleDeleteAgent = async (agentId) => {
     if (window.confirm('Are you sure you want to delete this agent/employee?')) {
-      setAgents(agents.filter(agent => agent.id !== agentId))
+      try {
+        const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees/${agentId}`, {
+          method: 'DELETE'
+        })
+        const result = await response.json()
+        if (result.success) {
+          setAgents(agents.filter(agent => agent.id !== agentId))
+        } else {
+          alert('Failed to delete employee')
+        }
+      } catch (error) {
+        console.error('Error deleting employee:', error)
+        alert('Error deleting employee')
+      }
     }
   }
 
-  const handleSaveAgent = () => {
-    if (editingAgent) {
-      // Update existing agent
-      setAgents(agents.map(agent =>
-        agent.id === editingAgent.id
-          ? { ...agent, ...formData }
-          : agent
-      ))
-    } else {
-      // Add new agent
-      const newAgent = {
-        id: Math.max(...agents.map(a => a.id)) + 1,
-        ...formData,
-        joinDate: new Date().toISOString().split('T')[0]
+  const handleSaveAgent = async () => {
+    try {
+      let response
+      if (editingAgent) {
+        // Update existing agent
+        response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees/${editingAgent.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+      } else {
+        // Add new agent
+        response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
       }
-      setAgents([...agents, newAgent])
+
+      const result = await response.json()
+      if (result.success) {
+        if (editingAgent) {
+          setAgents(agents.map(agent =>
+            agent.id === editingAgent.id
+              ? result.data
+              : agent
+          ))
+        } else {
+          setAgents([...agents, result.data])
+        }
+        setIsModalOpen(false)
+        setFormData({
+          name: '',
+          address: '',
+          phone: '',
+          role: activeTab,
+          status: 'active'
+        })
+      } else {
+        alert('Failed to save employee')
+      }
+    } catch (error) {
+      console.error('Error saving employee:', error)
+      alert('Error saving employee')
     }
-    setIsModalOpen(false)
   }
 
   const handleInputChange = (e) => {
@@ -204,46 +272,59 @@ export default function Employees() {
               </tr>
             </thead>
             <tbody>
-              {agents
-                .filter(a => a.role === activeTab)
-                .filter(a => (
-                  a.name.toLowerCase().includes(search.toLowerCase()) ||
-                  a.address.toLowerCase().includes(search.toLowerCase())
-                ))
-                .filter(a => statusFilter === 'all' ? true : a.status === statusFilter)
-                .map((agent) => (
-                <tr key={agent.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="py-4 px-6 font-medium text-slate-900">
-                    {agent.name}
-                  </td>
-                  <td className="py-4 px-6 text-slate-900">
-                    {agent.address}
-                  </td>
-                  <td className="py-4 px-6 text-slate-600">
-                    {agent.phone}
-                  </td>                 
-                  <td className="py-4 px-6">
-                    {getAgentStatusBadge(agent.status)}
-                  </td>
-                  
-                  <td className="py-4 px-6">
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleEditAgent(agent)}
-                        className="bg-[#F08344] hover:bg-[#e0763a] p-2"
-                      >
-                        <Edit className="size-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteAgent(agent.id)}
-                        className="bg-red-600 hover:bg-red-700 p-2"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="py-8 px-6 text-center text-slate-500">
+                    Loading employees...
                   </td>
                 </tr>
-              ))}
+              ) : agents.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-8 px-6 text-center text-slate-500">
+                    No employees found for this role.
+                  </td>
+                </tr>
+              ) : (
+                agents
+                  .filter(a => (
+                    a.name.toLowerCase().includes(search.toLowerCase()) ||
+                    a.address.toLowerCase().includes(search.toLowerCase())
+                  ))
+                  .filter(a => statusFilter === 'all' ? true : a.status === statusFilter)
+                  .map((agent) => (
+                  <tr key={agent.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <td className="py-4 px-6 font-medium text-slate-900">
+                      {agent.name}
+                    </td>
+                    <td className="py-4 px-6 text-slate-900">
+                      {agent.address}
+                    </td>
+                    <td className="py-4 px-6 text-slate-600">
+                      {agent.phone}
+                    </td>
+                    <td className="py-4 px-6">
+                      {getAgentStatusBadge(agent.status)}
+                    </td>
+
+                    <td className="py-4 px-6">
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleEditAgent(agent)}
+                          className="bg-[#F08344] hover:bg-[#e0763a] p-2"
+                        >
+                          <Edit className="size-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteAgent(agent.id)}
+                          className="bg-red-600 hover:bg-red-700 p-2"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
