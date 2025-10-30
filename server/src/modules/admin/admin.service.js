@@ -384,6 +384,104 @@ const rejectUser = async (userId, adminId) => {
   return updatedUser;
 };
 
+const updateUserRole = async (userId, newRoles, adminId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(userId) },
+    include: { profile: true, agent: true, manufacturer: true, employee: true }
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  if (user.status !== 'APPROVED') {
+    throw new Error('Only approved users can have their roles updated');
+  }
+
+  // Filter out undefined/null values from newRoles
+  const filteredRoles = newRoles.filter(role => role != null && role !== '');
+
+  // Update user roles
+  const updatedUser = await prisma.user.update({
+    where: { id: parseInt(userId) },
+    data: {
+      roles: filteredRoles
+    },
+    include: { profile: true }
+  });
+
+  // Create new records based on new roles if not exists
+  const safeInt32 = (val) => {
+    if (val === undefined || val === null) return undefined;
+    const n = Number(val);
+    if (!Number.isFinite(n)) return undefined;
+    if (n > 2147483647 || n < -2147483648) return undefined;
+    return Math.trunc(n);
+  };
+
+  const approvedByIdSafe = safeInt32(adminId);
+
+  for (const newRole of filteredRoles) {
+    switch (newRole) {
+      case 'Agent':
+        if (!user.agent) {
+          await prisma.agent.create({
+            data: {
+              userId: user.id,
+              agentCode: `AGT-${user.id}`,
+              isApproved: true,
+              ...(approvedByIdSafe !== undefined ? { approvedById: approvedByIdSafe } : {}),
+            }
+          });
+        }
+        break;
+      case 'Manufacturer':
+        if (!user.manufacturer) {
+          await prisma.manufacturer.create({
+            data: {
+              userId: user.id,
+              companyName: user.profile?.fullName || 'New Company',
+              isVerified: true,
+              ...(approvedByIdSafe !== undefined ? { verifiedById: approvedByIdSafe } : {}),
+            }
+          });
+        }
+        break;
+      case 'Truck Owner':
+      case 'Driver':
+        if (!user.employee) {
+          await prisma.employee.create({
+            data: {
+              userId: user.id,
+              employeeCode: `EMP-${user.id}`,
+              role: newRole
+            }
+          });
+        } else {
+          // Update existing employee role to include new role
+          const currentRole = user.employee.role;
+          const updatedEmployeeRole = currentRole.includes(newRole) ? currentRole : `${currentRole}, ${newRole}`;
+          await prisma.employee.update({
+            where: { userId: user.id },
+            data: { role: updatedEmployeeRole }
+          });
+        }
+        break;
+    }
+  }
+
+  // Log the role update action
+  await prisma.auditLog.create({
+    data: {
+      userId: user.id,
+      action: 'user_role_updated',
+      description: `User roles updated to ${filteredRoles.join(', ')} by admin ${adminId}`
+    }
+  });
+
+  return updatedUser;
+};
+
 const checkUserStatus = async (phoneNumber) => {
   const user = await prisma.user.findUnique({
     where: { phoneNumber },
@@ -489,5 +587,6 @@ module.exports = {
   getRejectedUsers,
   approveUser,
   rejectUser,
+  updateUserRole,
   checkUserStatus
 };

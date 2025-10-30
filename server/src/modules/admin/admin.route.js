@@ -12,6 +12,7 @@ const {
   getRejectedUsers,
   approveUser,
   rejectUser,
+  updateUserRole,
   checkUserStatus
 } = require('./admin.service.js');
 
@@ -145,6 +146,21 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting admin:', error);
     res.status(500).json({ message: 'Failed to delete admin' });
+  }
+});
+
+// POST /api/admins/update-user-role/:id - Update user role
+router.post('/update-user-role/:id', async (req, res) => {
+  try {
+    const { newRoles } = req.body;
+    const user = await updateUserRole(req.params.id, newRoles, req.body.adminId);
+    res.json(serializeBigInt({
+      message: `User roles updated successfully`,
+      user
+    }));
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(400).json({ message: error.message || 'Failed to update user role' });
   }
 });
 
