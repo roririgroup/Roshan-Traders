@@ -1,9 +1,27 @@
 const { Router } = require('express');
-const { createProduct, getProducts, getProductById, updateProduct, deleteProduct, searchProducts } = require('./product.service.js');
+const {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  searchProducts,
+} = require('./product.service.js');
 
 const router = Router();
 
-// GET /api/products - Get all products
+// ✅ Add product to DB
+router.post('/', async (req, res) => {
+  try {
+    const newProduct = await createProduct(req.body);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({ message: 'Failed to create product' });
+  }
+});
+
+// ✅ (Optional) You can keep these if needed later
 router.get('/', async (req, res) => {
   try {
     const products = await getProducts();
@@ -13,57 +31,31 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/products/:id - Get product by ID
 router.get('/:id', async (req, res) => {
   try {
     const product = await getProductById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+    if (!product) return res.status(404).json({ message: 'Not found' });
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch product' });
   }
 });
 
-// POST /api/products - Create new product
-router.post('/', async (req, res) => {
-  try {
-    const product = await createProduct(req.body);
-    res.status(201).json(product);
-  } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ message: 'Failed to create product' });
-  }
-});
-
-// PUT /api/products/:id - Update product
 router.put('/:id', async (req, res) => {
   try {
-    const product = await updateProduct(req.params.id, req.body);
-    res.json(product);
+    const updated = await updateProduct(req.params.id, req.body);
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ message: 'Failed to update product' });
   }
 });
 
-// DELETE /api/products/:id - Delete product
 router.delete('/:id', async (req, res) => {
   try {
     await deleteProduct(req.params.id);
-    res.status(204).send();
+    res.json({ message: 'Deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete product' });
-  }
-});
-
-// GET /api/products/search - Search products by name or category
-router.get('/search', async (req, res) => {
-  try {
-    const products = await searchProducts(req.query);
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to search products' });
   }
 });
 

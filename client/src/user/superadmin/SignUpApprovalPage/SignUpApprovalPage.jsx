@@ -1,144 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, X, Check, Clock, User, Factory, Truck, Wrench, Search, Filter, Mail, Phone, Calendar, Edit } from 'lucide-react';
-import { useAuth } from '../../../Context/AuthContext';
+import { UserCheck, X, Check, Clock, User, Factory, Truck, Wrench, Search, Filter, Mail, Phone, Calendar } from 'lucide-react';
 
 const SignUpApprovalPage = () => {
-  const { currentUser } = useAuth();
   const [pendingUsers, setPendingUsers] = useState([]);
   const [approvedUsers, setApprovedUsers] = useState([]);
   const [rejectedUsers, setRejectedUsers] = useState([]);
   const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [editingUserId, setEditingUserId] = useState(null);
-  const [tempRoles, setTempRoles] = useState([]);
-  const [showRoleModal, setShowRoleModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedRoles, setSelectedRoles] = useState([]);
 
   useEffect(() => {
     loadUsers();
   }, []);
 
-  const loadUsers = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const [pendingRes, approvedRes, rejectedRes] = await Promise.all([
-        fetch('/api/admins/pending-users'),
-        fetch('/api/admins/approved-users'),
-        fetch('/api/admins/rejected-users')
-      ]);
-
-      if (!pendingRes.ok || !approvedRes.ok || !rejectedRes.ok) {
-        throw new Error('Failed to fetch users');
-      }
-
-      const pending = await pendingRes.json();
-      const approved = await approvedRes.json();
-      const rejected = await rejectedRes.json();
-
-      // Transform data to match frontend expectations
-      const transformUser = (user) => {
-        const fullName = user.fullName;
-        let displayName = fullName;
-
-        // For manufacturers, always show the name as is (company name)
-        if (user.roles?.includes('manufacturer')) {
-          displayName = fullName || 'Unknown Manufacturer';
-        } else if (!fullName || fullName === 'Unknown') {
-          displayName = user.phoneNumber ? `Phone: ${user.phoneNumber}` : 'Unknown User';
-        }
-
-        const nameParts = displayName.split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-
-        return {
-          id: user.id,
-          firstName,
-          lastName,
-          email: user.email,
-          phone: user.phoneNumber,
-          role: user.roles,
-          status: user.status?.toLowerCase(),
-          createdAt: user.createdAt,
-          approvedAt: user.approvedAt,
-          rejectedAt: user.rejectedAt
-        };
-      };
-
-      setPendingUsers(pending.map(transformUser));
-      setApprovedUsers(approved.map(transformUser));
-      setRejectedUsers(rejected.map(transformUser));
-    } catch (error) {
-      console.error('Error loading users:', error);
-      setError('Failed to load users. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+  const loadUsers = () => {
+    const pending = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+    const approved = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+    const rejected = JSON.parse(localStorage.getItem('rejectedUsers') || '[]');
+    
+    setPendingUsers(pending);
+    setApprovedUsers(approved);
+    setRejectedUsers(rejected);
   };
 
-  const approveUser = async (user) => {
-    try {
-      const response = await fetch(`/api/admins/approve-user/${user.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          adminId: currentUser?.id
-        }),
-      });
-
-      if (response.ok) {
-        // Remove from pending and add to approved
-        setPendingUsers(prev => prev.filter(u => u.id !== user.id));
-        setApprovedUsers(prev => [...prev, {
-          ...user,
-          status: 'approved',
-          approvedAt: new Date().toISOString()
-        }]);
-        alert(`User ${user.firstName} ${user.lastName} has been approved!`);
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to approve user: ${errorData.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error approving user:', error);
-      alert('Network error. Please try again.');
-    }
+  const approveUser = (user) => {
+    const updatedPending = pendingUsers.filter(u => u.id !== user.id);
+    const updatedApproved = [...approvedUsers, { 
+      ...user, 
+      status: 'approved', 
+      approvedAt: new Date().toISOString(),
+      approvedBy: 'Super Admin'
+    }];
+    
+    setPendingUsers(updatedPending);
+    setApprovedUsers(updatedApproved);
+    
+    localStorage.setItem('pendingUsers', JSON.stringify(updatedPending));
+    localStorage.setItem('approvedUsers', JSON.stringify(updatedApproved));
+    
+    // Show success message
+    alert(`User ${user.firstName} ${user.lastName} has been approved!`);
   };
 
-  const rejectUser = async (user) => {
-    try {
-      const response = await fetch(`/api/admins/reject-user/${user.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Remove from pending and add to rejected
-        setPendingUsers(prev => prev.filter(u => u.id !== user.id));
-        setRejectedUsers(prev => [...prev, {
-          ...user,
-          status: 'rejected',
-          rejectedAt: new Date().toISOString()
-        }]);
-        alert(`User ${user.firstName} ${user.lastName} has been rejected.`);
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to reject user: ${errorData.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error rejecting user:', error);
-      alert('Network error. Please try again.');
-    }
+  const rejectUser = (user) => {
+    const updatedPending = pendingUsers.filter(u => u.id !== user.id);
+    const updatedRejected = [...rejectedUsers, { 
+      ...user, 
+      status: 'rejected',
+      rejectedAt: new Date().toISOString(),
+      rejectedBy: 'Super Admin'
+    }];
+    
+    setPendingUsers(updatedPending);
+    setRejectedUsers(updatedRejected);
+    
+    localStorage.setItem('pendingUsers', JSON.stringify(updatedPending));
+    localStorage.setItem('rejectedUsers', JSON.stringify(updatedRejected));
+    
+    // Show rejection message
+    alert(`User ${user.firstName} ${user.lastName} has been rejected.`);
   };
 
   const updateUserRole = async (userId, newRoles) => {
@@ -390,24 +310,7 @@ const SignUpApprovalPage = () => {
 
           {/* Users List */}
           <div className="p-6">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-500">Loading users...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <X className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Users</h3>
-                <p className="text-gray-500 mb-4">{error}</p>
-                <button
-                  onClick={loadUsers}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : filteredUsers().length === 0 ? (
+            {filteredUsers().length === 0 ? (
               <div className="text-center py-12">
                 <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">

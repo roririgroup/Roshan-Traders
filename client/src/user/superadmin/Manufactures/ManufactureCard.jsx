@@ -240,4 +240,3 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
 }
 
 export default ManufacturerCard
-
