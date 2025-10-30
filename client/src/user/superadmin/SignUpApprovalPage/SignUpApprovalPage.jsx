@@ -61,6 +61,58 @@ const SignUpApprovalPage = () => {
     alert(`User ${user.firstName} ${user.lastName} has been rejected.`);
   };
 
+  const updateUserRole = async (userId, newRoles) => {
+    if (newRoles.length === 0) return;
+
+    try {
+      const response = await fetch(`/api/admins/update-user-role/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          newRoles: newRoles,
+          adminId: currentUser?.id
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Update the user in the approved users list
+        setApprovedUsers(prev => prev.map(user =>
+          user.id === userId
+            ? { ...user, role: newRoles }
+            : user
+        ));
+        alert(result.message);
+        setEditingUserId(null);
+        setTempRoles([]);
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to update user role: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('Network error. Please try again.');
+    }
+  };
+
+  const startEditing = (user) => {
+    setEditingUserId(user.id);
+    setTempRoles(
+      (Array.isArray(user.role) ? user.role : [user.role].filter(Boolean)).map(role =>
+        role.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+      )
+    );
+  };
+
+  const cancelEditing = () => {
+    setEditingUserId(null);
+    setTempRoles([]);
+  };
+
+
+
   const getRoleIcon = (role) => {
     switch(role?.toLowerCase()) {
       case 'agent': return <User className="w-4 h-4" />;
@@ -367,6 +419,88 @@ const SignUpApprovalPage = () => {
                           </button>
                         </div>
                       )}
+                      {activeTab === 'approved' && (
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {editingUserId === user.id ? (
+                            <div className="flex flex-col gap-3 w-full max-w-sm bg-gray-50 p-4 rounded-lg border">
+                              <div className="text-sm font-semibold text-gray-800 mb-2">Edit User Roles</div>
+
+                              {/* Current Roles Display */}
+                              <div className="mb-3">
+                                <div className="text-xs font-medium text-gray-600 mb-2">Current Roles:</div>
+                                <div className="flex flex-wrap gap-1">
+                                  {Array.isArray(user.role) ? (
+                                    user.role.map((role, index) => (
+                                      <span key={index} className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(role)}`}>
+                                        {getRoleIcon(role)}
+                                        <span className="ml-1">{role}</span>
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                                      {getRoleIcon(user.role)}
+                                      <span className="ml-1">{user.role}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Role Selection */}
+                              <div>
+                                <div className="text-xs font-medium text-gray-600 mb-2">Select Roles:</div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {['Agent', 'Manufacturer', 'Truck Owner', 'Driver'].map((role) => (
+                                    <label key={role} className="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                      <input
+                                        type="checkbox"
+                                        checked={tempRoles.some(tempRole => tempRole.toLowerCase() === role.toLowerCase())}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            if (!tempRoles.some(tempRole => tempRole.toLowerCase() === role.toLowerCase())) {
+                                              setTempRoles([...tempRoles, role]);
+                                            }
+                                          } else {
+                                            setTempRoles(tempRoles.filter(r => r.toLowerCase() !== role.toLowerCase()));
+                                          }
+                                        }}
+                                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:ring-2"
+                                      />
+                                      <span className="text-sm text-gray-700 font-medium">{role}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
+                                <button
+                                  onClick={() => updateUserRole(user.id, tempRoles)}
+                                  disabled={tempRoles.length === 0}
+                                  className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  <Check className="w-4 h-4 mr-1" />
+                                  Save Changes
+                                </button>
+                                <button
+                                  onClick={cancelEditing}
+                                  className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                                >
+                                  <X className="w-4 h-4 mr-1" />
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => startEditing(user)}
+                              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Role
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -374,6 +508,57 @@ const SignUpApprovalPage = () => {
             )}
           </div>
         </div>
+
+        {/* Role Edit Modal */}
+        {showRoleModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+              <div className="mt-3">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Edit User Roles</h3>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Roles</label>
+                  <div className="space-y-2">
+                    {['Agent', 'Manufacturer', 'Truck Owner', 'Driver'].map((role) => (
+                      <label key={role} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRoles.includes(role)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedRoles([...selectedRoles, role]);
+                            } else {
+                              setSelectedRoles(selectedRoles.filter(r => r !== role));
+                            }
+                          }}
+                          className="mr-2"
+                        />
+                        {role}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setShowRoleModal(false);
+                      setSelectedUser(null);
+                      setSelectedRoles([]);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={updateUserRole}
+                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
