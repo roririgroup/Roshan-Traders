@@ -9,58 +9,51 @@ export default function AssignOrderModal({ isOpen, onClose, order, onAssign }) {
   const [loading, setLoading] = useState(false)
   const [assigning, setAssigning] = useState(false)
 
-  // Mock truck owners data - replace with API call
+  // Fetch truck owners from API
   useEffect(() => {
-    if (isOpen) {
-      // Simulate API call to fetch truck owners
-      setLoading(true)
-      setTimeout(() => {
-        setTruckOwners([
-          {
-            id: 1,
-            name: 'Rajesh Kumar',
-            companyName: 'RK Logistics',
-            phone: '+91 9876543210',
-            location: 'Chennai, Tamil Nadu',
-            truckCount: 5,
-            rating: 4.5,
-            completedOrders: 127
-          },
-          {
-            id: 2,
-            name: 'Amit Singh',
-            companyName: 'Amit Transport Services',
-            phone: '+91 9876543211',
-            location: 'Mumbai, Maharashtra',
-            truckCount: 8,
-            rating: 4.2,
-            completedOrders: 89
-          },
-          {
-            id: 3,
-            name: 'Vijay Patel',
-            companyName: 'VP Cargo Solutions',
-            phone: '+91 9876543212',
-            location: 'Ahmedabad, Gujarat',
-            truckCount: 3,
-            rating: 4.7,
-            completedOrders: 156
-          },
-          {
-            id: 4,
-            name: 'Suresh Reddy',
-            companyName: 'SR Freight Services',
-            phone: '+91 9876543213',
-            location: 'Hyderabad, Telangana',
-            truckCount: 6,
-            rating: 4.3,
-            completedOrders: 94
-          }
-        ])
-        setLoading(false)
-      }, 1000)
+    if (isOpen && order) {
+      fetchTruckOwners()
     }
-  }, [isOpen])
+  }, [isOpen, order])
+
+  const fetchTruckOwners = async () => {
+    setLoading(true)
+    try {
+      // Get manufacturer ID from the order (check both manufacturer.id and manufacturerId)
+      const manufacturerId = order?.manufacturer?.id || order?.manufacturerId || 1 // fallback to 1 if not available
+
+      console.log('Order object:', order) // Debug log
+      console.log('Manufacturer ID:', manufacturerId) // Debug log
+
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees?role=truck-owner`)
+      const result = await response.json()
+
+      console.log('API Response:', result) // Debug log
+
+      if (result.success) {
+        // Transform the data to match the expected format
+        const transformedTruckOwners = result.data.map(employee => ({
+          id: employee.id,
+          name: employee.name,
+          companyName: 'Truck Owner', // Default company name
+          phone: employee.phone,
+          location: employee.address,
+          truckCount: 1, // Default truck count
+          rating: 4.0, // Default rating
+          completedOrders: 0 // Default completed orders
+        }))
+        setTruckOwners(transformedTruckOwners)
+      } else {
+        console.error('Failed to fetch truck owners:', result.message)
+        setTruckOwners([])
+      }
+    } catch (error) {
+      console.error('Error fetching truck owners:', error)
+      setTruckOwners([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleAssign = async () => {
     if (!selectedTruckOwner) return
