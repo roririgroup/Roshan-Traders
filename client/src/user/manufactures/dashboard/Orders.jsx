@@ -63,21 +63,7 @@ useEffect(() => {
   fetchProducts();
 }, []);
 
-// ✅ Load manufacturers from API
-useEffect(() => {
-  async function fetchManufacturers() {
-    try {
-      const response = await fetch('http://localhost:7700/api/manufacturers');
-      const data = await response.json();
-      setManufacturers(data);
-    } catch (error) {
-      console.error('Failed to fetch manufacturers:', error);
-      setManufacturers([]);
-    }
-  }
 
-  fetchManufacturers();
-}, []);
 
   // ✅ Load your orders from store
   useEffect(() => {
@@ -246,13 +232,22 @@ useEffect(() => {
     }
   };
 
+  const handleAssignClick = (order) => {
+    setIsAssignModalOpen(true)
+    setSelectedOrderForAssign(order)
+  };
+
   const handleAssignOrder = (orderId, truckOwner) => {
     assignTruckOwner(orderId, truckOwner)
-    updateOrderStatus(orderId, 'shipped')
+    updateOrderStatus(orderId, 'in_progress')
     setRefreshTrigger(prev => prev + 1)
     showSuccessNotification('Order assigned successfully!')
     setIsAssignModalOpen(false)
     setSelectedOrderForAssign(null)
+  };
+
+  const handleTrackOrder = (orderId) => {
+    showSuccessNotification('Tracking order... Order is in progress.')
   };
   const validateForm = () => {
     const newErrors = {}
