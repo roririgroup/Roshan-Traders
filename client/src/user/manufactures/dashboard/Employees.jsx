@@ -6,13 +6,7 @@ import FilterBar from '../../../components/ui/FilterBar'
 import { Users, UserPlus, Edit, Trash2 } from 'lucide-react'
 
 export default function Employees() {
-  const [agents, setAgents] = useState([
-    { id: 1, name: 'Rajesh Kumar', email: 'rajesh@agent.com', phone: '+91 98765 43210', role: 'agent', status: 'active', joinDate: '2024-01-15' },
-    { id: 2, name: 'Priya Sharma', email: 'priya@agent.com', phone: '+91 98765 43211', role: 'agent', status: 'active', joinDate: '2024-02-20' },
-    { id: 3, name: 'Amit Singh', email: 'amit@employee.com', phone: '+91 98765 43212', role: 'employee', status: 'active', joinDate: '2024-01-10' },
-    { id: 4, name: 'Suresh Patel', email: 'suresh@employee.com', phone: '+91 98765 43213', role: 'employee', status: 'active', joinDate: '2024-03-05' },
-    { id: 5, name: 'Kavita Jain', email: 'kavita@agent.com', phone: '+91 98765 43214', role: 'agent', status: 'inactive', joinDate: '2024-01-20' }
-  ])
+  const [agents, setAgents] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingAgent, setEditingAgent] = useState(null)
   const [search, setSearch] = useState('')
@@ -20,7 +14,7 @@ export default function Employees() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    address: '',
     phone: '',
     role: 'agent',
     status: 'active'
@@ -31,7 +25,7 @@ export default function Employees() {
     setEditingAgent(null)
     setFormData({
       name: '',
-      email: '',
+      address: '',
       phone: '',
       role: 'agent',
       status: 'active'
@@ -43,7 +37,7 @@ export default function Employees() {
     setEditingAgent(agent)
     setFormData({
       name: agent.name,
-      email: agent.email,
+      address: agent.address,
       phone: agent.phone,
       role: agent.role,
       status: agent.status
@@ -128,7 +122,7 @@ export default function Employees() {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        placeholder="Search by name or email..."
+        placeholder="Search by name or address..."
         selects={[
           {
             name: 'role',
@@ -160,7 +154,7 @@ export default function Employees() {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Name</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Email</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-900">Address</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Phone</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Role</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
@@ -172,7 +166,7 @@ export default function Employees() {
               {agents
                 .filter(a => (
                   a.name.toLowerCase().includes(search.toLowerCase()) ||
-                  a.email.toLowerCase().includes(search.toLowerCase())
+                  a.address.toLowerCase().includes(search.toLowerCase())
                 ))
                 .filter(a => roleFilter === 'all' ? true : a.role === roleFilter)
                 .filter(a => statusFilter === 'all' ? true : a.status === statusFilter)
@@ -182,7 +176,7 @@ export default function Employees() {
                     {agent.name}
                   </td>
                   <td className="py-4 px-6 text-slate-900">
-                    {agent.email}
+                    {agent.address}
                   </td>
                   <td className="py-4 px-6 text-slate-600">
                     {agent.phone}
@@ -242,14 +236,14 @@ export default function Employees() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
             <input
-              type="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              name="address"
+              value={formData.address}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-              placeholder="Enter email address"
+              placeholder="Enter address"
             />
           </div>
           <div>
