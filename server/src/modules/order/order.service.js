@@ -67,7 +67,7 @@ const createOrder = async (payload) => {
 };
 
 const getAllOrders = async () => {
-  const orders = await prisma.order.findMany({
+  return await prisma.order.findMany({
     include: {
       items: {
         include: {
