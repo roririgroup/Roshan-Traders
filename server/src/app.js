@@ -45,7 +45,9 @@ const manufacturerApi = require('./modules/manufacturer/manufacturer.route.js');
 const agentApi = require('./modules/agent/agent.route.js');
 const employeeApi = require('./modules/employee/employee.route.js');
 const actingLabourApi = require('./modules/acting_labour/acting_labour.route.js');
+const manufacturerProductRoutes = require('./modules/manufacturer-products/manufacturer-product.route.js');
 
+app.use('/api/manufacturer-products', manufacturerProductRoutes);
 app.use('/api/users', userApi);
 app.use('/api/admin-auth', adminAuthApi);
 app.use('/api/products', productApi);
