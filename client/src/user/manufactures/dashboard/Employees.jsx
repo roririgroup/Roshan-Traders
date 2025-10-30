@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import FilterBar from '../../../components/ui/FilterBar'
-import { Users, UserPlus, Edit, Trash2 } from 'lucide-react'
+import { Users, UserPlus, Edit, Trash2, Truck, User, Loader, UserCheck, Shield } from 'lucide-react'
 
 export default function Employees() {
   const [agents, setAgents] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingAgent, setEditingAgent] = useState(null)
   const [search, setSearch] = useState('')
-  const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [activeTab, setActiveTab] = useState('agent')
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -20,14 +20,22 @@ export default function Employees() {
     status: 'active'
   })
 
+  const tabs = [
+    { id: 'agent', label: 'Agents', icon: User },
+    { id: 'truck-owner', label: 'Truck Owners', icon: Truck },
+    { id: 'driver', label: 'Drivers', icon: User },
+    { id: 'loadman', label: 'Loadman', icon: Loader },
+    { id: 'supervisor', label: 'Supervisor', icon: Shield }
+  ]
+
   // Agent/Employee management functions
-  const handleAddAgent = () => {
+  const handleAddAgent = (role = activeTab) => {
     setEditingAgent(null)
     setFormData({
       name: '',
       address: '',
       phone: '',
-      role: 'agent',
+      role: role,
       status: 'active'
     })
     setIsModalOpen(true)
@@ -80,9 +88,16 @@ export default function Employees() {
   }
 
   const getRoleBadge = (role) => {
+    const roleLabels = {
+      'agent': 'Agent',
+      'truck-owner': 'Truck Owner',
+      'driver': 'Driver',
+      'loadman': 'Loadman',
+      'supervisor': 'Supervisor'
+    }
     return (
       <Badge variant={role === 'agent' ? 'primary' : 'secondary'}>
-        {role.charAt(0).toUpperCase() + role.slice(1)}
+        {roleLabels[role] || role.charAt(0).toUpperCase() + role.slice(1)}
       </Badge>
     )
   }
@@ -110,12 +125,50 @@ export default function Employees() {
         </div>
       </div>
 
-      {/* Add Employee Button */}
-      <div className="mb-6 flex justify-end">
-        <Button onClick={handleAddAgent} className="bg-[#ece6e3] hover:bg-[#e0763a] cursor-pointer">
-          <UserPlus className="size-4 mr-2" />
-          Add Agent/Employee
-        </Button>
+      {/* Tabs */}
+      <div className="mb-6 bg-white rounded-lg shadow-sm border border-slate-200 p-1">
+        <div className="flex gap-1">
+          {tabs.map((tab) => {
+            const IconComponent = tab.icon
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-[#F08344] text-white'
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <IconComponent className="size-4" />
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {tabs.find(tab => tab.id === activeTab) && (
+              <>
+                <div className="w-8 h-8 bg-[#F08344] rounded-lg flex items-center justify-center">
+                  {React.createElement(tabs.find(tab => tab.id === activeTab).icon, { className: "size-4 text-white" })}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">{tabs.find(tab => tab.id === activeTab).label}</h2>
+                  <p className="text-slate-600">Manage your {tabs.find(tab => tab.id === activeTab).label.toLowerCase()}</p>
+                </div>
+              </>
+            )}
+          </div>
+          <Button onClick={() => handleAddAgent(activeTab)} className="bg-[#ece6e3] hover:bg-[#e0763a] cursor-pointer">
+            <UserPlus className="size-4 mr-2" />
+            Add {tabs.find(tab => tab.id === activeTab)?.label.slice(0, -1) || 'Employee'}
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -124,16 +177,6 @@ export default function Employees() {
         onSearchChange={setSearch}
         placeholder="Search by name or address..."
         selects={[
-          {
-            name: 'role',
-            value: roleFilter,
-            onChange: setRoleFilter,
-            options: [
-              { value: 'all', label: 'All Roles' },
-              { value: 'agent', label: 'Agent' },
-              { value: 'employee', label: 'Employee' }
-            ]
-          },
           {
             name: 'status',
             value: statusFilter,
@@ -156,19 +199,17 @@ export default function Employees() {
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Name</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Address</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Phone</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Role</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Join Date</th>
                 <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
               </tr>
             </thead>
             <tbody>
               {agents
+                .filter(a => a.role === activeTab)
                 .filter(a => (
                   a.name.toLowerCase().includes(search.toLowerCase()) ||
                   a.address.toLowerCase().includes(search.toLowerCase())
                 ))
-                .filter(a => roleFilter === 'all' ? true : a.role === roleFilter)
                 .filter(a => statusFilter === 'all' ? true : a.status === statusFilter)
                 .map((agent) => (
                 <tr key={agent.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
@@ -180,16 +221,11 @@ export default function Employees() {
                   </td>
                   <td className="py-4 px-6 text-slate-600">
                     {agent.phone}
-                  </td>
-                  <td className="py-4 px-6">
-                    {getRoleBadge(agent.role)}
-                  </td>
+                  </td>                 
                   <td className="py-4 px-6">
                     {getAgentStatusBadge(agent.status)}
                   </td>
-                  <td className="py-4 px-6 text-slate-600">
-                    {new Date(agent.joinDate).toLocaleDateString()}
-                  </td>
+                  
                   <td className="py-4 px-6">
                     <div className="flex gap-2">
                       <Button
@@ -222,7 +258,7 @@ export default function Employees() {
       )}
 
       {/* Agent Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingAgent ? 'Edit Agent/Employee' : 'Add Agent/Employee'}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingAgent ? `Edit ${tabs.find(tab => tab.id === activeTab)?.label.slice(0, -1) || 'Employee'}` : `Add ${tabs.find(tab => tab.id === activeTab)?.label.slice(0, -1) || 'Employee'}`}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
@@ -258,18 +294,6 @@ export default function Employees() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F08344]"
-            >
-              <option value="agent">Agent</option>
-              <option value="employee">Employee</option>
-            </select>
-          </div>
-          <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
             <select
               name="status"
@@ -283,7 +307,7 @@ export default function Employees() {
           </div>
           <div className="flex gap-3 pt-4">
             <Button onClick={handleSaveAgent} className="bg-[#F08344] hover:bg-[#e0763a] flex-1">
-              {editingAgent ? 'Update' : 'Add'} Agent/Employee
+              {editingAgent ? 'Update' : 'Add'} {tabs.find(tab => tab.id === activeTab)?.label.slice(0, -1) || 'Employee'}
             </Button>
             <Button onClick={() => setIsModalOpen(false)} variant="secondary" className="flex-1">
               Cancel
