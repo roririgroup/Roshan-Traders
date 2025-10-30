@@ -54,9 +54,18 @@ router.put('/:id/assign', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await updateOrderStatus(req.params.id, status);
+    // Map frontend status to database enum
+    const statusMap = {
+      'confirmed': 'COMPLETED',
+      'rejected': 'CANCELLED',
+      'pending': 'PENDING',
+      'in_progress': 'IN_PROGRESS'
+    };
+    const dbStatus = statusMap[status] || status;
+    const order = await updateOrderStatus(req.params.id, dbStatus);
     res.json(order);
   } catch (error) {
+    console.error('Error updating order status:', error);
     res.status(500).json({ message: 'Failed to update order status' });
   }
 });
