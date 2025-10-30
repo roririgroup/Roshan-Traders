@@ -187,8 +187,8 @@ export default function Employees() {
             <Users className="size-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Agents & Employees</h1>
-            <p className="text-slate-600">Manage your agents and employees</p>
+            <h1 className="text-2xl font-bold text-slate-900">Employees</h1>
+            <p className="text-slate-600">Manage your employees</p>
           </div>
         </div>
       </div>
