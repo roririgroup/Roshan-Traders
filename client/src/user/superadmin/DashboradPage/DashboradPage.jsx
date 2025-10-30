@@ -59,7 +59,6 @@ export default function SuperAdminDashboard() {
   const [stats, setStats] = useState({
     totalManufacturers: 0,
     totalAgents: 0,
-    totalActingLabours: 0,
     totalEmployees: 0,
     totalUsers: 0,
     pendingPayments: 0,
@@ -69,7 +68,7 @@ export default function SuperAdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:7700/api/admins/stats');
+        const response = await fetch('http://localhost:7700/api/admin-auth/stats');
         if (response.ok) {
           const data = await response.json();
           setStats(data);
@@ -118,8 +117,8 @@ export default function SuperAdminDashboard() {
           />
            <StatCard
             title="Acting Labour "
-            value={stats.totalActingLabours}
-            icon={UserCheck}
+            value={stats.totalAgents}
+            icon={UserCheck}           
             color={{ bg: "bg-green-100", text: "text-green-600" }}
           />
           <StatCard
@@ -151,8 +150,8 @@ export default function SuperAdminDashboard() {
             />
              <StatCard
               title="Total Revenue"
-              value={stats.revenue}
-              icon={TrendingUp}
+              value={stats.pendingPayments}
+              icon={TrendingUp}             
               color={{ bg: "bg-yellow-100", text: "text-yellow-600" }}
             />
           </div>

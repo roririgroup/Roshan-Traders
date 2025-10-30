@@ -43,34 +43,16 @@ const createManufacturer = async (payload) => {
     // If no userId provided, create a new user for the manufacturer
     if (!userIdToUse) {
       console.log('No userId provided, creating new manufacturer user...');
-
-      // Validate that phone number is provided
-      if (!contact || !contact.phone) {
-        throw new Error('Phone number is required for manufacturer user creation');
-      }
-
-      // Check if phone number already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { phoneNumber: contact.phone }
-      });
-
-      if (existingUser) {
-        throw new Error('Phone number already registered');
-      }
-
-      // Create a new user for the manufacturer with actual phone number and approved status
+      // Create a new user for the manufacturer
       const systemUser = await prisma.user.create({
         data: {
-          phoneNumber: contact.phone, // Use actual phone number as primary login
+          phoneNumber: `SYSTEM_MANUFACTURER_${Date.now()}`, // Unique system phone for manufacturer
           userType: 'MANUFACTURER',
-          roles: ['Manufacturer'],
-          status: 'APPROVED', // Set as approved by default
           isVerified: true,
-          isActive: true,
         },
       });
       userIdToUse = systemUser.id;
-      console.log('Created new approved user with ID:', userIdToUse, 'and phone:', contact.phone);
+      console.log('Created new user with ID:', userIdToUse);
     }
 
   // Create manufacturer
@@ -282,11 +264,9 @@ const getAllManufacturers = async () => {
           },
         },
       },
-      orders: true,
       _count: {
         select: {
           manufacturerProducts: true,
-          orders: true,
         },
       },
     },
@@ -295,14 +275,11 @@ const getAllManufacturers = async () => {
   // Transform the response to match frontend expectations
   return manufacturers.map(manufacturer => ({
     ...manufacturer,
-    id: manufacturer.id.toString(),
-    userId: manufacturer.userId.toString(),
-    specializationsList: manufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
-    achievementsList: manufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
-    certificationsList: manufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
-    productsCount: manufacturer?._count?.manufacturerProducts || 0,
-    ordersCount: manufacturer?._count?.orders || 0,
-    exportCountriesCount: manufacturer?.companyInfo?.exportCountries || 0,
+    specializationsList: manufacturer.specializations.map(s => s.specialization.name),
+    achievementsList: manufacturer.achievements.map(a => a.achievement.name),
+    certificationsList: manufacturer.certifications.map(c => c.certification.name),
+    productsCount: manufacturer.manufacturerProducts.length,
+    exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
   }));
 };
 
@@ -345,13 +322,11 @@ const getManufacturerById = async (id) => {
   // Transform the response to match frontend expectations
   return {
     ...manufacturer,
-    id: manufacturer.id.toString(),
-    userId: manufacturer.userId.toString(),
-    specializationsList: manufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
-    achievementsList: manufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
-    certificationsList: manufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
-    productsCount: manufacturer?.manufacturerProducts?.length || 0,
-    exportCountriesCount: manufacturer?.companyInfo?.exportCountries || 0,
+    specializationsList: manufacturer.specializations.map(s => s.specialization.name),
+    achievementsList: manufacturer.achievements.map(a => a.achievement.name),
+    certificationsList: manufacturer.certifications.map(c => c.certification.name),
+    productsCount: manufacturer.manufacturerProducts.length,
+    exportCountriesCount: manufacturer.companyInfo?.exportCountries || 0,
   };
 };
 
@@ -637,13 +612,11 @@ const updateManufacturer = async (id, payload) => {
     // Transform the response to match frontend expectations
     const result = {
       ...updatedManufacturer,
-      id: updatedManufacturer.id.toString(),
-      userId: updatedManufacturer.userId.toString(),
-      specializationsList: updatedManufacturer?.specializations?.map(s => s?.specialization?.name).filter(Boolean) || [],
-      achievementsList: updatedManufacturer?.achievements?.map(a => a?.achievement?.name).filter(Boolean) || [],
-      certificationsList: updatedManufacturer?.certifications?.map(c => c?.certification?.name).filter(Boolean) || [],
-      productsCount: updatedManufacturer?.manufacturerProducts?.length || 0,
-      exportCountriesCount: updatedManufacturer?.companyInfo?.exportCountries || 0,
+      specializationsList: updatedManufacturer.specializations.map(s => s.specialization.name),
+      achievementsList: updatedManufacturer.achievements.map(a => a.achievement.name),
+      certificationsList: updatedManufacturer.certifications.map(c => c.certification.name),
+      productsCount: updatedManufacturer.manufacturerProducts.length,
+      exportCountriesCount: updatedManufacturer.companyInfo?.exportCountries || 0,
     };
 
     console.log('Manufacturer updated successfully');

@@ -1,16 +1,14 @@
-# TODO: Update Login System for User Approval
+# Dashboard Stats Implementation
 
 ## Backend Changes
-- [ ] Add `checkUserStatus` function in `server/src/modules/admin/admin.service.js`
-- [ ] Add GET `/api/admins/check-user-status/:phone` endpoint in `server/src/modules/admin/admin.route.js`
+- [x] Add `getDashboardStats` function to `server/src/modules/admin/admin.service.js`
+- [x] Add GET route `/stats` to `server/src/modules/admin/admin.route.js`
 
 ## Frontend Changes
-- [ ] Update `client/src/pages/Login/components/UserLogin.jsx` to call the new API endpoint
-- [ ] Remove localStorage mock data usage ('approvedUsers', 'pendingUsers')
-- [ ] Handle different user statuses (APPROVED, PENDING, REJECTED) with appropriate messages
+- [x] Remove "Reports" and "Available Bricks" StatCard components from `client/src/user/superadmin/DashboradPage/DashboradPage.jsx`
+- [x] Replace hardcoded stats object with API call to fetch real data
+- [x] Update remaining StatCard components to use fetched data
 
 ## Testing
-- [ ] Test login with approved user
-- [ ] Test login with pending user (should show pending message)
-- [ ] Test login with rejected user (should show rejected message)
-- [ ] Test login with non-existent user (should show signup message)
+- [ ] Test the API endpoint to ensure it returns correct counts
+- [ ] Verify the dashboard displays real data after changes

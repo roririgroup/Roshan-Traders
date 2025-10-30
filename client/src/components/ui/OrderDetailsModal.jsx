@@ -88,15 +88,15 @@ const OrderDetailsModal = ({
               Order Items
             </h3>
             <div className="space-y-3">
-              {order.items?.map((item, index) => (
+              {order.items.map((item, index) => (
                 <div key={index} className="bg-slate-50 rounded-lg p-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-medium text-slate-900">{item.product?.name}</h4>
+                      <h4 className="font-medium text-slate-900">{item.name}</h4>
                       <p className="text-sm text-slate-600">Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-slate-900">₹{item.unitPrice}</p>
+                      <p className="font-semibold text-slate-900">₹{item.price.toLocaleString()}</p>
                       <p className="text-sm text-slate-600">per unit</p>
                     </div>
                   </div>
@@ -109,7 +109,7 @@ const OrderDetailsModal = ({
           <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-slate-900">Total Amount:</span>
-              <span className="text-2xl font-bold text-blue-600">₹{order.totalAmount}</span>
+              <span className="text-2xl font-bold text-blue-600">₹{order.totalAmount.toLocaleString()}</span>
             </div>
             <div className="flex items-center gap-2 mt-2 text-sm text-slate-600">
               <Calendar className="size-4" />
@@ -118,7 +118,7 @@ const OrderDetailsModal = ({
           </div>
 
           {/* Actions */}
-          {(order.status === 'pending' || order.status === 'in_progress') && (
+          {order.status === 'pending' && (
             <div className="flex gap-3 pt-4 border-t border-slate-200">
               <Button
                 onClick={handleConfirm}

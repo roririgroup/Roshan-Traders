@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const { serializeBigInt } = require('../../shared/lib/json.js');
 const { createOrder, getAllOrders, getOrderById, assignOrder, updateOrderStatus, deleteOrder } = require('./order.service.js');
 
 const router = Router();
@@ -8,10 +7,9 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const orders = await getAllOrders();
-    res.json(serializeBigInt(orders));
+    res.json(orders);
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
+    res.status(500).json({ message: 'Failed to fetch orders' });
   }
 });
 
@@ -54,18 +52,9 @@ router.put('/:id/assign', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
-    // Map frontend status to database enum
-    const statusMap = {
-      'confirmed': 'COMPLETED',
-      'rejected': 'CANCELLED',
-      'pending': 'PENDING',
-      'in_progress': 'IN_PROGRESS'
-    };
-    const dbStatus = statusMap[status] || status;
-    const order = await updateOrderStatus(req.params.id, dbStatus);
+    const order = await updateOrderStatus(req.params.id, status);
     res.json(order);
   } catch (error) {
-    console.error('Error updating order status:', error);
     res.status(500).json({ message: 'Failed to update order status' });
   }
 });
