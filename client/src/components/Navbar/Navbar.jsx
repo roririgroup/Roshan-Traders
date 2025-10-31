@@ -21,49 +21,6 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     }
     return roleNames[role] || role
   }
-
-  const getUserInitials = () => {
-    // For Super Admin, always show "SA"
-    if (activeRole === 'superadmin') {
-      return 'SA'
-    }
-    
-    // For regular users, show their name initials
-    if (currentUser.firstName && currentUser.lastName) {
-      return `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
-    }
-    if (currentUser.firstName) {
-      return currentUser.firstName.charAt(0).toUpperCase()
-    }
-    return getRoleDisplayName(activeRole).charAt(0).toUpperCase()
-  }
-
-  const getUserDisplayName = () => {
-    // For Super Admin, always show "Super Admin"
-    if (activeRole === 'superadmin') {
-      return 'Super Admin'
-    }
-
-    // For regular users, show their display name if available, otherwise fallback to firstName + lastName
-    if (currentUser.displayName) {
-      return currentUser.displayName
-    }
-    if (currentUser.firstName && currentUser.lastName) {
-      return `${currentUser.firstName} ${currentUser.lastName}`
-    }
-    if (currentUser.firstName) {
-      return currentUser.firstName
-    }
-    return getRoleDisplayName(activeRole)
-  }
-
-  const getDisplayRole = () => {
-    // For Super Admin, you can show empty or specific text
-    if (activeRole === 'superadmin') {
-      return 'Administrator' // or leave empty if you prefer
-    }
-    return getRoleDisplayName(activeRole)
-  }
   
   return (
     <header className="h-14 sm:h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20 shadow-sm">
@@ -105,6 +62,8 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
         </div>
       </div>
 
+
+
       {/* Right Section */}
       <div className="flex items-center gap-1 sm:gap-3">
         {/* Search Button (Mobile & Tablet) */}
@@ -130,20 +89,14 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
           {/* User Details - Hidden on mobile */}
           <div className="hidden md:block text-right">
             <p className="text-sm font-medium text-slate-900 truncate max-w-24 lg:max-w-32">
-              {getUserDisplayName()}
+              {user?.name || 'User'}
             </p>
-            <p className="text-xs text-slate-500 -mt-0.5 truncate max-w-24 lg:max-w-32">
-              {getDisplayRole()}
-            </p>
+            <p className="text-xs text-slate-500 truncate">{getRoleDisplayName(activeRole)}</p>
           </div>
-
+          
           {/* User Avatar */}
-          <div className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm ${
-            activeRole === 'superadmin' 
-              ? 'bg-gradient-to-br from-purple-600 to-purple-700' 
-              : 'bg-gradient-to-br from-blue-600 to-blue-700'
-          }`}>
-            {getUserInitials()}
+          <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm">
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </div>
         </div>
         

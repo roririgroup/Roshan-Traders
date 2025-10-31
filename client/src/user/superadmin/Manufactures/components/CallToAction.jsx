@@ -7,7 +7,6 @@ const CallToAction = () => {
   }
   
 
-  
   const handleContact = (method) => {
     console.log(`Contact via ${method}`)
   }

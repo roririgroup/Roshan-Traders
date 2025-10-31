@@ -31,12 +31,12 @@ enum Gender {
 enum OrderStatus {
   PENDING
   IN_PROGRESS
-  CONFIRMED
   COMPLETED
   CANCELLED
 }
 
 model User {
+
   id          BigInt     @id @default(autoincrement())
   phoneNumber String     @unique
   countryCode String     @default("+91")
@@ -51,6 +51,17 @@ model User {
   updatedAt   DateTime   @updatedAt
   lastLogin   DateTime?
 
+  id           Int       @id @default(autoincrement())
+  phoneNumber  String    @unique
+  countryCode  String    @default("+91")
+  userType     UserType
+  isVerified   Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLogin    DateTime?
+
+
   // Relations
   profile               UserProfile?
   otps                  OTP[]
@@ -63,15 +74,19 @@ model User {
   verifiedManufacturers Manufacturer[] @relation("ManufacturerVerifiedBy")
 
   @@index([userType])
-  @@index([status])
   @@index([isVerified])
   @@index([createdAt])
   @@map("users")
 }
 
 model UserProfile {
+
   id              BigInt    @id @default(autoincrement())
   userId          BigInt    @unique
+
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+
   fullName        String?
   email           String?   @unique
   profileImageUrl String?
@@ -90,7 +105,11 @@ model UserProfile {
 }
 
 model OTP {
+
   id          BigInt   @id @default(autoincrement())
+
+  id          Int      @id @default(autoincrement())
+
   phoneNumber String
   otpCode     String
   userType    UserType
@@ -110,8 +129,13 @@ model OTP {
 }
 
 model LoginSession {
+
   id           BigInt   @id @default(autoincrement())
   userId       BigInt
+
+  id           Int      @id @default(autoincrement())
+  userId       Int
+
   sessionToken String   @unique @db.VarChar(500)
   expiresAt    DateTime
   createdAt    DateTime @default(now())
@@ -126,18 +150,23 @@ model LoginSession {
 }
 
 model Agent {
+
   id             BigInt    @id @default(autoincrement())
   userId         BigInt    @unique
+
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique
+
   agentCode      String    @unique
   commissionRate Float     @default(0.0)
   totalEarnings  Float     @default(0.0)
   assignedArea   String?
   isApproved     Boolean   @default(false)
-  approvedById   BigInt?
+  approvedById   Int?
   approvedAt     DateTime?
   bankDetails    Json? // {accountNumber, ifscCode, bankName, accountHolderName}
   createdAt      DateTime  @default(now())
-  supervisorId   BigInt?
+  supervisorId   Int?
 
   // Relations
   user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -153,6 +182,7 @@ model Agent {
 }
 
 model Manufacturer {
+
   id                   BigInt    @id @default(autoincrement())
   userId               BigInt    @unique
   companyName          String
@@ -182,6 +212,36 @@ model Manufacturer {
   specializations      ManufacturerSpecialization[]
   achievements         ManufacturerAchievement[]
   manufacturerProducts ManufacturerProduct[]
+
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  companyName     String
+  businessType    String?
+  gstNumber       String?   @unique
+  panNumber       String?   @unique
+  businessAddress Json?     // {street, city, state, pincode, country}
+  websiteUrl      String?
+  isVerified      Boolean   @default(false)
+  verifiedById    Int?
+  verifiedAt      DateTime?
+  description     String?
+  established     Int?
+  location        String?
+  rating          Float     @default(4.0)
+  image           String?
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifiedBy      User?     @relation("ManufacturerVerifiedBy", fields: [verifiedById], references: [id])
+  founders        Founder[]
+  companyInfo     CompanyInfo?
+  contact         Contact?
+  certifications  ManufacturerCertification[]
+  specializations ManufacturerSpecialization[]
+  achievements    ManufacturerAchievement[]
+  products        Product[]
+
   orders          Order[]
 
   @@index([userId])
@@ -193,11 +253,15 @@ model Manufacturer {
 }
 
 model Founder {
+
   id             BigInt  @id @default(autoincrement())
+
+  id             Int     @id @default(autoincrement())
+
   name           String
   experience     String?
   qualification  String?
-  manufacturerId BigInt
+  manufacturerId Int
 
   // Relations
   manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -207,11 +271,19 @@ model Founder {
 }
 
 model CompanyInfo {
+
   id              BigInt  @id @default(autoincrement())
   employees       Int?
   annualTurnover  String?
   exportCountries Int?
   manufacturerId  BigInt  @unique
+
+  id              Int    @id @default(autoincrement())
+  employees       Int?
+  annualTurnover  String?
+  exportCountries Int?
+  manufacturerId  Int    @unique
+
 
   // Relations
   manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -220,12 +292,20 @@ model CompanyInfo {
 }
 
 model Contact {
+
   id             BigInt  @id @default(autoincrement())
+
+  id             Int     @id @default(autoincrement())
+
   phone          String?
   email          String?
   website        String?
   address        String?
+
   manufacturerId BigInt  @unique
+
+  manufacturerId Int     @unique
+
 
   // Relations
   manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -234,7 +314,11 @@ model Contact {
 }
 
 model Certification {
+
   id          BigInt  @id @default(autoincrement())
+
+  id          Int                         @id @default(autoincrement())
+
   name        String
   description String?
 
@@ -246,8 +330,8 @@ model Certification {
 }
 
 model ManufacturerCertification {
-  manufacturerId  BigInt
-  certificationId BigInt
+  manufacturerId  Int
+  certificationId Int
 
   // Relations
   manufacturer  Manufacturer  @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -259,7 +343,11 @@ model ManufacturerCertification {
 }
 
 model Specialization {
+
   id   BigInt @id @default(autoincrement())
+
+  id   Int    @id @default(autoincrement())
+
   name String
 
   // Relations
@@ -270,8 +358,8 @@ model Specialization {
 }
 
 model ManufacturerSpecialization {
-  manufacturerId   BigInt
-  specializationId BigInt
+  manufacturerId   Int
+  specializationId Int
 
   // Relations
   manufacturer   Manufacturer   @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -283,7 +371,11 @@ model ManufacturerSpecialization {
 }
 
 model Achievement {
+
   id   BigInt @id @default(autoincrement())
+
+  id   Int    @id @default(autoincrement())
+
   name String
   year Int?
 
@@ -296,8 +388,8 @@ model Achievement {
 }
 
 model ManufacturerAchievement {
-  manufacturerId BigInt
-  achievementId  BigInt
+  manufacturerId Int
+  achievementId  Int
 
   // Relations
   manufacturer Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
@@ -314,7 +406,12 @@ model Product {
   category       String
   priceRange     String?
   imageUrl       String?
+
   qualityRating  Float   @default(4.0)
+
+  manufacturerId Int?
+  qualityRating  Float     @default(4.0)
+
   offer          String?
   buyersCount    Int     @default(0)
   returnExchange Boolean @default(false)
@@ -324,17 +421,31 @@ model Product {
   isActive       Boolean @default(true)
 
   // Relations
+
   attributes           ProductAttribute[]
   orderItems           OrderItem[]
   manufacturerProducts ManufacturerProduct[]
 
+  manufacturer   Manufacturer?     @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  attributes     ProductAttribute[]
+  orderItems     OrderItem[]
+
+
   @@index([name])
   @@index([category])
+
   @@map("products")
 }
 
 model ProductAttribute {
   id             BigInt @id @default(autoincrement())
+
+  @@index([manufacturerId])
+}
+
+model ProductAttribute {
+  id             Int     @id @default(autoincrement())
+
   attributeType  String
   attributeValue String
   productId      String
@@ -356,27 +467,37 @@ model Order {
   totalAmount     Float
   deliveryAddress String?
   notes           String?
-  manufacturerId  BigInt?
-  assignedTruckOwnerId BigInt?
-  estimatedDeliveryDate DateTime?
+  manufacturerId  Int?
 
   // Relations
+
   manufacturer       Manufacturer? @relation(fields: [manufacturerId], references: [id])
   assignedTruckOwner Employee?     @relation(fields: [assignedTruckOwnerId], references: [id])
   items              OrderItem[]
   trips              Trip[]
+
+  manufacturer    Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
+
 
   @@index([customerEmail])
   @@index([orderDate])
   @@index([status])
   @@index([manufacturerId])
   @@index([customerName])
+
   @@index([assignedTruckOwnerId])
   @@map("orders")
 }
 
 model OrderItem {
   id         BigInt @id @default(autoincrement())
+
+}
+
+model OrderItem {
+  id         Int     @id @default(autoincrement())
+
   productId  String
   orderId    String
   quantity   Int
@@ -393,6 +514,7 @@ model OrderItem {
 }
 
 model Employee {
+
   id           BigInt   @id @default(autoincrement())
   userId       BigInt   @unique
   employeeCode String   @unique
@@ -410,12 +532,28 @@ model Employee {
   trucks         Truck[]
   trips          Trip[]
 
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique
+  employeeCode   String    @unique
+  role           String    // Truck Owner, Loader, etc.
+  status         String    @default("Available") // Available, On Job, Unavailable
+  currentOrder   Json?     // Current assigned task/order details
+  salary         Float     @default(0.0)
+  hireDate       DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
   @@index([userId])
   @@index([employeeCode])
   @@index([role])
   @@index([status])
   @@map("employees")
 }
+
 
 model ManufacturerProduct {
   id             BigInt @id @default(autoincrement())
@@ -436,6 +574,12 @@ model AuditLog {
   id          BigInt   @id @default(autoincrement())
   userId      BigInt?
   action      String // login, login_failed, otp_sent, otp_verified, etc.
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  action      String   // login, login_failed, otp_sent, otp_verified, etc.
+
   description String?
   ipAddress   String?
   userAgent   String?
@@ -449,6 +593,7 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
 
 enum LabourType {
   DRIVER
@@ -563,3 +708,4 @@ model ManufacturerEmployee {
   @@index([role])
   @@index([status])
 }
+
