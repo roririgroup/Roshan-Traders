@@ -20,7 +20,8 @@ import {
   Square,
   Home,
   Layers
-} from 'lucide-react';
+}
+ from 'lucide-react';
 
 function EnquiryPage() {
   const [selectedProduct, setSelectedProduct] = useState('');

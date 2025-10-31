@@ -32,6 +32,7 @@ const MENU_CONFIG = {
     { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
     { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
   ],
+  
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
     { to: '/dashboard/agent-products', label: 'Products', icon: Package },

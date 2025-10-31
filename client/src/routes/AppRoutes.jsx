@@ -40,6 +40,7 @@ import ProductAvailability from "../user/superadmin/ProductStock/Product";
 function useSafeNavigate() {
   const location = useLocation();
   
+  
   const shouldRedirect = (targetPath) => {
     return location.pathname !== targetPath;
   };

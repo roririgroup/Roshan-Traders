@@ -15,6 +15,7 @@ export default function TruckManagement() {
       documents: ['RC Book', 'Insurance'],
       nextService: '2024-12-15'
     },
+    
     {
       id: 2,
       truckNo: 'TN02CD5678',

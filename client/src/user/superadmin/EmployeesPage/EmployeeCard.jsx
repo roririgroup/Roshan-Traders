@@ -43,6 +43,7 @@ const EmployeeCard = ({ employee, onAssign, onRemoveClick, isLoading }) => {
                 onError={handleImageError}
                 loading="lazy"
               />
+              
               <div
                 className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
                   status === "Available"

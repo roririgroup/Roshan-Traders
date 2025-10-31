@@ -15,6 +15,7 @@ export default function Profile() {
     panNumber: 'AAAAA0000A'
   })
 
+  
   const [documents, setDocuments] = useState({
     aadhaar: 'Uploaded',
     pan: 'Uploaded',

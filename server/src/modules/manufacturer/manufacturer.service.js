@@ -1,5 +1,16 @@
 const prisma = require('../../shared/lib/db.js');
 
+
+/**
+ * @typedef {Object} Founder
+ * @property {string} name
+ * @property {string} experience
+ * @property {string} qualification
+ */
+
+/**
+ * @param {any} payload
+ */
 const createManufacturer = async (payload) => {
   try {
     console.log('createManufacturer called with payload:', JSON.stringify(payload, null, 2));

@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/agents/:id - Get agent by ID
 router.get('/:id', async (req, res) => {
   try {

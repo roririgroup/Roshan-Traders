@@ -255,6 +255,7 @@ export default function ManufacturersPage() {
                   <option value="name">Name (A-Z)</option>
                 </select>
               </div>
+              
 
               {/* View Mode Toggle */}
               <div className="flex bg-gray-50 border border-gray-200 rounded-2xl p-1">

@@ -3,6 +3,7 @@ const { createProduct, getProducts, getProductById, updateProduct, deleteProduct
 
 const router = Router();
 
+
 // GET /api/products - Get all products
 router.get('/', async (req, res) => {
   try {

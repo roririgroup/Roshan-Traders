@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes'
 import { NotificationProvider } from './lib/notifications.jsx'
 
+
 function App() {
   return (
     <NotificationProvider>

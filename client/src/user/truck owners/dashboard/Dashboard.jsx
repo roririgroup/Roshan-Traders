@@ -13,6 +13,7 @@ export default function Dashboard() {
     monthlyEarnings: 0,
     yearlyEarnings: 0
   })
+  
 
   // Mock data - replace with API calls
   useEffect(() => {

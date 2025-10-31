@@ -1,5 +1,9 @@
 const prisma = require('../../shared/lib/db.js');
 
+
+/**
+ * @param {any} payload
+ */
 const createProduct = async (payload) => {
   const {
     name,

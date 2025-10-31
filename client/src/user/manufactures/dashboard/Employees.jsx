@@ -116,12 +116,51 @@ export default function Employees() {
         </div>
       </div>
 
-      {/* Add Employee Button */}
-      <div className="mb-6 flex justify-end">
-        <Button onClick={handleAddAgent} className="bg-[#ece6e3] hover:bg-[#e0763a] cursor-pointer">
-          <UserPlus className="size-4 mr-2" />
-          Add Agent/Employee
-        </Button>
+      {/* Tabs */}
+      <div className="mb-6 bg-white rounded-lg shadow-sm border border-slate-200 p-1">
+        <div className="flex gap-1">
+          {tabs.map((tab) => {
+            const IconComponent = tab.icon
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-[#F08344] text-white'
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <IconComponent className="size-4" />
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      
+
+      {/* Tab Content */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {tabs.find(tab => tab.id === activeTab) && (
+              <>
+                <div className="w-8 h-8 bg-[#F08344] rounded-lg flex items-center justify-center">
+                  {React.createElement(tabs.find(tab => tab.id === activeTab).icon, { className: "size-4 text-white" })}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">{tabs.find(tab => tab.id === activeTab).label}</h2>
+                  <p className="text-slate-600">Manage your {tabs.find(tab => tab.id === activeTab).label.toLowerCase()}</p>
+                </div>
+              </>
+            )}
+          </div>
+          <Button onClick={() => handleAddAgent(activeTab)} className="bg-[#ece6e3] hover:bg-[#e0763a] cursor-pointer">
+            <UserPlus className="size-4 mr-2" />
+            Add {tabs.find(tab => tab.id === activeTab)?.label.slice(0, -1) || 'Employee'}
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

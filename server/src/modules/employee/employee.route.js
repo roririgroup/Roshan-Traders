@@ -3,7 +3,16 @@ const { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, delete
 
 const router = Router();
 
-// GET /api/employees - Get all employees
+
+// Helper to send serialized response
+const sendSerializedResponse = (res, data) => {
+  res.json(serializeBigInt(data));
+};
+
+
+
+
+// GET /api/employees - Get all employees (with optional filters)
 router.get('/', async (req, res) => {
   try {
     const employees = await getAllEmployees();

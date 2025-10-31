@@ -12,6 +12,7 @@ const OrderDetailsModal = ({
   isLoading = false 
 }) => {
   if (!isOpen || !order) return null
+  
 
   const getStatusBadge = (status) => {
     switch (status) {

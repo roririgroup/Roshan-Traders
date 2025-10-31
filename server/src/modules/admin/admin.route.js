@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { createAdmin, getAllAdmins, getAdminById, updateAdmin, deleteAdmin } = require('./admin.service.js');
 
+
 const router = Router();
 
 // GET /api/admins - Get all admins

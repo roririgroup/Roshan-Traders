@@ -15,6 +15,13 @@ enum UserType {
   ADMIN
 }
 
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum Gender {
   MALE
   FEMALE

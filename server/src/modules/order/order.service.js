@@ -1,5 +1,15 @@
 const prisma = require('../../shared/lib/db.js');
 
+
+/**
+ * @param {Object} payload
+ * @param {string} payload.customerName
+ * @param {string} payload.phoneNumber
+ * @param {string} payload.deliveryAddress
+ * @param {number} payload.quantity
+ * @param {string} payload.estimatedDeliveryDate
+ * @param {string} payload.productId
+ */
 const createOrder = async (payload) => {
   const {
     customerName,

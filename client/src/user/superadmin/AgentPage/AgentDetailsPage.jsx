@@ -21,6 +21,7 @@ const AgentDetailsPage = () => {
       joinDate: 'Jan 2024',
       status: 'active'
     },
+    
     {
       id: 'a2',
       name: 'Kumar',

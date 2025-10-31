@@ -37,9 +37,36 @@ const EmployeesPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Employees</h1>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Employees</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Manage regular employees (excluding truck owners and drivers)
+          </p>
+        </div>
+        <Button
+          onClick={() => setIsAddModalOpen(true)}
+          className="bg-[#F08344] hover:bg-[#e0733a] text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+          disabled={isLoading}
+        >
+          <Plus className="w-4 h-4" />
+          Add Employee
+        </Button>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+          Error: {error}
+          <button 
+            onClick={fetchEmployees} 
+            className="ml-2 text-red-700 hover:text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       
-      {/* Debug: Check if employees data is loaded */}
+
       <div className="mb-4 text-sm text-gray-600">
         Total employees: {employees.length}
       </div>

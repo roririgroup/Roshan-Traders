@@ -21,6 +21,38 @@ export default function UserLogin() {
 
   function handleSubmit(e) {
     e.preventDefault()
+
+    // If in role selection mode, handle role selection
+    if (showRoleSelection) {
+      if (!selectedRole) {
+        setError('Please select a role to continue')
+        return
+      }
+
+      // Update user info with selected role
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      localStorage.setItem('currentUser', JSON.stringify({
+        ...currentUser,
+        selectedRole: selectedRole
+      }));
+      
+
+      // Redirect based on selected role
+      if (selectedRole === 'agent') {
+        navigate('/agents/dashboard')
+      } else if (selectedRole === 'manufacturer') {
+        navigate('/manufacturers/dashboard')
+      } else if (selectedRole === 'truckowner') {
+        navigate('/truck-owners/dashboard')
+      } else if (selectedRole === 'driver') {
+        navigate('/drivers/dashboard')
+      } else {
+        navigate('/')
+      }
+      return;
+    }
+
+    // Initial login flow
     if (!phone || !otp) {
       setError('Please enter both mobile number and OTP')
       return

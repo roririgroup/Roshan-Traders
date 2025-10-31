@@ -12,6 +12,7 @@ const createAdmin = async (payload) => {
       isVerified: true,
     },
   });
+  
 
   // Create user profile
   if (name || email) {

@@ -27,17 +27,39 @@ export default function Orders() {
     fetchProducts()
   }, [])
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/products`)
-      if (response.ok) {
-        const data = await response.json()
-        setProducts(data)
-      } else {
-        console.error('Failed to fetch products')
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error)
+  const loadOrders = () => {
+    const agentOrders = JSON.parse(localStorage.getItem('agentOrders')) || []
+    const mainOrders = getOrders()
+    const user = getCurrentUser()
+
+
+    
+    // Combine and filter for current user
+    const allOrders = [...agentOrders, ...mainOrders]
+    const uniqueOrders = allOrders.filter((order, index, self) =>
+      index === self.findIndex((o) => o.id === order.id)
+    )
+
+    setOrders(uniqueOrders.filter(order =>
+      order.userInfo && order.userInfo.id === user?.id
+    ))
+  }
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order)
+    setIsModalOpen(true)
+  }
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'pending':
+        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
+      case 'confirmed':
+        return <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Confirmed</span>
+      case 'rejected':
+        return <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Rejected</span>
+      default:
+        return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{status}</span>
     }
   }
 

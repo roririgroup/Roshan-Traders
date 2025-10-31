@@ -5,10 +5,9 @@ import { getOrders } from '../../../store/ordersStore'
 import FilterBar from '../../../components/ui/FilterBar'
 
 export default function Orders() {
-  const [orders, setOrders] = useState([])
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [assignedOrders, setAssignedOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  
 
   useEffect(() => {
     setOrders(getOrders())
