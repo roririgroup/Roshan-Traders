@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 // Prisma client is typed; cast to any here to avoid TS-checking errors in JS files
 const prisma = /** @type {any} */ (new PrismaClient());
 
+
 class ActingLabourService {
   // Get all acting labours with optional filters
   /**

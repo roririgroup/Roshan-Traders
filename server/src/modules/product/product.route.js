@@ -10,18 +10,8 @@ const {
 
 const router = Router();
 
-// ✅ Add product to DB
-router.post('/', async (req, res) => {
-  try {
-    const newProduct = await createProduct(req.body);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ message: 'Failed to create product' });
-  }
-});
 
-// ✅ (Optional) You can keep these if needed later
+// GET /api/products - Get all products
 router.get('/', async (req, res) => {
   try {
     const products = await getProducts();

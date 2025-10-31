@@ -71,53 +71,105 @@ export default function ProductsPage() {
       return
     }
 
-    try {
-      const payload = {
-        manufacturerId: currentUser?.id,
-        name: addForm.name,
-        category: 'General',
-        priceRange: addForm.priceAmount.toString(),
-        imageUrl: addForm.image,
-        qualityRating: addForm.qualityRating,
-        offer: addForm.offer,
-        buyersCount: parseInt(addForm.buyersCount) || 0,
-        returnExchange: addForm.returnExchange,
-        cashOnDelivery: addForm.cashOnDelivery,
-        paymentOptions: addForm.paymentOptions,
-        description: addForm.description,
-      }
+    const unitPrice = Number(product.price)
+    const total = unitPrice * quantity
 
-      // ✅ FIXED ENDPOINT HERE
-      const response = await fetch(`${API_BASE_URL}/manufacturer-products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      if (response.ok) {
-        const newProduct = await response.json()
-        setProducts((prev) => [...prev, newProduct])
-        setShowAddModal(false)
-        setAddForm({
-          name: '',
-          qualityRating: 4.0,
-          priceAmount: '',
-          offer: '',
-          buyersCount: 0,
-          returnExchange: false,
-          cashOnDelivery: false,
-          paymentOptions: [],
-          description: '',
-          image: '',
-        })
-        alert('✅ Product added successfully!')
-      } else {
-        const errorText = await response.text()
-        alert(`❌ Failed to add product: ${errorText}`)
-      }
-    } catch (error) {
-      alert(`❌ Error adding product: ${error.message}`)
+    const orderData = {
+      id: Date.now(),
+      orderType: 'product',
+      userInfo: {
+        id: user.id,
+        name: user.name || user.username || 'Unknown User'
+      },
+      items: [
+        {
+          name: product.name,
+          quantity,
+          price: unitPrice
+        }
+      ],
+      totalAmount: total,
+      status: 'pending',
+      orderDate: new Date().toISOString(),
+      deliveryAddress: 'N/A'
     }
+
+    console.log('Placing order:', orderData)
+    addOrder(orderData)
+    alert('Order placed successfully!')
+
+    // reset quantity
+    setQuantities(prev => ({
+      ...prev,
+      [product.id]: ''
+    }))
+  }
+
+  const handleAddProduct = () => {
+    if (!formData.name || !formData.price || !formData.description) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    const newProduct = {
+      id: Date.now(),
+      ...formData,
+      price: parseFloat(formData.price),
+      stockQuantity: formData.stockQuantity || 0
+    }
+
+    setProducts(prev => [...prev, newProduct])
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      image: '',
+      inStock: true,
+      stockQuantity: 0
+    })
+    setShowAddForm(false)
+  }
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product)
+    setFormData({
+      name: product.name,
+      price: product.price.toString(),
+      description: product.description,
+      image: product.image || '',
+      inStock: product.inStock,
+      stockQuantity: product.stockQuantity || 0
+    })
+    setShowAddForm(true)
+  }
+
+  const handleUpdateProduct = () => {
+    if (!formData.name || !formData.price || !formData.description) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    setProducts(prev => prev.map(product =>
+      product.id === editingProduct.id
+        ? {
+            ...product,
+            ...formData,
+            price: parseFloat(formData.price),
+            stockQuantity: formData.stockQuantity || 0
+          }
+        : product
+    ))
+
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      image: '',
+      inStock: true,
+      stockQuantity: 0
+    })
+    setEditingProduct(null)
+    setShowAddForm(false)
   }
 
   const handleDelete = async (productId) => {

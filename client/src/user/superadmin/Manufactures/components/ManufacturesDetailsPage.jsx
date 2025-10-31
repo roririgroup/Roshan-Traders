@@ -85,12 +85,57 @@ export default function ManufacturerDetailsPage() {
   const [manufacturer, setManufacturer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('orders'); // Set orders as default tab
+  const [activeTab, setActiveTab] = useState('about'); // Set about as default tab
   const [isFavorited, setIsFavorited] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [employeesLoading, setEmployeesLoading] = useState(false);
+  const [employeesError, setEmployeesError] = useState(null);
+  const [employeeStats, setEmployeeStats] = useState(null);
 
   useEffect(() => {
     fetchManufacturer();
   }, [manufacturerId]);
+
+  // Fetch employees when employees tab is clicked
+  useEffect(() => {
+    if (activeTab === 'employees' && manufacturerId) {
+      fetchEmployees();
+      fetchEmployeeStats();
+    }
+  }, [activeTab, manufacturerId]);
+
+  const fetchEmployees = async () => {
+    try {
+      setEmployeesLoading(true);
+      setEmployeesError(null);
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees`);
+      if (response.ok) {
+        const data = await response.json();
+        setEmployees(data.data || []);
+      } else {
+        setEmployeesError('Failed to load employees');
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setEmployeesError('Failed to load employees');
+    } finally {
+      setEmployeesLoading(false);
+    }
+  };
+
+  const fetchEmployeeStats = async () => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employee-stats`);
+      if (response.ok) {
+        const data = await response.json();
+        setEmployeeStats(data.data || data);
+      } else {
+        console.error('Failed to load employee stats');
+      }
+    } catch (error) {
+      console.error('Error fetching employee stats:', error);
+    }
+  };
 
   const fetchManufacturer = async () => {
     try {
@@ -471,6 +516,20 @@ export default function ManufacturerDetailsPage() {
                     <FileText className="w-5 h-5 mr-2" />
                     Certifications
                   </TabButton>
+                  <TabButton
+                    active={activeTab === 'employees'}
+                    onClick={() => setActiveTab('employees')}
+                  >
+                    <Users className="w-5 h-5 mr-2" />
+                    Employees ({employees.length || manufacturer.teamSize || 0})
+                  </TabButton>
+                   <TabButton
+                    active={activeTab === 'orders'}
+                    onClick={() => setActiveTab('orders')}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Orders ({totalOrders})
+                  </TabButton>
                 </nav>
               </div>
 
@@ -552,6 +611,7 @@ export default function ManufacturerDetailsPage() {
                                 </div>
                               </div>
                             </div>
+                            
 
                             {/* Order Details */}
                             <div className="p-6">
@@ -783,6 +843,107 @@ export default function ManufacturerDetailsPage() {
                       <p className="text-green-700 leading-relaxed">
                         All our products undergo rigorous quality testing and meet international standards. 
                         We maintain strict quality control processes to ensure customer satisfaction and product reliability.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'employees' && (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-gray-800 mb-2">Our Team</h3>
+                      <p className="text-gray-600">Meet the dedicated professionals behind our success</p>
+                    </div>
+
+                    {/* Team Statistics */}
+                    {/* <div className="grid md:grid-cols-1 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <Users className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-blue-800 text-lg">{manufacturer.teamSize || 0}</h4>
+                        <p className="text-blue-600 text-sm">Total Employees</p>
+                      </div>
+                    </div> */}
+
+                    {/* Employee List */}
+                    <div className="space-y-4">
+                      {/* Founder */}
+                      {manufacturer.founder && (
+                        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200/50">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center">
+                              <User className="w-8 h-8 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-xl font-bold text-indigo-900 mb-1">
+                                {manufacturer.founder?.name || 'N/A'}
+                              </h4>
+                              <p className="text-lg font-semibold text-indigo-700 mb-2">
+                                Founder & CEO
+                              </p>
+                              <div className="flex items-center space-x-4 text-sm text-indigo-600">
+                                <span className="flex items-center">
+                                  <Award className="w-4 h-4 mr-1" />
+                                  {manufacturer.founder?.experience || 'N/A'} experience
+                                </span>
+                                <span className="flex items-center">
+                                  <FileText className="w-4 h-4 mr-1" />
+                                  {manufacturer.founder?.qualification || 'N/A'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actual Employees */}
+                      {employeesLoading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                          <p className="text-gray-600">Loading employees...</p>
+                        </div>
+                      ) : employeesError ? (
+                        <div className="text-center py-8">
+                          <p className="text-red-600">{employeesError}</p>
+                        </div>
+                      ) : employees && employees.length > 0 ? (
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {employees.map((employee, index) => (
+                            <div key={employee.id || index} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
+                              <div className="flex items-center space-x-4">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                  ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-red-500', 'bg-yellow-500'][index % 5]
+                                }`}>
+                                  <User className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                  <h5 className="font-bold text-gray-800">{employee.name || 'N/A'}</h5>
+                                  <p className="text-gray-600 text-sm">{employee.role || employee.position || 'Employee'}</p>
+                                  <p className="text-gray-500 text-xs">{employee.experience ? `${employee.experience} years experience` : ''}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Employees Found</h3>
+                          <p className="text-gray-500">No employee data available for this manufacturer.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Team Culture Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200/50">
+                      <div className="flex items-center mb-4">
+                        <Users className="w-8 h-8 text-blue-500 mr-3" />
+                        <h4 className="text-xl font-bold text-blue-800">Our Culture</h4>
+                      </div>
+                      <p className="text-blue-700 leading-relaxed">
+                        Our team is built on collaboration, innovation, and a shared commitment to excellence.
+                        We foster a supportive environment where every team member can grow and contribute to our mission of delivering exceptional products.
                       </p>
                     </div>
                   </div>

@@ -3,15 +3,16 @@ import { X, CheckCircle, XCircle, Calendar, MapPin, User, Package } from 'lucide
 import Button from './Button'
 import Badge from './Badge'
 
-const OrderDetailsModal = ({ 
-  isOpen, 
-  onClose, 
-  order, 
-  onConfirm, 
+const OrderDetailsModal = ({
+  isOpen,
+  onClose,
+  order,
+  onConfirm,
   onReject,
-  isLoading = false 
+  isLoading = false
 }) => {
   if (!isOpen || !order) return null
+  
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -74,10 +75,19 @@ const OrderDetailsModal = ({
             </h3>
             <div className="bg-slate-50 rounded-lg p-4 space-y-2">
               <p><span className="font-medium">Name:</span> {order.customerName}</p>
+              {order.phoneNumber && (
+                <p><span className="font-medium">Phone:</span> {order.phoneNumber}</p>
+              )}
               <p className="flex items-center gap-2">
                 <MapPin className="size-4 text-slate-500" />
                 <span className="font-medium">Address:</span> {order.deliveryAddress}
               </p>
+              {order.estimatedDeliveryDate && (
+                <p className="flex items-center gap-2">
+                  <Calendar className="size-4 text-slate-500" />
+                  <span className="font-medium">Delivery Date:</span> {new Date(order.estimatedDeliveryDate).toLocaleDateString()}
+                </p>
+              )}
             </div>
           </div>
 

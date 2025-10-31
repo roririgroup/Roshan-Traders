@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/orders/:id - Get order by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -20,7 +21,7 @@ router.get('/:id', async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    res.json(order);
+    res.json(serializeBigInt(order));
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch order' });
   }
@@ -30,7 +31,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const order = await createOrder(req.body);
-    res.status(201).json(order);
+    res.status(201).json(serializeBigInt(order));
   } catch (error) {
     console.error('Error creating order:', error);
     res.status(500).json({ message: 'Failed to create order' });
@@ -42,7 +43,7 @@ router.put('/:id/assign', async (req, res) => {
   try {
     const { manufacturerId } = req.body;
     const order = await assignOrder(req.params.id, manufacturerId);
-    res.json(order);
+    res.json(serializeBigInt(order));
   } catch (error) {
     res.status(500).json({ message: 'Failed to assign order' });
   }
@@ -52,8 +53,16 @@ router.put('/:id/assign', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await updateOrderStatus(req.params.id, status);
-    res.json(order);
+    // Map frontend status to database enum
+    const statusMap = {
+      'confirmed': 'CONFIRMED',
+      'rejected': 'CANCELLED',
+      'pending': 'PENDING',
+      'in_progress': 'IN_PROGRESS'
+    };
+    const dbStatus = statusMap[status] || status;
+    const order = await updateOrderStatus(req.params.id, dbStatus);
+    res.json(serializeBigInt(order));
   } catch (error) {
     res.status(500).json({ message: 'Failed to update order status' });
   }

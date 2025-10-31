@@ -34,6 +34,7 @@ const MENU_CONFIG = {
     // { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
       { to : '/dashboard/project-requirement', label: 'PRD', icon: File },
   ],
+  
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
     { to: '/dashboard/agent-products', label: 'Products', icon: Package },

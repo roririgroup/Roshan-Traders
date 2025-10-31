@@ -120,6 +120,19 @@ const EmployeesPage = () => {
         </Button>
       </div>
 
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+          Error: {error}
+          <button 
+            onClick={fetchEmployees} 
+            className="ml-2 text-red-700 hover:text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+      
+
       <div className="mb-4 text-sm text-gray-600">
         Total employees: {employees.length}
       </div>

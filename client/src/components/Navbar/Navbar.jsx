@@ -10,6 +10,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
   // Get user data from localStorage for name display
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
   
+  
   const getRoleDisplayName = (role) => {
     const roleNames = {
       superadmin: 'Super Admin',

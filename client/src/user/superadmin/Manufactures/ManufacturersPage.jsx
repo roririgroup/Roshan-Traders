@@ -408,5 +408,6 @@ export default function ManufacturersPage() {
         manufacturer={selectedManufacturer}
       />
     </div>
+    
   );
 }

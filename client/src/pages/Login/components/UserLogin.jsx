@@ -38,6 +38,7 @@ export default function UserLogin() {
         ...currentUser,
         selectedRole: selectedRole
       }));
+      
 
       // Redirect based on selected role
       if (selectedRole === 'agent') {

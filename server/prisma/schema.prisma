@@ -15,6 +15,13 @@ enum UserType {
   ADMIN
 }
 
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -24,6 +31,7 @@ enum Gender {
 enum OrderStatus {
   PENDING
   IN_PROGRESS
+  CONFIRMED
   COMPLETED
   CANCELLED
 }
@@ -165,6 +173,7 @@ model Manufacturer {
   achievements    ManufacturerAchievement[]
   manufacturerProducts ManufacturerProduct[]
   orders          Order[]
+  manufacturerEmployees ManufacturerEmployee[]
 
   @@map("manufacturers")
   @@index([userId])
@@ -322,6 +331,7 @@ model Order {
   id              String      @id
   customerName    String
   customerEmail   String?
+  phoneNumber     String?
   orderDate       DateTime
   status          OrderStatus @default(PENDING)
   totalAmount     Float
@@ -481,4 +491,25 @@ model ActingLabour {
   @@index([status])
   @@index([assignedToId])
   @@index([assignedToType])
+}
+
+model ManufacturerEmployee {
+  id             BigInt       @id @default(autoincrement())
+  manufacturerId BigInt
+  name           String
+  address        String
+  phone          String
+  role           String    // agent, truck-owner, driver, loadman, supervisor
+  status         String    @default("active") // active, inactive
+  joinDate       DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  manufacturer   Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+
+  @@map("manufacturer_employees")
+  @@index([manufacturerId])
+  @@index([role])
+  @@index([status])
 }

@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/manufacturers/:id - Get manufacturer by ID
 router.get('/:id', async (req, res) => {
   try {

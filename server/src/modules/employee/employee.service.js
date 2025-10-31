@@ -18,6 +18,8 @@ const createEmployee = async (payload) => {
     throw new Error('Name and phone are required');
   }
 
+  
+  
   // Trim inputs
   const trimmedPhone = phone.trim();
   const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;

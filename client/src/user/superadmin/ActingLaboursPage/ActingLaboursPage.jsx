@@ -23,6 +23,7 @@ import {
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
 
+
 export default function ActingLaboursPage() {
   const [labours, setLabours] = useState([]);
   const [manufacturers, setManufacturers] = useState([]);

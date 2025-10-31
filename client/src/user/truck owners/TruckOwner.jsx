@@ -7,6 +7,7 @@ import Trips from './dashboard/Trips'
 import Payments from './dashboard/Payments'
 import Profile from './dashboard/Profile'
 
+
 export default function TruckOwner() {
   return (
     <Routes>
