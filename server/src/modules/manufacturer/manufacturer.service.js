@@ -671,4 +671,4 @@ module.exports = {
   getManufacturerById,
   updateManufacturer,
   deleteManufacturer,
-};
+};'module.exports = { createManufacturer, getAllManufacturers, getManufacturerById, updateManufacturer, deleteManufacturer, getDashboardStats, };' 

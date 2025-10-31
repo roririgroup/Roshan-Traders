@@ -65,3 +65,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+'const { authenticateToken } = require("../../shared/middleware/auth.js");' 
+'const { createManufacturer, getAllManufacturers, getManufacturerById, updateManufacturer, deleteManufacturer, getDashboardStats } = require("./manufacturer.service.js");' 
+'// GET /api/manufacturers/stats - Get dashboard stats for authenticated manufacturer' 
+'router.get("/stats", authenticateToken, async (req, res) = try { const userId = req.user.id; const stats = await getDashboardStats(userId); res.json(serializeBigInt(stats)); } catch (error) { console.error("Error fetching dashboard stats:", error); res.status(500).json({ message: "Failed to fetch dashboard stats" }); } });' 
