@@ -3,6 +3,7 @@ import { manufacturersData, getManufacturerById } from './pages/Manufactures/man
 
 console.log('Testing manufacturer data...')
 
+
 // Test 1: Check if data exists
 console.log('Total manufacturers:', manufacturersData.length)
 
