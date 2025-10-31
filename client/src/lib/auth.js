@@ -9,6 +9,7 @@ export function getCurrentUser() {
   }
 }
 
+
 // Super Admin authentication (Gmail/Email)
 export function loginSuperAdmin({ email, password }) {
   // Dummy login: accept any email and password

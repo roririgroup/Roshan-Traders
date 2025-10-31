@@ -18,9 +18,9 @@ const createEmployee = async (payload) => {
     throw new Error('Name and phone are required');
   }
 
-
-  // Normalize phone number (remove +91 prefix if present)
-  const normalizedPhone = phone.replace(/^\+91/, '').trim();
+  
+  // Trim inputs
+  const trimmedPhone = phone.trim();
   const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;
 
   // Check if phone number already exists

@@ -16,9 +16,8 @@ export default function Dashboard() {
     monthlyEarnings: 0,
     yearlyEarnings: 0
   })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
+  // Mock data - replace with API calls
   useEffect(() => {
     const fetchStats = async () => {
       try {

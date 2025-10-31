@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink, Package, Edit, Trash2, Star, Users, RotateCcw, CreditCard } from 'lucide-react'
+import { ShoppingCart, ExternalLink, Package, Star, Users, RotateCcw, CreditCard, X } from 'lucide-react'
 import { getOrders, updateOrderStatus, addOrder, assignTruckOwner } from '../../../store/ordersStore'
 import NotificationContainer from '../../../components/ui/NotificationContainer'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
@@ -19,6 +19,10 @@ export default function Orders() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [activeTab, setActiveTab] = useState('products')
   const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
+  const [lastSeenOrderCount, setLastSeenOrderCount] = useState(() => {
+    const stored = localStorage.getItem('lastSeenOutsourceOrderCount')
+    return stored ? parseInt(stored, 10) : 0
+  })
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -59,23 +63,9 @@ useEffect(() => {
   fetchProducts();
 }, []);
 
-// ✅ Load manufacturers from API
-useEffect(() => {
-  async function fetchManufacturers() {
-    try {
-      const response = await fetch('http://localhost:7700/api/manufacturers');
-      const data = await response.json();
-      setManufacturers(data);
-    } catch (error) {
-      console.error('Failed to fetch manufacturers:', error);
-      setManufacturers([]);
-    }
-  }
 
-  fetchManufacturers();
-}, []);
 
-  // ✅ Load orders from store
+  // ✅ Load your orders from store
   useEffect(() => {
     const allOrders = getOrders()
     const user = getCurrentUser()
@@ -84,40 +74,52 @@ useEffect(() => {
       order.userInfo?.id === user?.id
     )
 
-    const outsourceOrdersList = allOrders.filter(order =>
-      order.userInfo?.id !== user?.id
-    )
-
     setYourOrders(yourOrdersList)
-    setOutsourceOrders(outsourceOrdersList)
   }, [refreshTrigger])
 
-  // ✅ Auto-refresh orders every 5 seconds
+  // ✅ Load outsource orders from API
+  useEffect(() => {
+    async function fetchOutsourceOrders() {
+      try {
+        const response = await fetch('http://localhost:7700/api/orders');
+        const data = await response.json();
+        const user = getCurrentUser()
+        const outsourceOrdersList = data.filter(order =>
+          order.manufacturerId !== user?.id
+        ).map(order => ({
+          ...order,
+          status: order.status.toLowerCase(), // Normalize status to match frontend expectations
+          items: order.items || [], // Ensure items array exists
+          totalAmount: order.totalAmount || 0
+        }))
+
+        // Detect new orders and show notifications only if count increased from last seen
+        if (outsourceOrdersList.length > lastSeenOrderCount) {
+          setNewOutsourceOrder(true)
+          const newOrders = outsourceOrdersList.slice(lastSeenOrderCount)
+          newOrders.forEach(order => showOrderNotification(order))
+          setTimeout(() => setNewOutsourceOrder(false), 5000)
+        }
+
+        setOutsourceOrders(outsourceOrdersList)
+        setLastSeenOrderCount(outsourceOrdersList.length)
+        localStorage.setItem('lastSeenOutsourceOrderCount', outsourceOrdersList.length.toString())
+      } catch (error) {
+        console.error('Failed to fetch outsource orders:', error);
+        setOutsourceOrders([])
+      }
+    }
+
+    fetchOutsourceOrders()
+  }, [refreshTrigger, showOrderNotification, lastSeenOrderCount])
+
+  // ✅ Auto-refresh orders every 60 seconds (further reduced to prevent blinking)
   useEffect(() => {
     const interval = setInterval(() => {
       setRefreshTrigger(prev => prev + 1)
-    }, 5000)
+    }, 60000) // Changed to 60 seconds to prevent blinking
     return () => clearInterval(interval)
   }, [])
-
-  // ✅ Detect new outsource orders
-  useEffect(() => {
-    const checkForNewOrders = () => {
-      const allOrders = getOrders()
-      const otherOrders = allOrders.filter(order => order.userInfo?.id !== getCurrentUser()?.id)
-
-      if (otherOrders.length > outsourceOrders.length) {
-        setNewOutsourceOrder(true)
-        const newOrders = otherOrders.slice(outsourceOrders.length)
-        newOrders.forEach(order => showOrderNotification(order))
-        setTimeout(() => setNewOutsourceOrder(false), 5000)
-      }
-      setOutsourceOrders(otherOrders)
-    }
-
-    const interval = setInterval(checkForNewOrders, 10000)
-    return () => clearInterval(interval)
-  }, [outsourceOrders.length, showOrderNotification])
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -158,13 +160,24 @@ useEffect(() => {
   const handleConfirmOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      updateOrderStatus(orderId, 'confirmed')
+      const response = await fetch(`http://localhost:7700/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'confirmed' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to confirm order');
+      }
+
       setRefreshTrigger(prev => prev + 1)
       showSuccessNotification('Order confirmed successfully!')
       setIsOrderModalOpen(false)
       setSelectedOrder(null)
     } catch (error) {
+      console.error('Error confirming order:', error);
       showErrorNotification('Failed to confirm order. Please try again.')
     } finally {
       setIsLoading(false)
@@ -174,13 +187,24 @@ useEffect(() => {
   const handleRejectOrder = async (orderId) => {
     setIsLoading(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      updateOrderStatus(orderId, 'rejected')
+      const response = await fetch(`http://localhost:7700/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to reject order');
+      }
+
       setRefreshTrigger(prev => prev + 1)
       showSuccessNotification('Order rejected successfully!')
       setIsOrderModalOpen(false)
       setSelectedOrder(null)
     } catch (error) {
+      console.error('Error rejecting order:', error);
       showErrorNotification('Failed to reject order. Please try again.')
     } finally {
       setIsLoading(false)
@@ -208,13 +232,22 @@ useEffect(() => {
     }
   };
 
+  const handleAssignClick = (order) => {
+    setIsAssignModalOpen(true)
+    setSelectedOrderForAssign(order)
+  };
+
   const handleAssignOrder = (orderId, truckOwner) => {
     assignTruckOwner(orderId, truckOwner)
-    updateOrderStatus(orderId, 'shipped')
+    updateOrderStatus(orderId, 'in_progress')
     setRefreshTrigger(prev => prev + 1)
     showSuccessNotification('Order assigned successfully!')
     setIsAssignModalOpen(false)
     setSelectedOrderForAssign(null)
+  };
+
+  const handleTrackOrder = (orderId) => {
+    showSuccessNotification('Tracking order... Order is in progress.')
   };
   const validateForm = () => {
     const newErrors = {}
@@ -422,6 +455,7 @@ useEffect(() => {
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
@@ -437,7 +471,7 @@ useEffect(() => {
                   #{order.id}
                 </td>
                 <td className="py-4 px-6 text-slate-900 group-hover:text-[#F08344] transition-colors">
-                  {order.customerName}
+                  Roshan Traders
                 </td>
                 <td className="py-4 px-6">
                   <div className="space-y-1">
@@ -454,6 +488,9 @@ useEffect(() => {
                 </td>
                 <td className="py-4 px-6">{getStatusBadge(order.status)}</td>
                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
+                  {new Date(order.orderDate).toLocaleDateString()}
+                </td>
+                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
                   {new Date(order.orderDate).toLocaleDateString()}
                 </td>
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
@@ -550,10 +587,16 @@ useEffect(() => {
         </div>
 
         {newOutsourceOrder && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2">
-              <ExternalLink className="size-5 text-yellow-600" />
-              <span className="text-yellow-800 font-medium">New outsource order received!</span>
+          <div
+            className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 cursor-pointer hover:bg-yellow-100 transition-colors"
+            onClick={() => setNewOutsourceOrder(false)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ExternalLink className="size-5 text-yellow-600" />
+                <span className="text-yellow-800 font-medium">New outsource order received!</span>
+              </div>
+              <X className="size-5 text-yellow-600 hover:text-yellow-800" />
             </div>
           </div>
         )}
@@ -878,6 +921,7 @@ useEffect(() => {
             </div>
             {errors.paymentMethod && <p className="text-red-500 text-sm mt-1">{errors.paymentMethod}</p>}
           </div>
+
 
           <div className="flex justify-end space-x-3 pt-4">
             <Button

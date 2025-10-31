@@ -85,17 +85,57 @@ export default function ManufacturerDetailsPage() {
   const [manufacturer, setManufacturer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('orders'); // Set orders as default tab
+  const [activeTab, setActiveTab] = useState('about'); // Set about as default tab
   const [isFavorited, setIsFavorited] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [employeesLoading, setEmployeesLoading] = useState(false);
+  const [employeesError, setEmployeesError] = useState(null);
+  const [employeeStats, setEmployeeStats] = useState(null);
 
   useEffect(() => {
     fetchManufacturer();
   }, [manufacturerId]);
 
-  // Refresh the content to show the About Company tab first
+  // Fetch employees when employees tab is clicked
   useEffect(() => {
-    setActiveTab('about');
-  }, []);
+    if (activeTab === 'employees' && manufacturerId) {
+      fetchEmployees();
+      fetchEmployeeStats();
+    }
+  }, [activeTab, manufacturerId]);
+
+  const fetchEmployees = async () => {
+    try {
+      setEmployeesLoading(true);
+      setEmployeesError(null);
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees`);
+      if (response.ok) {
+        const data = await response.json();
+        setEmployees(data.data || []);
+      } else {
+        setEmployeesError('Failed to load employees');
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setEmployeesError('Failed to load employees');
+    } finally {
+      setEmployeesLoading(false);
+    }
+  };
+
+  const fetchEmployeeStats = async () => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employee-stats`);
+      if (response.ok) {
+        const data = await response.json();
+        setEmployeeStats(data.data || data);
+      } else {
+        console.error('Failed to load employee stats');
+      }
+    } catch (error) {
+      console.error('Error fetching employee stats:', error);
+    }
+  };
 
   const fetchManufacturer = async () => {
     try {
@@ -480,7 +520,7 @@ export default function ManufacturerDetailsPage() {
                     onClick={() => setActiveTab('employees')}
                   >
                     <Users className="w-5 h-5 mr-2" />
-                    Employees ({manufacturer.teamSize || 0})
+                    Employees ({employees.length || manufacturer.teamSize || 0})
                   </TabButton>
                    <TabButton
                     active={activeTab === 'orders'}
@@ -570,6 +610,7 @@ export default function ManufacturerDetailsPage() {
                                 </div>
                               </div>
                             </div>
+                            
 
                             {/* Order Details */}
                             <div className="p-6">
@@ -816,7 +857,7 @@ export default function ManufacturerDetailsPage() {
                     </div>
 
                     {/* Team Statistics */}
-                    <div className="grid md:grid-cols-3 gap-4 mb-8">
+                    {/* <div className="grid md:grid-cols-1 gap-4 mb-8">
                       <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
                         <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                           <Users className="w-4 h-4 text-white" />
@@ -824,21 +865,7 @@ export default function ManufacturerDetailsPage() {
                         <h4 className="font-bold text-blue-800 text-lg">{manufacturer.teamSize || 0}</h4>
                         <p className="text-blue-600 text-sm">Total Employees</p>
                       </div>
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
-                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                          <Award className="w-4 h-4 text-white" />
-                        </div>
-                        <h4 className="font-bold text-green-800 text-lg">15+</h4>
-                        <p className="text-green-600 text-sm">Years Experience</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center">
-                        <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                          <Target className="w-4 h-4 text-white" />
-                        </div>
-                        <h4 className="font-bold text-purple-800 text-lg">100%</h4>
-                        <p className="text-purple-600 text-sm">Satisfaction Rate</p>
-                      </div>
-                    </div>
+                    </div> */}
 
                     {/* Employee List */}
                     <div className="space-y-4">
@@ -871,60 +898,42 @@ export default function ManufacturerDetailsPage() {
                         </div>
                       )}
 
-                      {/* Sample Team Members */}
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                              <h5 className="font-bold text-gray-800">John Smith</h5>
-                              <p className="text-gray-600 text-sm">Production Manager</p>
-                              <p className="text-gray-500 text-xs">8 years experience</p>
-                            </div>
-                          </div>
+                      {/* Actual Employees */}
+                      {employeesLoading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                          <p className="text-gray-600">Loading employees...</p>
                         </div>
-
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                              <h5 className="font-bold text-gray-800">Sarah Johnson</h5>
-                              <p className="text-gray-600 text-sm">Quality Control Lead</p>
-                              <p className="text-gray-500 text-xs">6 years experience</p>
-                            </div>
-                          </div>
+                      ) : employeesError ? (
+                        <div className="text-center py-8">
+                          <p className="text-red-600">{employeesError}</p>
                         </div>
-
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
+                      ) : employees && employees.length > 0 ? (
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {employees.map((employee, index) => (
+                            <div key={employee.id || index} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
+                              <div className="flex items-center space-x-4">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                  ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-red-500', 'bg-yellow-500'][index % 5]
+                                }`}>
+                                  <User className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                  <h5 className="font-bold text-gray-800">{employee.name || 'N/A'}</h5>
+                                  <p className="text-gray-600 text-sm">{employee.role || employee.position || 'Employee'}</p>
+                                  <p className="text-gray-500 text-xs">{employee.experience ? `${employee.experience} years experience` : ''}</p>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <h5 className="font-bold text-gray-800">Mike Davis</h5>
-                              <p className="text-gray-600 text-sm">Sales Director</p>
-                              <p className="text-gray-500 text-xs">10 years experience</p>
-                            </div>
-                          </div>
+                          ))}
                         </div>
-
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                              <h5 className="font-bold text-gray-800">Lisa Chen</h5>
-                              <p className="text-gray-600 text-sm">R&D Engineer</p>
-                              <p className="text-gray-500 text-xs">7 years experience</p>
-                            </div>
-                          </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Employees Found</h3>
+                          <p className="text-gray-500">No employee data available for this manufacturer.</p>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Team Culture Section */}

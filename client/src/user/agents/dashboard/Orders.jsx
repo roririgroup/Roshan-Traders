@@ -21,6 +21,8 @@ export default function Orders() {
     const mainOrders = getOrders()
     const user = getCurrentUser()
 
+
+    
     // Combine and filter for current user
     const allOrders = [...agentOrders, ...mainOrders]
     const uniqueOrders = allOrders.filter((order, index, self) =>

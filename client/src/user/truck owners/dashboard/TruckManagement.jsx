@@ -8,81 +8,28 @@ import { useNavigate } from 'react-router-dom'
 const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function TruckManagement() {
-  const [trucks, setTrucks] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const fetchTrucks = async () => {
-      try {
-        let user = getCurrentUser();
-        if (!user) {
-          navigate('/user/login');
-          return;
-        }
-
-        // Ensure employeeId is available for truck owners
-        if (!user.employeeId && user.roles.includes('truck owner')) {
-          try {
-            const response = await fetch(`${API_BASE_URL}/employees/by-phone`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ phone: user.phone.replace(/^\+91/, '').trim(), role: 'Truck Owner' })
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              user.employeeId = data.id;
-              localStorage.setItem('rt_user', JSON.stringify(user));
-            } else {
-              throw new Error('Employee record not found');
-            }
-          } catch (err) {
-            const errorMsg = 'Your truck owner account is not properly set up. Please contact support.';
-            setError(errorMsg);
-            console.error('Error fetching employee details:', err);
-            return;
-          }
-        }
-
-        if (!user.employeeId || !user.roles.includes('truck owner')) {
-          const errorMsg = !user.employeeId
-            ? 'Your truck owner account is not properly set up. Please contact support.'
-            : 'Access denied. Only truck owners can view this page.';
-          throw new Error(errorMsg);
-        }
-
-        const response = await fetch(`${API_BASE_URL}/truck-owners/trucks`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Employee-Id': user.employeeId.toString(),
-            'X-User-Roles': 'Truck Owner'
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch trucks')
-        }
-
-        const data = await response.json()
-        if (data.success) {
-          setTrucks(data.data)
-        } else {
-          throw new Error(data.message || 'Failed to fetch trucks')
-        }
-      } catch (err) {
-        setError(err.message)
-        console.error('Error fetching trucks:', err)
-      } finally {
-        setLoading(false)
-      }
+  const [trucks, setTrucks] = useState([
+    {
+      id: 1,
+      truckNo: 'TN01AB1234',
+      type: 'Container Truck',
+      capacity: '20 Ton',
+      rcDetails: 'Valid till 2025',
+      status: 'Active',
+      documents: ['RC Book', 'Insurance'],
+      nextService: '2024-12-15'
+    },
+    {
+      id: 2,
+      truckNo: 'TN02CD5678',
+      type: 'Open Truck',
+      capacity: '15 Ton',
+      rcDetails: 'Valid till 2024',
+      status: 'Inactive',
+      documents: ['RC Book'],
+      nextService: '2024-11-20'
     }
-
-    fetchTrucks()
-  }, [])
+  ])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTruck, setEditingTruck] = useState(null)

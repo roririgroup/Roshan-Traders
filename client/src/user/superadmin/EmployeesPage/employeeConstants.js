@@ -14,6 +14,7 @@ export const EMPLOYEE_STATUS_CONFIG = {
   },
 };
 
+
 export const MOCK_EMPLOYEES = [
   {
     id: "emp_001",

@@ -1,5 +1,6 @@
 const prisma = require('../../shared/lib/db.js');
 
+
 const signupUser = async (userData) => {
   const { firstName, lastName, email, phone, address, role, password, confirmPassword } = userData;
 

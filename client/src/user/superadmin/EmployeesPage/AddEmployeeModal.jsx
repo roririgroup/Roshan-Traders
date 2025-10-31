@@ -24,6 +24,7 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
       setForm({ ...form, [name]: value });
     }
   };
+  
 
   // Fixed: Added the missing handleImageUpload function
   const handleImageUpload = (e) => {

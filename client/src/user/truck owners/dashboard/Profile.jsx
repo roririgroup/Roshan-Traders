@@ -20,6 +20,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  
   const [documents, setDocuments] = useState({
     aadhaar: 'Uploaded',
     pan: 'Uploaded',

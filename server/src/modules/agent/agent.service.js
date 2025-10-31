@@ -15,6 +15,7 @@ const createAgent = async (payload) => {
   if (existingUser) {
     throw new Error('Phone number already exists');
   }
+  
 
   // Check if email already exists if provided
   if (email) {

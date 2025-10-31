@@ -7,85 +7,36 @@ import { getCurrentUser } from '../../../lib/auth'
 const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function DriverManagement() {
-  const [drivers, setDrivers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        // Check if user is logged in
-        let user = getCurrentUser();
-        if (!user) {
-          throw new Error('User not logged in');
-        }
-
-        // Ensure employeeId is available for truck owners
-        if (!user.employeeId && user.roles.includes('truck owner')) {
-          try {
-            const response = await fetch(`${API_BASE_URL}/employees/by-phone`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ phone: user.phone, role: 'Truck Owner' })
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              user.employeeId = data.id;
-              localStorage.setItem('rt_user', JSON.stringify(user));
-            } else {
-              throw new Error('Employee record not found');
-            }
-          } catch (err) {
-            setError('Your truck owner account is not properly set up. Please contact support.');
-            console.error('Error fetching employee details:', err);
-            return;
-          }
-        }
-
-        const response = await fetch(`${API_BASE_URL}/truck-owners/drivers`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Employee-Id': user.employeeId.toString(),
-            'X-User-Roles': 'Truck Owner'
-          }
-        })
-
-        if (response.status === 401) {
-          throw new Error('Unauthorized access');
-        }
-
-        if (response.status === 403) {
-          throw new Error('Access forbidden - insufficient permissions');
-        }
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Failed to fetch drivers');
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          setDrivers(data.data);
-          setError(null);
-        } else {
-          throw new Error(data.message || 'Failed to fetch drivers');
-        }
-      } catch (err) {
-        setError(err.message);
-        console.error('Error fetching drivers:', err);
-        setDrivers([]); // Set empty array on error
-      } finally {
-        setLoading(false);
-      }
+  const [drivers, setDrivers] = useState([
+    {
+      id: 1,
+      name: 'Raj Kumar',
+      phone: '+91 9876543210',
+      email: 'raj@example.com',
+      license: 'Valid',
+      aadhaar: 'Uploaded',
+      assignedTruck: 'TN01AB1234',
+      status: 'Present',
+      reason: '',
+      tripsCompleted: 25,
+      rating: 4.8
+    },
+    {
+      id: 2,
+      name: 'Suresh Patel',
+      phone: '+91 9876543211', 
+      email: 'suresh@example.com',
+      license: 'Valid',
+      aadhaar: 'Uploaded',
+      assignedTruck: null,
+      status: 'Present',
+      reason: '',
+      tripsCompleted: 18,
+      rating: 4.5
     }
+  ])
 
-    fetchDrivers();
-  }, [])
-
-
+  const [trucks] = useState(['TN01AB1234', 'TN02CD5678', 'TN03EF9012'])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDriver, setEditingDriver] = useState(null)
   const [formData, setFormData] = useState({

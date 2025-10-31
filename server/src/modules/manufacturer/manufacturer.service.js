@@ -1,5 +1,6 @@
 const prisma = require('../../shared/lib/db.js');
 
+
 /**
  * @typedef {Object} Founder
  * @property {string} name

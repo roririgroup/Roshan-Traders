@@ -17,5 +17,6 @@ const InfoCard = ({ children, title, icon }) => (
   </div>
 )
 
+
 export default InfoCard
 

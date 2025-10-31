@@ -15,6 +15,7 @@ export function getCurrentUserRole() {
     if (normalized === 'truck owner' || normalized === 'truckowner') return 'truck_owner'
     return normalized
   }
+  
 
   // For multi-role users, return active role
   return getCurrentUserActiveRole()

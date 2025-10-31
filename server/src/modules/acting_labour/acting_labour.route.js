@@ -8,6 +8,7 @@ const sendResponse = (res, status, data) => {
   res.status(status).json(serializeBigInt(data));
 };
 
+
 // Get all acting labours with optional filters
 router.get('/', async (req, res) => {
   try {

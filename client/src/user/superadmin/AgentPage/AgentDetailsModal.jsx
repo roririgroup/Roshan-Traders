@@ -16,6 +16,7 @@ const AgentDetailsModal = ({ agent, onClose }) => {
     skills: agent.referrals > 10 ? ['Sales', 'Customer Service', 'Negotiation', 'Product Knowledge', 'Team Leadership'] :
             agent.referrals > 5 ? ['Sales', 'Customer Service', 'Product Knowledge'] :
             ['Sales', 'Customer Service'],
+            
     recentOrders: [
       {
         id: 'ord1',

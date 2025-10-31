@@ -15,6 +15,7 @@ enum UserType {
   ADMIN
 }
 
+
 enum UserStatus {
   PENDING
   APPROVED
@@ -30,6 +31,7 @@ enum Gender {
 enum OrderStatus {
   PENDING
   IN_PROGRESS
+  CONFIRMED
   COMPLETED
   CANCELLED
 }
@@ -180,7 +182,7 @@ model Manufacturer {
   specializations      ManufacturerSpecialization[]
   achievements         ManufacturerAchievement[]
   manufacturerProducts ManufacturerProduct[]
-  orders               Order[]
+  orders          Order[]
 
   @@index([userId])
   @@index([gstNumber])
@@ -346,16 +348,16 @@ model ProductAttribute {
 }
 
 model Order {
-  id                    String      @id
-  customerName          String
-  customerEmail         String?
-  orderDate             DateTime
-  status                OrderStatus @default(PENDING)
-  totalAmount           Float
-  deliveryAddress       String?
-  notes                 String?
-  manufacturerId        BigInt?
-  assignedTruckOwnerId  BigInt?
+  id              String      @id
+  customerName    String
+  customerEmail   String?
+  orderDate       DateTime
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  deliveryAddress String?
+  notes           String?
+  manufacturerId  BigInt?
+  assignedTruckOwnerId BigInt?
   estimatedDeliveryDate DateTime?
 
   // Relations
@@ -539,4 +541,25 @@ model Trip {
   @@index([status])
   @@index([orderId])
   @@map("trips")
+}
+
+model ManufacturerEmployee {
+  id             BigInt       @id @default(autoincrement())
+  manufacturerId BigInt
+  name           String
+  address        String
+  phone          String
+  role           String    // agent, truck-owner, driver, loadman, supervisor
+  status         String    @default("active") // active, inactive
+  joinDate       DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  manufacturer   Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+
+  @@map("manufacturer_employees")
+  @@index([manufacturerId])
+  @@index([role])
+  @@index([status])
 }

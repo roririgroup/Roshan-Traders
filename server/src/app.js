@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 
+
 dotenv.config();
 
 const app = express();
@@ -47,7 +48,6 @@ const manufacturerApi = require('./modules/manufacturer/manufacturer.route.js');
 const agentApi = require('./modules/agent/agent.route.js');
 const employeeApi = require('./modules/employee/employee.route.js');
 const actingLabourApi = require('./modules/acting_labour/acting_labour.route.js');
-const truckOwnerApi = require('./modules/truck_owner/truck_owner.route.js');
 
 app.use('/api/users', userApi);
 app.use('/api/admins', adminAuthApi);
@@ -57,7 +57,6 @@ app.use('/api/manufacturers', manufacturerApi);
 app.use('/api/agents', agentApi);
 app.use('/api/employees', employeeApi);
 app.use('/api/acting-labours', actingLabourApi);
-app.use('/api/truck-owners', truckOwnerApi);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

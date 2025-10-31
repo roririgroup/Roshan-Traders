@@ -178,6 +178,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
               </div>
             )}
           </div>
+          
 
           {/* Stats Grid (removed Employees) */}
           <div className="grid grid-cols-2 gap-3 mb-6">
