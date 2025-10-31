@@ -17,9 +17,12 @@ const signupUser = async (userData) => {
     throw new Error('At least one role must be selected');
   }
 
+  // Normalize phone number (remove +91 prefix if present)
+  const normalizedPhone = phone.replace(/^\+91/, '').trim();
+
   // Check if phone number already exists
   const existingUser = await prisma.user.findUnique({
-    where: { phoneNumber: phone }
+    where: { phoneNumber: normalizedPhone }
   });
 
   if (existingUser) {
@@ -38,7 +41,7 @@ const signupUser = async (userData) => {
   // Create user with PENDING status
   const user = await prisma.user.create({
     data: {
-      phoneNumber: phone,
+      phoneNumber: normalizedPhone,
       userType: 'CUSTOMER', // Default, will be updated based on roles during approval
       roles: role,
       status: 'PENDING',

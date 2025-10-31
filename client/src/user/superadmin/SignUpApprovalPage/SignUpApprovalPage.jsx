@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { UserCheck, X, Check, Clock, User, Factory, Truck, Wrench, Search, Filter, Mail, Phone, Calendar } from 'lucide-react';
 
 const SignUpApprovalPage = () => {
+
+  const { currentUser } = useAuth();
+  const user = JSON.parse(localStorage.getItem('rt_user'));
+
   const [pendingUsers, setPendingUsers] = useState([]);
   const [approvedUsers, setApprovedUsers] = useState([]);
   const [rejectedUsers, setRejectedUsers] = useState([]);

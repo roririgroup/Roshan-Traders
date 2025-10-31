@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   
 
   useEffect(() => {
-    const user = localStorage.getItem('currentUser');
+    const user = localStorage.getItem('rt_user');
     if (user) {
       setCurrentUser(JSON.parse(user));
     }
@@ -26,14 +26,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     setCurrentUser(userData);
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('rt_user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('rt_user');
   };
 
   const value = {

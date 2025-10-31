@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { MapPin } from "lucide-react";
 
+const API_BASE_URL = 'http://localhost:7700/api'
+
 export default function Trips() {
   const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     // Load mock + assigned trips
@@ -20,7 +24,6 @@ export default function Trips() {
         agent: "ABC Logistics",
         podUploaded: false,
       },
-      
       {
         id: 2,
         truckNo: "TN02CD5678",

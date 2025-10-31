@@ -3,10 +3,45 @@ const prisma = require('../../shared/lib/db.js');
 const createEmployee = async (payload) => {
   const { name, phone, email, role, status, image, salary } = payload;
 
+
+  // Validation
+  if (!name || !phone) {
+    throw new Error('Name and phone are required');
+  }
+
+  
+  // Trim inputs
+  const trimmedPhone = phone.trim();
+  const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;
+
+  // Check if phone number already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { phoneNumber: normalizedPhone },
+  });
+  if (existingUser) {
+    throw new Error('Phone number already exists');
+  }
+
+  // Check if email already exists if provided
+  if (trimmedEmail) {
+    const existingProfile = await prisma.userProfile.findUnique({
+      where: { email: trimmedEmail },
+    });
+    if (existingProfile) {
+      throw new Error('Email already exists');
+    }
+  }
+
+  // Create user first
+  const user = await prisma.user.create({
+    data: {
+      phoneNumber: normalizedPhone,
+
   // Create user first
   const user = await prisma.user.create({
     data: {
       phoneNumber: phone,
+
       userType: 'CUSTOMER', // Using CUSTOMER as employees are not separate user type
       isVerified: true, // Assume verified for now
     },
@@ -23,6 +58,15 @@ const createEmployee = async (payload) => {
       },
     });
   }
+
+
+  // Prevent creating drivers through employee module (truck owners are allowed as employees)
+  const normalizedRole = (role || 'Loader').toLowerCase();
+  if (normalizedRole === 'driver') {
+    throw new Error('Drivers should be created through the acting labours module');
+  }
+
+
 
   // Create employee
   const employee = await prisma.employee.create({
@@ -205,10 +249,104 @@ const deleteEmployee = async (id) => {
   });
 };
 
+const getEmployeeByPhone = async (phone, role) => {
+  let employee = await prisma.employee.findFirst({
+    where: {
+      user: {
+        phoneNumber: phone.trim()
+      },
+      role: { contains: role }
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+
+  // If employee not found and role is Truck Owner or Driver, try to create it
+  if (!employee && (role === 'Truck Owner' || role === 'Driver')) {
+    // Find the user by phone
+    const user = await prisma.user.findUnique({
+      where: { phoneNumber: phone.trim() },
+      include: { profile: true },
+    });
+
+    if (user) {
+      // Create employee record
+      employee = await prisma.employee.create({
+        data: {
+          userId: user.id,
+          employeeCode: `EMP${user.id.toString().padStart(4, '0')}`,
+          role: role,
+          status: 'Available',
+          salary: 0.0,
+        },
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  if (!employee) {
+    return null;
+  }
+
+  // Transform the response to match frontend expectations
+  return {
+    id: employee.id,
+    name: employee.user.profile?.fullName || 'Unknown',
+    phone: employee.user.phoneNumber,
+    email: employee.user.profile?.email || '',
+    role: employee.role,
+    status: employee.status,
+  };
+};
+
+const getEmployeeByPhoneWithoutRole = async (phone) => {
+  const employee = await prisma.employee.findFirst({
+    where: {
+      user: {
+        phoneNumber: phone.trim()
+      }
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+
+  if (!employee) {
+    throw new Error('Employee not found');
+  }
+
+  // Transform the response to match frontend expectations
+  return {
+    employeeId: employee.id,
+    name: employee.user.profile?.fullName || 'Unknown',
+    phone: employee.user.phoneNumber,
+    email: employee.user.profile?.email || '',
+    role: employee.role,
+    status: employee.status,
+  };
+};
+
 module.exports = {
   createEmployee,
   getAllEmployees,
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
+  getEmployeeByPhone,
+  getEmployeeByPhoneWithoutRole,
 };

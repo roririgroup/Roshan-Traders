@@ -4,12 +4,45 @@ import { ShoppingCart } from 'lucide-react'
 import { getOrders } from '../../../store/ordersStore'
 import FilterBar from '../../../components/ui/FilterBar'
 
+const API_BASE_URL = 'http://localhost:7700/api'
+
 export default function Orders() {
   const [assignedOrders, setAssignedOrders] = useState([])
   const [loading, setLoading] = useState(true)
-  
 
   useEffect(() => {
+
+    const fetchOrders = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('rt_user'));
+        const response = await fetch(`${API_BASE_URL}/truck-owners/orders`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Employee-Id': (user.employeeId || user.id).toString(),
+            'X-User-Roles': user.role || 'Truck Owner'
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders')
+        }
+
+        const data = await response.json()
+        if (data.success) {
+          setAssignedOrders(data.data)
+        } else {
+          throw new Error(data.message || 'Failed to fetch orders')
+        }
+      } catch (err) {
+        setError(err.message)
+        console.error('Error fetching orders:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrders()
+
     setOrders(getOrders())
   }, [refreshTrigger])
 

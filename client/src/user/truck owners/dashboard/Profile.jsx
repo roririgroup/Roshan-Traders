@@ -1,11 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import { User, Upload, Edit, Phone, Mail, MapPin } from 'lucide-react'
 
+const API_BASE_URL = 'http://localhost:7700/api'
+
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false)
   const [profile, setProfile] = useState({
+
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    company: '',
+    gstNumber: '',
+    panNumber: '',
+    profilePhoto: null
+
     name: 'John Doe',
     phone: '+91 9876543210',
     email: 'john.doe@example.com',
@@ -13,7 +25,10 @@ export default function Profile() {
     company: 'JD Transport Services',
     gstNumber: '22AAAAA0000A1Z5',
     panNumber: 'AAAAA0000A'
+
   })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   
   const [documents, setDocuments] = useState({
@@ -23,9 +38,71 @@ export default function Profile() {
     license: 'Pending'
   })
 
+
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null)
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/truck_owner/profile`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile')
+        }
+
+        const data = await response.json()
+        if (data.success) {
+          setProfile(data.data)
+        } else {
+          throw new Error(data.message || 'Failed to fetch profile')
+        }
+      } catch (err) {
+        setError(err.message)
+        console.error('Error fetching profile:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/truck_owner/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profile)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setIsEditing(false)
+        alert('Profile updated successfully')
+      } else {
+        throw new Error(data.message || 'Failed to update profile')
+      }
+    } catch (err) {
+      setError(err.message)
+      console.error('Error updating profile:', err)
+    }
+
   const handleSave = () => {
     setIsEditing(false)
     // Save to API
+
   }
 
   const fileInputRefs = {

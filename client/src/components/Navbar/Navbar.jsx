@@ -8,7 +8,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
   const activeRole = getCurrentUserActiveRole()
 
   // Get user data from localStorage for name display
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
+  const currentUser = JSON.parse(localStorage.getItem('rt_user') || '{}')
   
   
   const getRoleDisplayName = (role) => {
