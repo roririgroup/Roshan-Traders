@@ -1,14 +1,6 @@
 const prisma = require('../../shared/lib/db.js');
 
 // Super admin CRUD operations
-/**
- * @param {Object} payload
- * @param {string} payload.name
- * @param {string} payload.phone
- * @param {string} payload.email
- * @param {string} payload.password
- * @param {string} payload.role
- */
 const createAdmin = async (payload) => {
   const { name, phone, email, password, role } = payload;
 
@@ -55,19 +47,16 @@ const getAllAdmins = async () => {
   });
 
   return admins.map(admin => ({
-    id: admin.id.toString(),
-    name: admin?.profile?.fullName || 'Unknown',
-    phone: admin?.phoneNumber || '',
-    email: admin?.profile?.email || '',
+    id: admin.id,
+    name: admin.profile?.fullName || 'Unknown',
+    phone: admin.phoneNumber,
+    email: admin.profile?.email || '',
     role: 'Super Admin',
-    status: admin?.isActive ? 'Active' : 'Inactive',
+    status: admin.isActive ? 'Active' : 'Inactive',
     createdAt: admin.createdAt,
   }));
 };
 
-/**
- * @param {string} id
- */
 const getAdminById = async (id) => {
   const admin = await prisma.user.findUnique({
     where: { id: parseInt(id), userType: 'ADMIN' },
@@ -80,24 +69,15 @@ const getAdminById = async (id) => {
 
   return {
     id: admin.id,
-    name: admin?.profile?.fullName || 'Unknown',
-    phone: admin?.phoneNumber || '',
-    email: admin?.profile?.email || '',
+    name: admin.profile?.fullName || 'Unknown',
+    phone: admin.phoneNumber,
+    email: admin.profile?.email || '',
     role: 'Super Admin',
-    status: admin?.isActive ? 'Active' : 'Inactive',
+    status: admin.isActive ? 'Active' : 'Inactive',
     createdAt: admin.createdAt,
   };
 };
 
-/**
- * @param {string} id
- * @param {Object} payload
- * @param {string} payload.name
- * @param {string} payload.phone
- * @param {string} payload.email
- * @param {string} payload.role
- * @param {string} payload.status
- */
 const updateAdmin = async (id, payload) => {
   const { name, phone, email, role, status } = payload;
 
@@ -142,9 +122,6 @@ const updateAdmin = async (id, payload) => {
   };
 };
 
-/**
- * @param {string} id
- */
 const deleteAdmin = async (id) => {
   const admin = await prisma.user.findUnique({
     where: { id: parseInt(id), userType: 'ADMIN' },
@@ -159,6 +136,7 @@ const deleteAdmin = async (id) => {
     where: { id: parseInt(id) },
   });
 };
+
 
 const getDashboardStats = async () => {
   // Get filtered counts from database (only active/verified records)
@@ -261,15 +239,26 @@ const getRejectedUsers = async () => {
 const approveUser = async (userId, adminId) => {
   const user = await prisma.user.findUnique({
     where: { id: parseInt(userId) },
-    include: { profile: true }
+    include: { profile: true, agent: true, manufacturer: true, employee: true }
   });
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  if (user.status !== 'PENDING') {
-    throw new Error('User is not in pending status');
+  // Allow re-approval if user is rejected or still pending
+  if (user.status === 'APPROVED') {
+    throw new Error('User is already approved');
+  }
+
+  // Validate adminId if provided
+  if (adminId) {
+    const adminExists = await prisma.user.findUnique({
+      where: { id: parseInt(adminId) }
+    });
+    if (!adminExists) {
+      throw new Error('Admin not found');
+    }
   }
 
   // Update user status to APPROVED
@@ -282,40 +271,48 @@ const approveUser = async (userId, adminId) => {
     include: { profile: true }
   });
 
-  // Create specific role records based on user's roles
+  // Create specific role records based on user's roles using upserts to handle existing records
   const employeeRoles = [];
-  // Helper to return a safe 32-bit integer or undefined
-  const safeInt32 = (val) => {
-    if (val === undefined || val === null) return undefined;
-    // Accept strings or numbers
-    const n = Number(val);
-    if (!Number.isFinite(n)) return undefined;
-    // Check 32-bit signed int range
-    if (n > 2147483647 || n < -2147483648) return undefined;
-    return Math.trunc(n);
+  // Helper to return a safe BigInt or undefined
+  const safeBigInt = (val) => {
+    if (val === undefined || val === null || val === '') return undefined;
+    try {
+      return BigInt(val);
+    } catch {
+      return undefined;
+    }
   };
 
-  const approvedByIdSafe = safeInt32(adminId);
+  const approvedByIdSafe = safeBigInt(adminId);
   for (const role of user.roles) {
     switch (role) {
       case 'Agent':
-        await prisma.agent.create({
-          data: {
+        await prisma.agent.upsert({
+          where: { userId: user.id },
+          update: {
+            isApproved: true,
+            ...(approvedByIdSafe !== undefined ? { approvedById: approvedByIdSafe, approvedAt: new Date() } : {}),
+          },
+          create: {
             userId: user.id,
             agentCode: `AGT-${user.id}`,
             isApproved: true,
-            // Only set approvedById when adminId is a safe 32-bit integer to avoid DB type errors
-            ...(approvedByIdSafe !== undefined ? { approvedById: approvedByIdSafe } : {}),
+            ...(approvedByIdSafe !== undefined ? { approvedById: approvedByIdSafe, approvedAt: new Date() } : {}),
           }
         });
         break;
       case 'Manufacturer':
-        await prisma.manufacturer.create({
-          data: {
+        await prisma.manufacturer.upsert({
+          where: { userId: user.id },
+          update: {
+            isVerified: true,
+            ...(approvedByIdSafe !== undefined ? { verifiedById: approvedByIdSafe, verifiedAt: new Date() } : {}),
+          },
+          create: {
             userId: user.id,
             companyName: user.profile?.fullName || 'New Company',
             isVerified: true,
-            ...(approvedByIdSafe !== undefined ? { verifiedById: approvedByIdSafe } : {}),
+            ...(approvedByIdSafe !== undefined ? { verifiedById: approvedByIdSafe, verifiedAt: new Date() } : {}),
           }
         });
         break;
@@ -326,13 +323,19 @@ const approveUser = async (userId, adminId) => {
     }
   }
 
-  // Create Employee record only if there are employee roles
+  // Create or update Employee record only if there are employee roles
   if (employeeRoles.length > 0) {
-    await prisma.employee.create({
-      data: {
+    await prisma.employee.upsert({
+      where: { userId: user.id },
+      update: {
+        role: employeeRoles.join(', '), // Update role if changed
+        status: 'Available' // Reset status on approval
+      },
+      create: {
         userId: user.id,
         employeeCode: `EMP-${user.id}`,
-        role: employeeRoles.join(', ') // Store multiple roles as comma-separated string
+        role: employeeRoles.join(', '),
+        status: 'Available'
       }
     });
   }
@@ -342,7 +345,7 @@ const approveUser = async (userId, adminId) => {
     data: {
       userId: user.id,
       action: 'user_approved',
-      description: `User approved by admin ${adminId}`
+      description: `User approved by admin ${adminId || 'unknown'}`
     }
   });
 
@@ -478,17 +481,11 @@ const checkUserStatus = async (phoneNumber) => {
   }
 };
 
+
 module.exports = {
   createAdmin,
   getAllAdmins,
   getAdminById,
   updateAdmin,
   deleteAdmin,
-  getDashboardStats,
-  getPendingUsers,
-  getApprovedUsers,
-  getRejectedUsers,
-  approveUser,
-  rejectUser,
-  checkUserStatus
 };

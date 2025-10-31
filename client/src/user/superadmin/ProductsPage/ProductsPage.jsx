@@ -35,15 +35,12 @@ export default function ProductsPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [orderForm, setOrderForm] = useState({
     customerName: '',
     phoneNumber: '',
     deliveryAddress: '',
     quantity: 1,
-    estimatedDeliveryDate: '',
-    paymentMethod: 'cash',
-    selectedPaymentOption: ''
+    estimatedDeliveryDate: ''
   })
   const [addForm, setAddForm] = useState({
     name: '',
@@ -73,21 +70,6 @@ export default function ProductsPage() {
   const [addErrors, setAddErrors] = useState({})
   const [editErrors, setEditErrors] = useState({})
 
-  // Add these functions
-  const handlePaymentOptionSelect = (paymentOption) => {
-    setOrderForm(prev => ({
-      ...prev,
-      selectedPaymentOption: paymentOption
-    }));
-  };
-
-  const handlePaymentConfirm = () => {
-    if (orderForm.selectedPaymentOption) {
-      alert(`Payment method selected: ${orderForm.selectedPaymentOption}`);
-      setShowPaymentOptions(false);
-    }
-  };
-
   const handleCardClick = (product) => {
     setSelectedProduct(product)
     setShowDetailsModal(true)
@@ -106,11 +88,6 @@ export default function ProductsPage() {
     if (!orderForm.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required'
     if (!orderForm.deliveryAddress.trim()) newErrors.deliveryAddress = 'Delivery address is required'
     if (!orderForm.estimatedDeliveryDate) newErrors.estimatedDeliveryDate = 'Delivery date is required'
-    
-    // Additional validation for online payment
-    if (orderForm.paymentMethod === 'online' && !orderForm.selectedPaymentOption) {
-      newErrors.paymentMethod = 'Please select a payment option';
-    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -125,9 +102,7 @@ export default function ProductsPage() {
       phoneNumber: '',
       deliveryAddress: '',
       quantity: 1,
-      estimatedDeliveryDate: '',
-      paymentMethod: 'cash',
-      selectedPaymentOption: ''
+      estimatedDeliveryDate: ''
     })
     setErrors({})
   }
@@ -902,28 +877,10 @@ export default function ProductsPage() {
               type="number"
               min="1"
               value={orderForm.quantity}
-              onChange={(e) => setOrderForm({...orderForm, quantity: parseInt(e.target.value) || 1})}
+              onChange={(e) => setOrderForm({...orderForm, quantity: parseInt(e.target.value)})}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
-          </div>
-
-          {/* Price Calculation */}
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Product Price:</span>
-              <span className="text-sm text-gray-900">₹{selectedProduct?.priceRange || "0.00"}</span>
-            </div>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-sm font-medium text-gray-700">Quantity:</span>
-              <span className="text-sm text-gray-900">{orderForm.quantity || 1}</span>
-            </div>
-            <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
-              <span className="text-lg font-bold text-gray-900">Total Amount:</span>
-              <span className="text-lg font-bold text-[#F08344]">
-                ₹{((parseFloat(selectedProduct?.priceRange) || 0) * (orderForm.quantity || 1)).toFixed(2)}
-              </span>
-            </div>
           </div>
 
           <div>
@@ -937,41 +894,6 @@ export default function ProductsPage() {
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#F08344] focus:border-transparent ${errors.estimatedDeliveryDate ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.estimatedDeliveryDate && <p className="text-red-500 text-sm mt-1">{errors.estimatedDeliveryDate}</p>}
-          </div>
-
-          {/* Payment Method */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Payment Method *
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="cash"
-                  checked={orderForm.paymentMethod === 'cash'}
-                  onChange={(e) => setOrderForm({...orderForm, paymentMethod: e.target.value})}
-                  className="h-4 w-4 text-[#F08344] focus:ring-[#F08344] border-gray-300"
-                />
-                <span className="ml-2 text-sm text-gray-700">Cash on Delivery</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="online"
-                  checked={orderForm.paymentMethod === 'online'}
-                  onChange={(e) => {
-                    setOrderForm({...orderForm, paymentMethod: e.target.value});
-                    setShowPaymentOptions(true);
-                  }}
-                  className="h-4 w-4 text-[#F08344] focus:ring-[#F08344] border-gray-300"
-                />
-                <span className="ml-2 text-sm text-gray-700">Online Payment</span>
-              </label>
-            </div>
-            {errors.paymentMethod && <p className="text-red-500 text-sm mt-1">{errors.paymentMethod}</p>}
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
@@ -990,92 +912,6 @@ export default function ProductsPage() {
             </Button>
           </div>
         </form>
-      </Modal>
-
-      {/* Payment Options Modal */}
-      <Modal
-        isOpen={showPaymentOptions}
-        onClose={() => setShowPaymentOptions(false)}
-        title="Choose Payment Method"
-        className="max-w-sm"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600 mb-4">Select your preferred payment method:</p>
-          
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => handlePaymentOptionSelect('google-pay')}
-              className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-[#F08344] hover:bg-orange-50 transition-colors duration-200"
-            >
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
-                  <span className="text-xs font-bold text-gray-700">G</span>
-                </div>
-                <span className="font-medium text-gray-900">Google Pay</span>
-              </div>
-              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                {orderForm.selectedPaymentOption === 'google-pay' && (
-                  <div className="w-2 h-2 bg-[#F08344] rounded-full"></div>
-                )}
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handlePaymentOptionSelect('phonepe')}
-              className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-[#F08344] hover:bg-orange-50 transition-colors duration-200"
-            >
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
-                  <span className="text-xs font-bold text-white">P</span>
-                </div>
-                <span className="font-medium text-gray-900">PhonePe</span>
-              </div>
-              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                {orderForm.selectedPaymentOption === 'phonepe' && (
-                  <div className="w-2 h-2 bg-[#F08344] rounded-full"></div>
-                )}
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handlePaymentOptionSelect('paytm')}
-              className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:border-[#F08344] hover:bg-orange-50 transition-colors duration-200"
-            >
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                  <span className="text-xs font-bold text-white">P</span>
-                </div>
-                <span className="font-medium text-gray-900">Paytm</span>
-              </div>
-              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                {orderForm.selectedPaymentOption === 'paytm' && (
-                  <div className="w-2 h-2 bg-[#F08344] rounded-full"></div>
-                )}
-              </div>
-            </button>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowPaymentOptions(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handlePaymentConfirm}
-              disabled={!orderForm.selectedPaymentOption}
-              className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Confirm Payment
-            </Button>
-          </div>
-        </div>
       </Modal>
     </div>
   )

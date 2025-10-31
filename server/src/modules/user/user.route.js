@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { getAllUsers, getUserById, getAllManufacturers, signupUser } = require('./user.service.js');
+const { getAllUsers, getUserById } = require('./user.service.js');
 
 const router = Router();
 
@@ -46,17 +46,6 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ message: 'Failed to fetch user' });
-  }
-});
-
-// GET /api/users/manufacturers - Get all manufacturers
-router.get('/manufacturers', async (req, res) => {
-  try {
-    const manufacturers = await getAllManufacturers();
-    res.json(manufacturers);
-  } catch (error) {
-    console.error('Error fetching manufacturers:', error);
-    res.status(500).json({ message: 'Failed to fetch manufacturers' });
   }
 });
 
