@@ -21,6 +21,7 @@ const EmployeeHeader = ({ onAddEmployee }) => {
         Add Employee
       </Button>
     </header>
+    
   );
 };
 

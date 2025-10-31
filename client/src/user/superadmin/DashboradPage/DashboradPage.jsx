@@ -4,16 +4,17 @@ import {
   Building2,
   TrendingUp,
   DollarSign,
-  Package,
   UserCheck,
   AlertCircle,
   BarChart3,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ${className}`}>
     {children}
   </div>
+  
 );
 
 const CardHeader = ({ children, className = "" }) => (
@@ -56,16 +57,31 @@ const StatCard = ({ title, value, trend, description, icon: Icon, color }) => (
 );
 
 export default function SuperAdminDashboard() {
-  const stats = {
-    totalManufacturers: 45,
-    totalAgents: 128,
-    totalEmployees: 342,
-    totalUsers: 510,
-    pendingPayments: 23,
-    totalReports: 89,
-    revenue: "$125,430",
-    availableBricks: 12450,
-  };
+  const [stats, setStats] = useState({
+    totalManufacturers: 0,
+    totalAgents: 0,
+    totalActingLabours: 0,
+    totalEmployees: 0,
+    totalUsers: 0,
+    pendingPayments: 0,
+    revenue: "$0",
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('http://localhost:7700/api/admins/stats');
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -92,25 +108,25 @@ export default function SuperAdminDashboard() {
           <StatCard
             title="Manufacturers"
             value={stats.totalManufacturers}
-            icon={Factory}
-            trend="+12%"
-            description="from last month"
+            icon={Factory}           
             color={{ bg: "bg-blue-100", text: "text-blue-600" }}
           />
           <StatCard
             title="Agents"
             value={stats.totalAgents}
+            icon={UserCheck}           
+            color={{ bg: "bg-green-100", text: "text-green-600" }}
+          />
+           <StatCard
+            title="Acting Labour "
+            value={stats.totalActingLabours}
             icon={UserCheck}
-            trend="+8%"
-            description="from last month"
             color={{ bg: "bg-green-100", text: "text-green-600" }}
           />
           <StatCard
             title="Employees"
             value={stats.totalEmployees}
-            icon={Users}
-            trend="+15%"
-            description="from last month"
+            icon={Users}          
             color={{ bg: "bg-purple-100", text: "text-purple-600" }}
           />
         </div>
@@ -121,44 +137,30 @@ export default function SuperAdminDashboard() {
             <div className="w-1 h-6 bg-gradient-to-b from-pink-600 to-orange-600 rounded-full"></div>
             Operations Overview
           </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <StatCard
               title="Users"
               value={stats.totalUsers}
-              icon={Users}
-              trend="+20%"
-              description="from last month"
+              icon={Users}             
               color={{ bg: "bg-pink-100", text: "text-pink-600" }}
             />
             <StatCard
               title="Pending Payments"
               value={stats.pendingPayments}
-              icon={AlertCircle}
-              trend="-3%"
-              description="from last month"
-              color={{ bg: "bg-yellow-100", text: "text-yellow-600" }}
-            />
-            <StatCard
-              title="Reports"
-              value={stats.totalReports}
-              icon={BarChart3}
-              trend="+10%"
-              description="from last month"
+              icon={AlertCircle}             
               color={{ bg: "bg-red-100", text: "text-red-600" }}
             />
-            <StatCard
-              title="Available Bricks"
-              value={stats.availableBricks.toLocaleString()}
-              icon={Package}
-              trend="+5%"
-              description="increase today"
-              color={{ bg: "bg-orange-100", text: "text-orange-600" }}
+             <StatCard
+              title="Total Revenue"
+              value={stats.revenue}
+              icon={TrendingUp}
+              color={{ bg: "bg-yellow-100", text: "text-yellow-600" }}
             />
           </div>
         </div>
 
         {/* Enhanced Revenue Card */}
-        <Card className="w-full bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
+        {/* <Card className="w-full bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-gray-900">
               <div className="p-2.5 bg-green-100 rounded-xl">
@@ -171,10 +173,9 @@ export default function SuperAdminDashboard() {
             <div className="text-5xl font-bold text-gray-900 mb-3">{stats.revenue}</div>
             <div className="flex items-center gap-2 bg-green-100 w-fit px-3 py-2 rounded-lg">
               <TrendingUp className="h-4 w-4 text-green-600" />
-              <p className="text-sm text-green-700 font-semibold">+20.1% from last month</p>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

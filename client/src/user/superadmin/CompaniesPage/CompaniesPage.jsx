@@ -19,6 +19,7 @@ const CardMedia = ({ src, alt, className = "" }) => (
   </div>
 );
 
+
 const CardHeader = ({ title, subtitle, action }) => (
   <div className="p-4 pb-2">
     <div className="flex items-start justify-between gap-3">

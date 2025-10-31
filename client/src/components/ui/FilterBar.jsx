@@ -6,7 +6,8 @@ export default function FilterBar({
   placeholder = 'Search...',
   selects = [],
   className = ''
-}) {
+}) 
+{
   return (
     <div className={`bg-white border border-slate-200 rounded-lg p-3 sm:p-4 mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3 ${className}`}>
       <div className="flex-1">

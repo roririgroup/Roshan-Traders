@@ -9,6 +9,7 @@ const ROLE_OPTIONS = [
   { key: 'Contractor', label: 'Contractors', icon: Building2 },
 ]
 
+
 const MOCK_USERS = [
   { id: 'u1', name: 'Ravi Patil', userId: 'AGT-101', email: 'ravi@example.com', phone: '+91 98765 11101', organization: 'RP Associates', balance: 320.5, lastUsed: new Date().toISOString(), userType: 'Agent', status: 'Available' },
   { id: 'u2', name: 'Neha Gupta', userId: 'AGT-102', email: 'neha@example.com', phone: '+91 98765 11102', organization: 'NG Contracts', balance: 150.0, lastUsed: new Date().toISOString(), userType: 'Agent', status: 'On Job' },

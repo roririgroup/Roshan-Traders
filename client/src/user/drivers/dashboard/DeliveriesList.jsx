@@ -14,6 +14,7 @@ export default function DeliveriesList() {
       customerPhone: '+91 9876543210',
       date: '2024-06-15'
     },
+    
     {
       id: 'ORD002',
       pickup: 'Factory X, Mumbai',

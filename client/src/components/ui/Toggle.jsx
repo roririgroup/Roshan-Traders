@@ -17,6 +17,7 @@ export default function Toggle({ checked, onChange, label }) {
           checked ? 'bg-primary' : 'bg-muted'
         }`}
       >
+        
         <span
           className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
             checked ? 'translate-x-5' : 'translate-x-1'

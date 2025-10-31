@@ -14,6 +14,7 @@ const NotificationContainer = ({ notifications, onRemove, onNotificationClick })
       ))}
     </div>
   )
+  
 }
 
 export default NotificationContainer

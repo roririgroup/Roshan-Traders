@@ -14,6 +14,7 @@ export function setStoredTheme(theme) {
   } catch {}
 }
 
+
 export function applyTheme(theme) {
   const root = document.documentElement
   if (theme === 'dark') {

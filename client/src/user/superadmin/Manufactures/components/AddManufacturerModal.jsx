@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Modal from '../../../../components/ui/Modal';
 import Button from '../../../../components/ui/Button';
 
+
+
 const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     companyName: '',
@@ -30,6 +32,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
     location: '',
     rating: '',
     image: '',
+    products: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -60,6 +63,15 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
     setFormData(prev => ({
       ...prev,
       founders: newFounders,
+    }));
+  };
+
+  const handleProductChange = (product) => {
+    setFormData(prev => ({
+      ...prev,
+      products: prev.products.includes(product)
+        ? prev.products.filter(p => p !== product)
+        : [...prev.products, product],
     }));
   };
 
@@ -157,6 +169,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
         certifications: formData.certifications ? formData.certifications.split(',').map(s => s.trim()).filter(s => s) : [],
         founders: formData.founders.filter(f => f.name.trim()),
         // userId: 1, // Remove this to let backend create system user automatically
+        productIds: formData.products, // Map products array to productIds for backend
       };
 
       console.log('Payload to submit:', payload);
@@ -194,6 +207,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
         location: '',
         rating: '',
         image: '',
+        products: [],
       });
       setErrors({});
     } catch (error) {
@@ -410,6 +424,24 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
           >
             Add Founder
           </button>
+        </div>
+
+        {/* Products */}
+        <div className="border-t pt-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Products</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {['Red Bricks', 'Clay', 'Wood', 'Clay Tiles', 'Soil', 'M-Sand'].map((product) => (
+              <label key={product} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.products.includes(product)}
+                  onChange={() => handleProductChange(product)}
+                  className="mr-2"
+                />
+                {product}
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Arrays */}

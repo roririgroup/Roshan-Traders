@@ -18,6 +18,7 @@ export default function DeliveryDetailsModal({ delivery, onClose, onUpdateStatus
       console.log('Proof uploaded:', file.name)
     }
   }
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

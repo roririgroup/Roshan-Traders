@@ -8,6 +8,7 @@ export default function Badge({ children, color = 'gray' }) {
   }
   const cls = `inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
     colors[color] || colors.gray
+    
   }`
   return <span className={cls}>{children}</span>
 }

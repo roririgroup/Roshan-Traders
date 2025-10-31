@@ -12,6 +12,7 @@ const EditAgentModal = ({ agent, onClose, onSave }) => {
     referrals: 0,
     image: "",
   });
+  
 
   useEffect(() => {
     if (agent) {

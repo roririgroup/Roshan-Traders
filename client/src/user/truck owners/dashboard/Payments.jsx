@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Button from '../../../components/ui/Button'
+
 import { DollarSign, Clock, CheckCircle, TrendingUp } from 'lucide-react'
 
 export default function Payments() {

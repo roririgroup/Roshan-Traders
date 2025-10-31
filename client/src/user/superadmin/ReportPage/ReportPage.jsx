@@ -7,6 +7,7 @@ const reportData = [
   { id: 4, name: 'Emily Davis', department: 'HR', performance: 'Satisfactory', sales: 7000 },
 ];
 
+
 export default function ReportPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">

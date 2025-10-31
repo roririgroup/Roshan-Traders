@@ -23,6 +23,7 @@ export default function Modal({ isOpen, onClose, children, inline = false, title
         return 'max-w-md'
     }
   })()
+  
 
   return (
     <div className={containerClass}>

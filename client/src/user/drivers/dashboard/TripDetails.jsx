@@ -19,6 +19,7 @@ export default function TripDetails() {
       contact: 'Ms. Patel',
       phone: '+91 9876543211'
     },
+    
     load: {
       weight: '15 Ton',
       type: 'Electronics',

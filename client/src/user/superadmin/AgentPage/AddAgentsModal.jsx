@@ -16,6 +16,7 @@ const AddAgentsModal = ({ onClose, onAdd }) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: name === 'referrals' ? Number(value) || 0 : value });
   };
+  
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
