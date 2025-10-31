@@ -42,11 +42,8 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     if (activeRole === 'superadmin') {
       return 'Super Admin'
     }
-
-    // For regular users, show their display name if available, otherwise fallback to firstName + lastName
-    if (currentUser.displayName) {
-      return currentUser.displayName
-    }
+    
+    // For regular users, show their actual name
     if (currentUser.firstName && currentUser.lastName) {
       return `${currentUser.firstName} ${currentUser.lastName}`
     }

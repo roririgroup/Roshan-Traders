@@ -172,10 +172,7 @@ export default function ManufacturerDetailsPage() {
           teamSize: data.companyInfo?.employees || 0,
           specializations: data.specializations?.map(s => s.specialization.name) || [],
           achievements: data.achievements || [],
-          orders: (data.orders || []).map(order => ({
-            ...order,
-            items: order.items || []
-          })),
+          orders: data.orders || [],
           companyInfo: {
             certifications: data.companyInfo?.certifications || []
           }
@@ -280,8 +277,6 @@ export default function ManufacturerDetailsPage() {
             </Link>
           </div>
         </div>
-
-        
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
@@ -493,7 +488,13 @@ export default function ManufacturerDetailsPage() {
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6">
                 <nav className="flex flex-wrap gap-3" aria-label="Tabs">
-                 
+                  <TabButton
+                    active={activeTab === 'orders'}
+                    onClick={() => setActiveTab('orders')}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Orders ({totalOrders})
+                  </TabButton>
                   <TabButton
                     active={activeTab === 'about'}
                     onClick={() => setActiveTab('about')}
@@ -683,37 +684,35 @@ export default function ManufacturerDetailsPage() {
                     </div>
 
                     {/* Founder Information */}
-                    {manufacturer.founder && (
-                      <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200/50">
-                        <h4 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
-                          <User className="w-5 h-5 mr-2" />
-                          Founder Information
-                        </h4>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center">
-                            <User className="w-8 h-8 text-white" />
-                          </div>
-                          <div>
-                            <h5 className="text-2xl font-bold text-indigo-900 mb-1">
-                              {manufacturer.founder?.name || 'N/A'}
-                            </h5>
-                            <p className="text-lg font-semibold text-indigo-700 mb-2">
-                              {manufacturer.name}
-                            </p>
-                            <div className="flex items-center space-x-4 text-sm text-indigo-600">
-                              <span className="flex items-center">
-                                <Award className="w-4 h-4 mr-1" />
-                                {manufacturer.founder?.experience || 'N/A'} experience
-                              </span>
-                              <span className="flex items-center">
-                                <FileText className="w-4 h-4 mr-1" />
-                                {manufacturer.founder?.qualification || 'N/A'}
-                              </span>
-                            </div>
+                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200/50">
+                      <h4 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                        <User className="w-5 h-5 mr-2" />
+                        Founder Information
+                      </h4>
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="text-2xl font-bold text-indigo-900 mb-1">
+                            {manufacturer.founder.name}
+                          </h5>
+                          <p className="text-lg font-semibold text-indigo-700 mb-2">
+                            {manufacturer.name}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-indigo-600">
+                            <span className="flex items-center">
+                              <Award className="w-4 h-4 mr-1" />
+                              {manufacturer.founder.experience} experience
+                            </span>
+                            <span className="flex items-center">
+                              <FileText className="w-4 h-4 mr-1" />
+                              {manufacturer.founder.qualification}
+                            </span>
                           </div>
                         </div>
                       </div>
-                    )}
+                    </div>
                     
                     <div className="grid md:grid-cols-2 gap-8">
                       <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200/50">
@@ -817,7 +816,7 @@ export default function ManufacturerDetailsPage() {
                       <h3 className="text-2xl font-bold text-gray-800 mb-2">Certifications & Standards</h3>
                       <p className="text-gray-600">Our commitment to quality and international standards</p>
                     </div>
-
+                    
                     <div className="grid md:grid-cols-2 gap-6">
                       {manufacturer.companyInfo.certifications.map((cert, index) => (
                         <div
@@ -834,14 +833,14 @@ export default function ManufacturerDetailsPage() {
                         </div>
                       ))}
                     </div>
-
+                    
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200/50">
                       <div className="flex items-center mb-4">
                         <CheckCircle className="w-8 h-8 text-green-500 mr-3" />
                         <h4 className="text-xl font-bold text-green-800">Quality Commitment</h4>
                       </div>
                       <p className="text-green-700 leading-relaxed">
-                        All our products undergo rigorous quality testing and meet international standards.
+                        All our products undergo rigorous quality testing and meet international standards. 
                         We maintain strict quality control processes to ensure customer satisfaction and product reliability.
                       </p>
                     </div>

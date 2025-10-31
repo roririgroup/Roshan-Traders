@@ -46,9 +46,11 @@ const agentApi = require('./modules/agent/agent.route.js');
 const employeeApi = require('./modules/employee/employee.route.js');
 const actingLabourApi = require('./modules/acting_labour/acting_labour.route.js');
 const manufacturerEmployeeApi = require('./modules/manufacturer_employee/manufacturer_employee.route.js');
+const manufacturerProductRoutes = require('./modules/manufacturer-products/manufacturer-product.route.js');
 
+app.use('/api/manufacturer-products', manufacturerProductRoutes);
 app.use('/api/users', userApi);
-app.use('/api/admins', adminAuthApi);
+app.use('/api/admin-auth', adminAuthApi);
 app.use('/api/products', productApi);
 app.use('/api/orders', ordersApi);
 app.use('/api/manufacturers', manufacturerApi);
