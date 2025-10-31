@@ -3,8 +3,7 @@ import { Card } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import FilterBar from '../../../components/ui/FilterBar'
-import { Package, Plus, ShoppingCart, Edit, Trash2 } from 'lucide-react'
-import { addOrder } from '../../../store/ordersStore'
+import { Package, Plus, Edit, Trash2 } from 'lucide-react'
 import { getCurrentUser } from '../../../lib/auth'
 
 export default function Products() {
@@ -18,11 +17,9 @@ export default function Products() {
     name: '',
     price: '',
     description: '',
-    image: '',
     inStock: true,
     stockQuantity: 0
   })
-  const [quantities, setQuantities] = useState({})
   const [search, setSearch] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
 
@@ -30,30 +27,24 @@ export default function Products() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('http://localhost:7700/api/products');
-        const data = await response.json();
-        setProducts(data);
+        const token = localStorage.getItem('token') || 'dummy-token'
+        const user = getCurrentUser()
+        if (user && user.id) {
+          const response = await fetch(`http://localhost:7700/api/products/manufacturer/${user.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+          setProducts(data);
+        } else {
+          // No fallback data - show empty state
+          setProducts([]);
+        }
       } catch (error) {
         console.error('Failed to fetch products:', error);
-        setProducts([
-          {
-            id: 1,
-            name: 'Red Bricks',
-            price: 50,
-            description: 'High-quality for dream house construction works',
-            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEoD4fl9rKhwkoUVYYnhvxMrWxGsQDC0EDw&s',
-            inStock: true,
-            stockQuantity: 1000
-          },
-          {
-            id: 2,
-            name: 'Teak Wood Planks',
-            price: 1500,
-            description: 'Durable teak wood planks for furniture and flooring',
-            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzIl7C3rTQgMq-f60VgT8om7PIJM4biVD0tA&s',
-            stockQuantity: 50
-          }
-        ]);
+        setProducts([]);
       }
     }
 
@@ -65,62 +56,6 @@ export default function Products() {
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }))
-  }
-
-  const handleQuantityChange = (productId, quantity) => {
-    setQuantities(prev => ({
-      ...prev,
-      [productId]: quantity
-    }))
-  }
-
-  // ✅ Corrected order creation for Orders.jsx compatibility
-  const handlePlaceOrder = (product) => {
-    const quantity = Number(quantities[product.id])
-    if (!quantity || quantity <= 0) {
-      alert('Please enter a valid quantity')
-      return
-    }
-
-    const user = getCurrentUser()
-    if (!user || !user.id) {
-      alert('Please log in before placing an order.')
-      return
-    }
-    
-
-    const unitPrice = Number(product.price)
-    const total = unitPrice * quantity
-
-    const orderData = {
-      id: Date.now(),
-      orderType: 'product',
-      userInfo: {
-        id: user.id,
-        name: user.name || user.username || 'Unknown User'
-      },
-      items: [
-        {
-          name: product.name,
-          quantity,
-          price: unitPrice
-        }
-      ],
-      totalAmount: total,
-      status: 'pending',
-      orderDate: new Date().toISOString(),
-      deliveryAddress: 'N/A'
-    }
-
-    console.log('Placing order:', orderData)
-    addOrder(orderData)
-    alert('Order placed successfully!')
-
-    // reset quantity
-    setQuantities(prev => ({
-      ...prev,
-      [product.id]: ''
     }))
   }
 
@@ -142,7 +77,6 @@ export default function Products() {
       name: '',
       price: '',
       description: '',
-      image: '',
       inStock: true,
       stockQuantity: 0
     })
@@ -155,7 +89,6 @@ export default function Products() {
       name: product.name,
       price: product.price.toString(),
       description: product.description,
-      image: product.image || '',
       inStock: product.inStock,
       stockQuantity: product.stockQuantity || 0
     })
@@ -183,7 +116,6 @@ export default function Products() {
       name: '',
       price: '',
       description: '',
-      image: '',
       inStock: true,
       stockQuantity: 0
     })
@@ -232,7 +164,7 @@ export default function Products() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Products</h1>
-              <p className="text-slate-600">Manage your product inventory and place orders</p>
+              <p className="text-slate-600">Manage your product inventory</p>
             </div>
           </div>
           <Button
@@ -242,7 +174,6 @@ export default function Products() {
                 name: '',
                 price: '',
                 description: '',
-                image: '',
                 inStock: true,
                 stockQuantity: 0
               })
@@ -297,38 +228,9 @@ export default function Products() {
             <span className="text-sm text-slate-700">Stock: <span className="font-semibold">{Number(product.stockQuantity || 0)}</span></span>
           </div>
         </div>
-
-        {product.image && (
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-32 object-cover rounded-lg mb-4"
-          />
-        )}
-
       </div>
 
       <div className="space-y-3 mt-4">
-        <div className="flex gap-2">
-          <input
-            type="number"
-            min="0"
-            max={product.stockQuantity}
-            value={quantities[product.id] || ''}
-            onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-            placeholder="Enter order qty"
-            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <Button
-            onClick={() => handlePlaceOrder(product)}
-            className="bg-green-600 hover:bg-green-700 text-white"
-            disabled={!product.inStock || !(quantities[product.id] > 0) || (quantities[product.id] > product.stockQuantity)}
-          >
-            <ShoppingCart className="size-4 mr-2" />
-            Order
-          </Button>
-        </div>
-
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
           <div className="flex gap-2">
             <Button
@@ -413,18 +315,6 @@ export default function Products() {
               rows={3}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter product description"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Image URL</label>
-            <input
-              type="url"
-              name="image"
-              value={formData.image}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter image URL"
             />
           </div>
 
