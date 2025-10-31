@@ -140,17 +140,17 @@ const getAllUsers = async () => {
     }
 
     return {
-      id: user.id.toString(),
-      name: user?.profile?.fullName || 'Unknown',
-      userId: user?.agent?.agentCode || user?.employee?.employeeCode || `USR-${user.id}`,
-      email: user?.profile?.email || '',
-      phone: user?.phoneNumber || '',
-      organization: user?.manufacturer?.companyName || user?.agent?.assignedArea || user?.employee?.role || '',
-      balance: user?.agent?.totalEarnings || 0,
-      lastUsed: user?.lastLogin,
+      id: user.id,
+      name: user.profile?.fullName || 'Unknown',
+      userId: user.agent?.agentCode || user.employee?.employeeCode || `USR-${user.id}`,
+      email: user.profile?.email || '',
+      phone: user.phoneNumber,
+      organization: user.manufacturer?.companyName || user.agent?.assignedArea || user.employee?.role || '',
+      balance: user.agent?.totalEarnings || 0,
+      lastUsed: user.lastLogin,
       userType: userType,
-      status: user?.agent?.isApproved ? 'Available' : user?.employee?.status || 'Available',
-      image: user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+      status: user.agent?.isApproved ? 'Available' : user.employee?.status || 'Available',
+      image: user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
       ...additionalData,
     };
   });
@@ -203,90 +203,22 @@ const getUserById = async (id) => {
   }
 
   return {
-    id: user.id.toString(),
-    name: user?.profile?.fullName || 'Unknown',
-    userId: user?.agent?.agentCode || user?.employee?.employeeCode || `USR-${user.id}`,
-    email: user?.profile?.email || '',
-    phone: user?.phoneNumber || '',
-    organization: user?.manufacturer?.companyName || user?.agent?.assignedArea || user?.employee?.role || '',
-    balance: user?.agent?.totalEarnings || 0,
-    lastUsed: user?.lastLogin,
+    id: user.id,
+    name: user.profile?.fullName || 'Unknown',
+    userId: user.agent?.agentCode || user.employee?.employeeCode || `USR-${user.id}`,
+    email: user.profile?.email || '',
+    phone: user.phoneNumber,
+    organization: user.manufacturer?.companyName || user.agent?.assignedArea || user.employee?.role || '',
+    balance: user.agent?.totalEarnings || 0,
+    lastUsed: user.lastLogin,
     userType: userType,
-    status: user?.agent?.isApproved ? 'Available' : user?.employee?.status || 'Available',
-    image: user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    status: user.agent?.isApproved ? 'Available' : user.employee?.status || 'Available',
+    image: user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
     ...additionalData,
   };
 };
 
-const getAllManufacturers = async () => {
-  const manufacturers = await prisma.manufacturer.findMany({
-    include: {
-      contact: true,
-      companyInfo: true,
-      founders: true,
-      specializations: {
-        include: {
-          specialization: true,
-        },
-      },
-      achievements: {
-        include: {
-          achievement: true,
-        },
-      },
-      certifications: {
-        include: {
-          certification: true,
-        },
-      },
-      products: {
-        select: {
-          id: true,
-        },
-      },
-      _count: {
-        select: {
-          products: true,
-        },
-      },
-    },
-  });
-
-  // Transform the response to match frontend expectations
-  return manufacturers.map(manufacturer => ({
-    id: manufacturer.id,
-    companyName: manufacturer.companyName,
-    businessType: manufacturer.businessType,
-    gstNumber: manufacturer.gstNumber,
-    panNumber: manufacturer.panNumber,
-    businessAddress: manufacturer.businessAddress,
-    websiteUrl: manufacturer.websiteUrl,
-    isVerified: manufacturer.isVerified,
-    description: manufacturer.description,
-    established: manufacturer.established,
-    location: manufacturer.location,
-    rating: manufacturer.rating,
-    image: manufacturer.image,
-    contact: manufacturer.contact,
-    companyInfo: manufacturer.companyInfo,
-    founders: manufacturer.founders,
-    specializationsList: manufacturer.specializations?.map(s => s.specialization?.name).filter(Boolean) || [],
-    achievementsList: manufacturer.achievements?.map(a => a.achievement?.name).filter(Boolean) || [],
-    certificationsList: manufacturer.certifications?.map(c => c.certification?.name).filter(Boolean) || [],
-    productsCount: manufacturer._count.products,
-    // Add stock and category fields for frontend compatibility
-    stock: manufacturer.companyInfo?.employees || 0, // Using employees as stock for now
-    category: manufacturer.businessType || 'bricks', // Default to bricks
-    productType: manufacturer.businessType || 'All Types',
-    email: manufacturer.contact?.email || '',
-    phone: manufacturer.contact?.phone || '',
-    address: manufacturer.contact?.address || manufacturer.businessAddress || ''
-  }));
-};
-
 module.exports = {
-  signupUser,
   getAllUsers,
   getUserById,
-  getAllManufacturers,
 };

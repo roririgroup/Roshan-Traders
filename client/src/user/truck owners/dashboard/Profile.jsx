@@ -12,8 +12,7 @@ export default function Profile() {
     address: '123 Main St, Chennai, Tamil Nadu',
     company: 'JD Transport Services',
     gstNumber: '22AAAAA0000A1Z5',
-    panNumber: 'AAAAA0000A',
-    profilePhoto: null
+    panNumber: 'AAAAA0000A'
   })
 
   
@@ -24,15 +23,12 @@ export default function Profile() {
     license: 'Pending'
   })
 
-  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null)
-
   const handleSave = () => {
     setIsEditing(false)
     // Save to API
   }
 
   const fileInputRefs = {
-    profilePhoto: React.createRef(),
     aadhaar: React.createRef(),
     pan: React.createRef(),
     gst: React.createRef(),
@@ -48,16 +44,8 @@ export default function Profile() {
   const handleFileChange = (e, docType) => {
     const file = e.target.files[0]
     if (file) {
-      if (docType === 'profilePhoto') {
-        setProfile(prev => ({ ...prev, profilePhoto: file }))
-        const reader = new FileReader()
-        reader.onload = (e) => setProfilePhotoPreview(e.target.result)
-        reader.readAsDataURL(file)
-        alert('Profile photo uploaded successfully')
-      } else {
-        setDocuments(prev => ({ ...prev, [docType]: 'Uploaded' }))
-        alert(`${docType} uploaded successfully`)
-      }
+      setDocuments(prev => ({ ...prev, [docType]: 'Uploaded' }))
+      alert(`${docType} uploaded successfully`)
     }
   }
 
@@ -76,43 +64,6 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Hidden file inputs */}
-      <input
-        type="file"
-        ref={fileInputRefs.profilePhoto}
-        onChange={(e) => handleFileChange(e, 'profilePhoto')}
-        accept="image/*"
-        style={{ display: 'none' }}
-      />
-      <input
-        type="file"
-        ref={fileInputRefs.aadhaar}
-        onChange={(e) => handleFileChange(e, 'aadhaar')}
-        accept="image/*,.pdf"
-        style={{ display: 'none' }}
-      />
-      <input
-        type="file"
-        ref={fileInputRefs.pan}
-        onChange={(e) => handleFileChange(e, 'pan')}
-        accept="image/*,.pdf"
-        style={{ display: 'none' }}
-      />
-      <input
-        type="file"
-        ref={fileInputRefs.gst}
-        onChange={(e) => handleFileChange(e, 'gst')}
-        accept="image/*,.pdf"
-        style={{ display: 'none' }}
-      />
-      <input
-        type="file"
-        ref={fileInputRefs.license}
-        onChange={(e) => handleFileChange(e, 'license')}
-        accept="image/*,.pdf"
-        style={{ display: 'none' }}
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Personal Information */}
         <Card className="p-6">
@@ -126,35 +77,6 @@ export default function Profile() {
               <Edit className="size-4 mr-2" />
               {isEditing ? 'Save' : 'Edit'}
             </Button>
-          </div>
-
-          {/* Profile Photo */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="relative">
-              {profilePhotoPreview ? (
-                <img
-                  src={profilePhotoPreview}
-                  alt="Profile"
-                  className="w-20 h-20 rounded-full object-cover border-2 border-slate-200"
-                />
-              ) : (
-                <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center">
-                  <User className="size-8 text-slate-500" />
-                </div>
-              )}
-              <Button
-                onClick={() => handleUploadClick('profilePhoto')}
-                variant="outline"
-                size="sm"
-                className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0"
-              >
-               <Upload className="size-4 mr-2" />
-              </Button>
-            </div>
-            <div>
-              <h3 className="font-medium text-slate-900">{profile.name}</h3>
-              <p className="text-sm text-slate-500">Truck Owner</p>
-            </div>
           </div>
 
           <div className="space-y-4">
@@ -253,7 +175,6 @@ export default function Profile() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { name: 'Profile Photo', key: 'profilePhoto' },
               { name: 'Aadhaar', key: 'aadhaar' },
               { name: 'PAN Card', key: 'pan' },
               { name: 'GST Certificate', key: 'gst' },
@@ -263,10 +184,9 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-slate-900">{doc.name}</h3>
                   <span className={`px-2 py-1 rounded text-xs ${
-                    doc.key === 'profilePhoto' ? (profilePhotoPreview ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800') :
                     documents[doc.key] === 'Uploaded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {doc.key === 'profilePhoto' ? (profilePhotoPreview ? 'Uploaded' : 'Pending') : documents[doc.key]}
+                    {documents[doc.key]}
                   </span>
                 </div>
                 <Button
@@ -274,11 +194,10 @@ export default function Profile() {
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  disabled={doc.key === 'profilePhoto' ? false : documents[doc.key] === 'Uploaded'}
+                  disabled={documents[doc.key] === 'Uploaded'}
                 >
                   <Upload className="size-4 mr-2" />
-                  {doc.key === 'profilePhoto' ? (profilePhotoPreview ? 'Change Photo' : 'Upload') :
-                   documents[doc.key] === 'Uploaded' ? 'Uploaded' : 'Upload'}
+                  {documents[doc.key] === 'Uploaded' ? 'Uploaded' : 'Upload'}
                 </Button>
               </div>
             ))}

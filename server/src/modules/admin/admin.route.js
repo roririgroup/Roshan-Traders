@@ -1,19 +1,5 @@
 const { Router } = require('express');
-const { serializeBigInt } = require('../../shared/lib/json.js');
-const {
-  createAdmin,
-  getAllAdmins,
-  getAdminById,
-  updateAdmin,
-  deleteAdmin,
-  getDashboardStats,
-  getPendingUsers,
-  getApprovedUsers,
-  getRejectedUsers,
-  approveUser,
-  rejectUser,
-  checkUserStatus
-} = require('./admin.service.js');
+const { createAdmin, getAllAdmins, getAdminById, updateAdmin, deleteAdmin } = require('./admin.service.js');
 
 
 const router = Router();
@@ -26,79 +12,6 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Error fetching admins:', error);
     res.status(500).json({ message: 'Failed to fetch admins' });
-  }
-});
-
-// GET /api/admins/stats - Get dashboard stats
-router.get('/stats', async (req, res) => {
-  try {
-    const stats = await getDashboardStats();
-    res.json(stats);
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    res.status(500).json({ message: 'Failed to fetch dashboard stats' });
-  }
-});
-
-// GET /api/admins/pending-users - Get all pending users for approval
-router.get('/pending-users', async (req, res) => {
-  try {
-    const users = await getPendingUsers();
-    res.json(serializeBigInt(users));
-  } catch (error) {
-    console.error('Error fetching pending users:', error);
-    res.status(500).json({ message: 'Failed to fetch pending users' });
-  }
-});
-
-// GET /api/admins/approved-users - Get all approved users
-router.get('/approved-users', async (req, res) => {
-  try {
-    const users = await getApprovedUsers();
-    res.json(serializeBigInt(users));
-  } catch (error) {
-    console.error('Error fetching approved users:', error);
-    res.status(500).json({ message: 'Failed to fetch approved users' });
-  }
-});
-
-// GET /api/admins/rejected-users - Get all rejected users
-router.get('/rejected-users', async (req, res) => {
-  try {
-    const users = await getRejectedUsers();
-    res.json(serializeBigInt(users));
-  } catch (error) {
-    // Log full stack for debugging and return error message in response
-    console.error('Error fetching rejected users:', error.stack || error);
-    res.status(500).json({ message: 'Failed to fetch rejected users', error: error.message });
-  }
-});
-
-// POST /api/admins/approve-user/:id - Approve a user
-router.post('/approve-user/:id', async (req, res) => {
-  try {
-    const user = await approveUser(req.params.id, req.body.adminId);
-    res.json(serializeBigInt({
-      message: `User ${user.profile?.fullName} has been approved successfully`,
-      user
-    }));
-  } catch (error) {
-    console.error('Error approving user:', error);
-    res.status(400).json({ message: error.message || 'Failed to approve user' });
-  }
-});
-
-// POST /api/admins/reject-user/:id - Reject a user
-router.post('/reject-user/:id', async (req, res) => {
-  try {
-    const user = await rejectUser(req.params.id, req.body.adminId);
-    res.json(serializeBigInt({
-      message: `User ${user.profile?.fullName} has been rejected`,
-      user
-    }));
-  } catch (error) {
-    console.error('Error rejecting user:', error);
-    res.status(400).json({ message: error.message || 'Failed to reject user' });
   }
 });
 
@@ -146,17 +59,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting admin:', error);
     res.status(500).json({ message: 'Failed to delete admin' });
-  }
-});
-
-// GET /api/admins/check-user-status/:phone - Check user status by phone number
-router.get('/check-user-status/:phone', async (req, res) => {
-  try {
-    const userStatus = await checkUserStatus(req.params.phone);
-    res.json(serializeBigInt(userStatus));
-  } catch (error) {
-    console.error('Error checking user status:', error);
-    res.status(500).json({ message: 'Failed to check user status' });
   }
 });
 
