@@ -1,42 +1,70 @@
 import React, { useState, useEffect } from "react";
 import { MapPin } from "lucide-react";
 
+const API_BASE_URL = 'http://localhost:7700/api'
+
 export default function Trips() {
   const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    // Load mock + assigned trips
-    const mockTrips = [
-      {
-        id: 1,
-        truckNo: "TN01AB1234",
-        driver: "Raj Kumar",
-        from: "Chennai",
-        to: "Bangalore",
-        status: "Running",
-        startTime: "2024-10-01 08:00",
-        estimatedArrival: "2024-10-01 16:00",
-        cargo: "Electronics - 15 Ton",
-        agent: "ABC Logistics",
-        podUploaded: false,
-      },
-      {
-        id: 2,
-        truckNo: "TN02CD5678",
-        driver: "Suresh Patel",
-        from: "Mumbai",
-        to: "Delhi",
-        status: "Upcoming",
-        startTime: "2024-10-05 06:00",
-        estimatedArrival: "2024-10-06 18:00",
-        cargo: "Textiles - 12 Ton",
-        agent: "XYZ Traders",
-        podUploaded: false,
-      },
-    ];
+    const fetchTrips = async () => {
+      try {
+        let user = JSON.parse(localStorage.getItem('rt_user'));
 
-    const storedTrips = JSON.parse(localStorage.getItem("truckTrips")) || [];
-    setTrips([...storedTrips, ...mockTrips]);
+        // Ensure employeeId is available for truck owners
+        if (!user.employeeId && user.roles.includes('truck owner')) {
+          try {
+            const response = await fetch(`${API_BASE_URL}/employees/by-phone`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ phone: user.phone, role: 'Truck Owner' })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              user.employeeId = data.id;
+              localStorage.setItem('rt_user', JSON.stringify(user));
+            } else {
+              throw new Error('Employee record not found');
+            }
+          } catch (err) {
+            setError('Your truck owner account is not properly set up. Please contact support.');
+            console.error('Error fetching employee details:', err);
+            return;
+          }
+        }
+
+        const response = await fetch(`${API_BASE_URL}/truck-owners/trips`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Employee-Id': user.employeeId.toString(),
+            'X-User-Roles': 'Truck Owner'
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch trips')
+        }
+
+        const data = await response.json()
+        if (data.success) {
+          setTrips(data.data)
+        } else {
+          throw new Error(data.message || 'Failed to fetch trips')
+        }
+      } catch (err) {
+        setError(err.message)
+        console.error('Error fetching trips:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTrips()
   }, []);
 
   return (

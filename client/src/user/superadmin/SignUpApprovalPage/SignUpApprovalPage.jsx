@@ -4,6 +4,7 @@ import { useAuth } from '../../../Context/AuthContext';
 
 const SignUpApprovalPage = () => {
   const { currentUser } = useAuth();
+  const user = JSON.parse(localStorage.getItem('rt_user'));
   const [pendingUsers, setPendingUsers] = useState([]);
   const [approvedUsers, setApprovedUsers] = useState([]);
   const [rejectedUsers, setRejectedUsers] = useState([]);

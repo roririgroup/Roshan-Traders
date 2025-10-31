@@ -3,44 +3,44 @@ import { Card } from '../../../components/ui/Card'
 import { Truck, Package, MapPin, Calendar, DollarSign, User, CheckCircle, Clock } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 
+const API_BASE_URL = 'http://localhost:7700/api'
+
 export default function Orders() {
   const [assignedOrders, setAssignedOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Mock data - replace with API call
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setAssignedOrders([
-        {
-          id: 'ORD001',
-          customerName: 'John Doe',
-          customerEmail: 'john@example.com',
-          orderDate: '2024-01-15',
-          totalAmount: 25000,
-          deliveryAddress: '123 Main St, Chennai, Tamil Nadu',
-          status: 'ASSIGNED',
-          manufacturerName: 'ABC Manufacturing',
-          items: [
-            { productName: 'Steel Pipes', quantity: 100, unitPrice: 250 }
-          ]
-        },
-        {
-          id: 'ORD002',
-          customerName: 'Jane Smith',
-          customerEmail: 'jane@example.com',
-          orderDate: '2024-01-16',
-          totalAmount: 45000,
-          deliveryAddress: '456 Industrial Area, Mumbai, Maharashtra',
-          status: 'IN_TRANSIT',
-          manufacturerName: 'XYZ Industries',
-          items: [
-            { productName: 'Copper Wires', quantity: 200, unitPrice: 225 }
-          ]
+    const fetchOrders = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('rt_user'));
+        const response = await fetch(`${API_BASE_URL}/truck-owners/orders`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Employee-Id': (user.employeeId || user.id).toString(),
+            'X-User-Roles': user.role || 'Truck Owner'
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders')
         }
-      ])
-      setLoading(false)
-    }, 1000)
+
+        const data = await response.json()
+        if (data.success) {
+          setAssignedOrders(data.data)
+        } else {
+          throw new Error(data.message || 'Failed to fetch orders')
+        }
+      } catch (err) {
+        setError(err.message)
+        console.error('Error fetching orders:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrders()
   }, [])
 
   const getStatusColor = (status) => {

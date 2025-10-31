@@ -29,7 +29,7 @@ export function loginSuperAdmin({ email, password }) {
 }
 
 // User authentication (Mobile OTP)
-export function loginUser({ phone, otp, selectedRoles }) {
+export async function loginUser({ phone, otp, selectedRoles }) {
   // Dummy login: accept any non-empty phone+otp
   if (!phone || !otp) return { success: false, error: "Phone and OTP required" };
   if (!selectedRoles || selectedRoles.length === 0) return { success: false, error: "At least one role required" };
@@ -38,13 +38,60 @@ export function loginUser({ phone, otp, selectedRoles }) {
   if (phone.length < 10) return { success: false, error: "Please enter a valid mobile number" };
   if (otp.length < 4) return { success: false, error: "Please enter a valid OTP" };
 
+  // First, check user status
+  try {
+    const statusResponse = await fetch(`http://localhost:7700/api/admins/check-user-status/${phone}`);
+    if (statusResponse.ok) {
+      const statusData = await statusResponse.json();
+      if (!statusData.exists) {
+        return { success: false, error: "User not found. Please sign up first." };
+      }
+      if (statusData.status !== 'APPROVED') {
+        return { success: false, error: statusData.message };
+      }
+    } else {
+      return { success: false, error: "Failed to verify user status" };
+    }
+  } catch (error) {
+    console.error('Error checking user status:', error);
+    return { success: false, error: "Network error. Please try again." };
+  }
+
+  // For truck owners, we need to fetch their employee record
+  const isTruckOwner = selectedRoles.some(role => role.toLowerCase() === 'truck owner');
+  let employeeId = null;
+
+  if (isTruckOwner) {
+    try {
+      const response = await fetch('http://localhost:7700/api/employees/by-phone', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone: phone.replace(/^\+91/, '').trim(), role: 'Truck Owner' })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        employeeId = data.id;
+      } else {
+        // Employee record not found, but login should still succeed
+        console.warn('Employee record not found for truck owner, but proceeding with login');
+      }
+    } catch (error) {
+      console.error('Error fetching employee details:', error);
+      // Don't fail login if employee fetch fails
+    }
+  }
+
   const user = {
     id: `user-${Date.now()}`,
     roles: selectedRoles.map(role => String(role).toLowerCase()),
-    activeRole: selectedRoles[0].toLowerCase(), // Default to first selected role
+    activeRole: selectedRoles[0].toLowerCase(),
     name: `${selectedRoles[0].charAt(0).toUpperCase() + selectedRoles[0].slice(1)} User`,
     phone,
-    loginMethod: 'mobile'
+    loginMethod: 'mobile',
+    employeeId // Include employeeId for truck owners
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   return { success: true, user };
