@@ -1,16 +1,22 @@
-# TODO: Update Login System for User Approval
+# Task: Remove Mock Data from ManufacturesDetailsPage Employees Tab and Integrate with Database
 
-## Backend Changes
-- [ ] Add `checkUserStatus` function in `server/src/modules/admin/admin.service.js`
-- [ ] Add GET `/api/admins/check-user-status/:phone` endpoint in `server/src/modules/admin/admin.route.js`
+## Current Status
+- [x] Analyzed ManufacturesDetailsPage.jsx and identified mock employee data
+- [x] Reviewed manufacturer_employee API endpoints and service
+- [x] Understood database schema for manufacturer_employee table
 
-## Frontend Changes
-- [ ] Update `client/src/pages/Login/components/UserLogin.jsx` to call the new API endpoint
-- [ ] Remove localStorage mock data usage ('approvedUsers', 'pendingUsers')
-- [ ] Handle different user statuses (APPROVED, PENDING, REJECTED) with appropriate messages
+## Plan
+- [ ] Add state management for employees data in ManufacturesDetailsPage.jsx
+- [ ] Create API call function to fetch employees for the manufacturer
+- [ ] Replace hardcoded employee list with dynamic data from API
+- [ ] Update employee count display to use real data
+- [ ] Add loading and error handling for employees tab
+- [ ] Test the integration
 
-## Testing
-- [ ] Test login with approved user
-- [ ] Test login with pending user (should show pending message)
-- [ ] Test login with rejected user (should show rejected message)
-- [ ] Test login with non-existent user (should show signup message)
+## Files to Edit
+- client/src/user/superadmin/Manufactures/components/ManufacturesDetailsPage.jsx
+
+## API Endpoint
+- GET /api/manufacturer/:manufacturerId/employees
+- Returns: { success: true, data: [employees] }
+- Employee object: { id, manufacturerId, name, address, phone, role, status, joinDate, createdAt, updatedAt }
