@@ -16,6 +16,7 @@ export default function AssignOrderModal({ isOpen, onClose, order, onAssign }) {
     }
   }, [isOpen, order])
 
+  
   const fetchTruckOwners = async () => {
     setLoading(true)
     try {

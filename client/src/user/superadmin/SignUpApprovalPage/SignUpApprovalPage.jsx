@@ -412,6 +412,7 @@ const SignUpApprovalPage = () => {
                               </span>
                             </div>
                           </div>
+                          
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
                             <div className="flex items-center">
                               <Mail className="w-4 h-4 mr-2 text-gray-400" />

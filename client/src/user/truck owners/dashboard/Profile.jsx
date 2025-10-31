@@ -16,6 +16,7 @@ export default function Profile() {
     profilePhoto: null
   })
 
+  
   const [documents, setDocuments] = useState({
     aadhaar: 'Uploaded',
     pan: 'Uploaded',

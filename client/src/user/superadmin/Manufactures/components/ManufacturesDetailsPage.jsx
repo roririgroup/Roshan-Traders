@@ -610,6 +610,7 @@ export default function ManufacturerDetailsPage() {
                                 </div>
                               </div>
                             </div>
+                            
 
                             {/* Order Details */}
                             <div className="p-6">

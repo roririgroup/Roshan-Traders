@@ -18,6 +18,7 @@ export default function DriverManagement() {
       tripsCompleted: 25,
       rating: 4.8
     },
+    
     {
       id: 2,
       name: 'Suresh Patel',

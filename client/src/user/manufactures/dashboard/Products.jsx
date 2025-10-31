@@ -88,6 +88,7 @@ export default function Products() {
       alert('Please log in before placing an order.')
       return
     }
+    
 
     const unitPrice = Number(product.price)
     const total = unitPrice * quantity

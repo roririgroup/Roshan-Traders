@@ -15,6 +15,7 @@ const {
   checkUserStatus
 } = require('./admin.service.js');
 
+
 const router = Router();
 
 // GET /api/admins - Get all admins

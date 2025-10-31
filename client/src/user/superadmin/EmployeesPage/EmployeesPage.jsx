@@ -191,6 +191,7 @@ const EmployeesPage = () => {
           </button>
         </div>
       )}
+      
 
       <div className="mb-4 text-sm text-gray-600">
         Total employees: {employees.length}

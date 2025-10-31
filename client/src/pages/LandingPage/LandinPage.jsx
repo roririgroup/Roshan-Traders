@@ -9,6 +9,7 @@ import rooftile from '../../assets/roof-tile.jpg';
 import floortiles from '../../assets/floor tile.jpg';
 import tile from '../../assets/tile.jpg';
 
+
 import {
   Factory,
   Shield,

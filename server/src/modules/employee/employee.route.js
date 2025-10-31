@@ -12,6 +12,7 @@ const sendSerializedResponse = (res, data) => {
 
 
 
+
 // GET /api/employees - Get all employees (with optional filters)
 router.get('/', async (req, res) => {
   try {

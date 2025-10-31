@@ -63,6 +63,7 @@ const Notification = ({
 
   if (!isVisible) return null
 
+  
   return (
     <div
       className={`max-w-sm w-full bg-white rounded-lg shadow-lg border-l-4 transform transition-all duration-300 ${

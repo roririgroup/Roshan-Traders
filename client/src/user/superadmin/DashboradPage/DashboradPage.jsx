@@ -14,6 +14,7 @@ const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ${className}`}>
     {children}
   </div>
+  
 );
 
 const CardHeader = ({ children, className = "" }) => (

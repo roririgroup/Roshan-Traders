@@ -17,6 +17,7 @@ const validateManufacturerAccess = async (req, res, next) => {
   }
 };
 
+
 // Get all employees for a manufacturer
 router.get('/manufacturer/:manufacturerId/employees', validateManufacturerAccess, async (req, res) => {
   try {

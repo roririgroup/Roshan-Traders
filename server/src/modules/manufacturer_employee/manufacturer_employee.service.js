@@ -10,6 +10,7 @@ class ManufacturerEmployeeService {
       manufacturerId: employee.manufacturerId.toString(),
     };
   }
+  
 
   // Get all employees for a manufacturer
   async getAllEmployees(manufacturerId) {

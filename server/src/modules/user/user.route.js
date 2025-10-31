@@ -3,6 +3,7 @@ const { getAllUsers, getUserById, getAllManufacturers, signupUser } = require('.
 
 const router = Router();
 
+
 // POST /api/users/signup - User signup
 router.post('/signup', async (req, res) => {
   try {

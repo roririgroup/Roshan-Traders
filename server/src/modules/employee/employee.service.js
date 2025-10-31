@@ -19,6 +19,7 @@ const createEmployee = async (payload) => {
   }
 
   
+  
   // Trim inputs
   const trimmedPhone = phone.trim();
   const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;

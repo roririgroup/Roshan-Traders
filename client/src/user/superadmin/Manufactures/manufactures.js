@@ -15,6 +15,7 @@ export const manufacturersData = [
       experience: '15 years',
       qualification: 'B.E. Ceramic Engineering'
     }, 
+    
     companyInfo: {
       employees: 150,
       annualTurnover: '₹50 Crores',

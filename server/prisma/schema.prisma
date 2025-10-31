@@ -15,6 +15,7 @@ enum UserType {
   ADMIN
 }
 
+
 enum UserStatus {
   PENDING
   APPROVED
