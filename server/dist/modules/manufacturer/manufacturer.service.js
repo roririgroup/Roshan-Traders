@@ -32,6 +32,7 @@ function getAllManufacturers() {
         });
     });
 }
+
 function getManufacturerById(id) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield prisma.manufacturer.findUnique({

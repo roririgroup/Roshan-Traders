@@ -39,6 +39,11 @@ const Signup = () => {
       return;
     }
 
+    if (formData.role.length === 0) {
+      setError("Please select at least one role!");
+      return;
+    }
+
     setError("");
     setIsLoading(true);
 

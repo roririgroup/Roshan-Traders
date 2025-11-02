@@ -15,6 +15,7 @@ export default function DeliveriesList() {
       date: '2024-06-15'
     },
     
+    
     {
       id: 'ORD002',
       pickup: 'Factory X, Mumbai',

@@ -28,6 +28,7 @@ export default function DashboardLayout() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [mobileOpen])
+  
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {

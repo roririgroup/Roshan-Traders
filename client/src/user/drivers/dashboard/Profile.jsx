@@ -22,6 +22,7 @@ export default function Profile() {
     photo: 'Pending'
   })
   
+  
 
   const handleSave = () => {
     setIsEditing(false)

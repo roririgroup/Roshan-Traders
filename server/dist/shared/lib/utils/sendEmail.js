@@ -23,6 +23,7 @@ function sendPurchaseEmail(to, transactionId, productName, quantity, totalCost) 
                 pass: process.env.MAIL_PASS,
             },
         });
+        
         yield transporter.sendMail({
             from: `"SmartCanteen" <${process.env.MAIL_USER}>`,
             to,

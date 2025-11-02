@@ -13,6 +13,7 @@ export default function Dashboard() {
   })
 
   useEffect(() => {
+<<<<<<< HEAD
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token') || 'dummy-token'
@@ -40,6 +41,18 @@ export default function Dashboard() {
     }
   }, [currentUser])
 
+=======
+    // Fetch stats from API
+    setStats({
+      totalProducts: 25,
+      totalOrders: 12,
+      todayRevenue: 2500,
+      monthlyRevenue: 45000
+    })
+  }, [])
+  
+  
+>>>>>>> dc505d68e93cf97f85dbc4ea8d2e658b0f2da92e
 
   const statCards = [
     {

@@ -20,6 +20,7 @@ export default function Products() {
     fetchProducts()
   }, [])
   
+  
 
   const fetchProducts = async () => {
     try {

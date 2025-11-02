@@ -27,6 +27,7 @@ router.get('/', async (req, res) => {
       return String(v);
     }; 
     
+    
 
     if (type) filters.type = toStringValue(type);
     if (status) filters.status = toStringValue(status);
@@ -48,7 +49,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const labour = await actingLabourService.getActingLabourById(req.params.id);
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in GET /acting-labours/:id:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -101,7 +102,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const result = await actingLabourService.deleteActingLabour(req.params.id);
-    res.json(result);
+    sendResponse(res, 200, result);
   } catch (error) {
     console.error('Error in DELETE /acting-labours/:id:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -118,7 +119,7 @@ router.post('/:id/assign', async (req, res) => {
   try {
     const { assignedToId, assignedToType } = req.body;
     const labour = await actingLabourService.assignLabour(req.params.id, { assignedToId, assignedToType });
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in POST /acting-labours/:id/assign:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -134,7 +135,7 @@ router.post('/:id/assign', async (req, res) => {
 router.post('/:id/unassign', async (req, res) => {
   try {
     const labour = await actingLabourService.unassignLabour(req.params.id);
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in POST /acting-labours/:id/unassign:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -147,7 +148,7 @@ router.get('/assigned/:targetType/:targetId', async (req, res) => {
   try {
     const { targetType, targetId } = req.params;
     const labours = await actingLabourService.getAssignedLabours(targetId, targetType);
-    res.json(labours);
+    sendResponse(res, 200, labours);
   } catch (error) {
     console.error('Error in GET /acting-labours/assigned/:targetType/:targetId:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -160,7 +161,7 @@ router.get('/available/:type?', async (req, res) => {
   try {
     const type = req.params.type || undefined;
     const labours = await actingLabourService.getAvailableLabours(type);
-    res.json(labours);
+    sendResponse(res, 200, labours);
   } catch (error) {
     console.error('Error in GET /acting-labours/available:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

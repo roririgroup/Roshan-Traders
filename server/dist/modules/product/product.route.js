@@ -21,6 +21,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 }));
+
 router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield (0, product_service_1.getProductById)(req.params.id);

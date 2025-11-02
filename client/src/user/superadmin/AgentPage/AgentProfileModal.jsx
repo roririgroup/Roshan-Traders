@@ -14,6 +14,7 @@ export default function AgentProfileModal({ agent, topPerformer, onClose }) {
           <X className="w-6 h-6" />
         </button>
         
+        
 
         <div className="flex flex-col items-center text-center gap-3">
           <img

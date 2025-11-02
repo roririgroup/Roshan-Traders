@@ -19,7 +19,6 @@ const createEmployee = async (payload) => {
   }
 
   
-  
   // Trim inputs
   const trimmedPhone = phone.trim();
   const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;
@@ -63,10 +62,11 @@ const createEmployee = async (payload) => {
     });
   }
 
-  // Prevent creating truck owners or drivers through employee module
+  // Employees are only for loaders, workers, etc. (truck owners and drivers are handled by acting_labour module)
+  const allowedRoles = ['Loader', 'Worker', 'Supervisor', 'Manager'];
   const normalizedRole = (role || 'Loader').toLowerCase();
-  if (normalizedRole === 'truck owner' || normalizedRole === 'driver') {
-    throw new Error('Truck owners and drivers should be created through the acting labours module');
+  if (!allowedRoles.some(r => r.toLowerCase() === normalizedRole)) {
+    throw new Error(`Invalid role. Allowed roles: ${allowedRoles.join(', ')}`);
   }
 
   // Create employee
@@ -88,14 +88,15 @@ const createEmployee = async (payload) => {
   });
 
   // Transform the response to match frontend expectations
+  const employeeName = employee.user.profile?.fullName || 'Unknown';
   return {
     id: employee.id,
-    name: employee.user.profile?.fullName || 'Unknown',
+    name: employeeName,
     phone: employee.user.phoneNumber,
     email: employee.user.profile?.email || '',
     role: employee.role,
     status: employee.status,
-    image: employee.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: employee.user.profile?.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(employeeName)}&background=0D8ABC&color=fff`,
     salary: employee.salary,
     hireDate: employee.hireDate,
     createdAt: employee.createdAt,
@@ -131,19 +132,22 @@ const getAllEmployees = async (filters = {}) => {
   });
 
   // Transform the response to match frontend expectations
-  return employees.map(employee => ({
-  id: employee.id,
-    name: employee.user.profile?.fullName || 'Unknown',
-    phone: employee.user.phoneNumber,
-    email: employee.user.profile?.email || '',
-    role: employee.role,
-    status: employee.status,
-    image: employee.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
-    salary: employee.salary,
-    hireDate: employee.hireDate,
-    createdAt: employee.createdAt,
-    employeeCode: employee.employeeCode,
-  }));
+  return employees.map(employee => {
+    const employeeName = employee.user.profile?.fullName || 'Unknown';
+    return {
+      id: employee.id,
+      name: employeeName,
+      phone: employee.user.phoneNumber,
+      email: employee.user.profile?.email || '',
+      role: employee.role,
+      status: employee.status,
+      image: employee.user.profile?.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(employeeName)}&background=0D8ABC&color=fff`,
+      salary: employee.salary,
+      hireDate: employee.hireDate,
+      createdAt: employee.createdAt,
+      employeeCode: employee.employeeCode,
+    };
+  });
 };
 
 /**
@@ -164,14 +168,15 @@ const getEmployeeById = async (/** @type {string|number} */ id) => {
   if (!employee) return null;
 
   // Transform the response to match frontend expectations
+  const employeeName = employee.user.profile?.fullName || 'Unknown';
   return {
     id: employee.id,
-    name: employee.user.profile?.fullName || 'Unknown',
+    name: employeeName,
     phone: employee.user.phoneNumber,
     email: employee.user.profile?.email || '',
     role: employee.role,
     status: employee.status,
-    image: employee.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: employee.user.profile?.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(employeeName)}&background=0D8ABC&color=fff`,
     salary: employee.salary,
     hireDate: employee.hireDate,
     createdAt: employee.createdAt,
@@ -274,14 +279,15 @@ const updateEmployee = async (/** @type {string|number} */ id, payload) => {
   });
 
   // Transform the response to match frontend expectations
+  const employeeName = updatedEmployee.user.profile?.fullName || 'Unknown';
   return {
     id: updatedEmployee.id,
-    name: updatedEmployee.user.profile?.fullName || 'Unknown',
+    name: employeeName,
     phone: updatedEmployee.user.phoneNumber,
     email: updatedEmployee.user.profile?.email || '',
     role: updatedEmployee.role,
     status: updatedEmployee.status,
-    image: updatedEmployee.user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    image: updatedEmployee.user.profile?.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(employeeName)}&background=0D8ABC&color=fff`,
     salary: updatedEmployee.salary,
     hireDate: updatedEmployee.hireDate,
     createdAt: updatedEmployee.createdAt,
@@ -313,10 +319,100 @@ const deleteEmployee = async (/** @type {string|number} */ id) => {
   });
 };
 
+const getEmployeeByPhone = async (phone, role) => {
+  // Handle truck owners and drivers through acting_labour module
+  if (role === 'Truck Owner' || role === 'Driver') {
+    const labourType = role === 'Truck Owner' ? 'TRUCK_OWNER' : 'DRIVER';
+    const labour = await prisma.actingLabour.findFirst({
+      where: {
+        phone: phone.trim(),
+        type: labourType
+      }
+    });
+
+    if (!labour) {
+      return null;
+    }
+
+    // Transform the response to match frontend expectations
+    return {
+      id: labour.id,
+      name: labour.name,
+      phone: labour.phone,
+      email: labour.email || '',
+      role: role,
+      status: labour.status,
+    };
+  }
+
+  const employee = await prisma.employee.findFirst({
+    where: {
+      user: {
+        phoneNumber: phone.trim()
+      },
+      role: { contains: role }
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+
+  if (!employee) {
+    return null;
+  }
+
+  // Transform the response to match frontend expectations
+  return {
+    id: employee.id,
+    name: employee.user.profile?.fullName || 'Unknown',
+    phone: employee.user.phoneNumber,
+    email: employee.user.profile?.email || '',
+    role: employee.role,
+    status: employee.status,
+  };
+};
+
+const getEmployeeByPhoneWithoutRole = async (phone) => {
+  const employee = await prisma.employee.findFirst({
+    where: {
+      user: {
+        phoneNumber: phone.trim()
+      }
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+
+  if (!employee) {
+    throw new Error('Employee not found');
+  }
+
+  // Transform the response to match frontend expectations
+  return {
+    employeeId: employee.id,
+    name: employee.user.profile?.fullName || 'Unknown',
+    phone: employee.user.phoneNumber,
+    email: employee.user.profile?.email || '',
+    role: employee.role,
+    status: employee.status,
+  };
+};
+
 module.exports = {
   createEmployee,
   getAllEmployees,
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
+  getEmployeeByPhone,
+  getEmployeeByPhoneWithoutRole,
 };

@@ -8,6 +8,7 @@ export function getStoredTheme() {
   }
 }
 
+
 export function setStoredTheme(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme)

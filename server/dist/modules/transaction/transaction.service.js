@@ -26,6 +26,7 @@ function createTransaction(userId, items, totalAmount) {
                 where: { id: user.id },
                 data: { balance: newBalance },
             });
+            
             const transaction = yield tx.transaction.create({
                 data: {
                     userId: user.id,

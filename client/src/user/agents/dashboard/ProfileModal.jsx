@@ -20,6 +20,7 @@ const ProfileModal = ({ isOpen, onClose, profile, isEditing, setProfile, handleI
       placeholder: 'Enter your email'
     },
     
+    
     {
       label: 'Phone Number',
       name: 'phone',

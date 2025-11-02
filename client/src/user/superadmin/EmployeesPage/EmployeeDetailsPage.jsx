@@ -9,6 +9,7 @@ const EmployeeDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
+  
 
   // Mock employee data - in a real app, this would come from an API
   const employee = {

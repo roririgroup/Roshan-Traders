@@ -27,6 +27,7 @@ const createAgent = async (payload) => {
     }
   }
 
+  
   // Create user first
   const user = await prisma.user.create({
     data: {

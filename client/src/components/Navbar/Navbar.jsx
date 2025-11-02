@@ -8,7 +8,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
   const activeRole = getCurrentUserActiveRole()
 
   // Get user data from localStorage for name display
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
+  const currentUser = JSON.parse(localStorage.getItem('rt_user') || '{}')
   
   
   const getRoleDisplayName = (role) => {
@@ -21,6 +21,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     }
     return roleNames[role] || role
   }
+  
 
   const getUserInitials = () => {
     // For Super Admin, always show "SA"

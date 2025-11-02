@@ -11,6 +11,7 @@ import { getCurrentUser } from '../../../lib/auth'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 
+
 export default function Orders() {
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])

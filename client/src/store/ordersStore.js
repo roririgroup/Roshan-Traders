@@ -18,6 +18,8 @@ const safeParse = (str, fallback) => {
   }
 }
 
+
+
 /**
  * Persist orders and nextOrderId to localStorage
  */

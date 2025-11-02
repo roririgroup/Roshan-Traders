@@ -27,3 +27,4 @@ console.log('Test manufacturer by ID:', testManufacturer?.name)
 console.log('Test manufacturer founder:', testManufacturer?.founder)
 
 export { manufacturersData, getManufacturerById }
+

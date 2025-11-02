@@ -26,6 +26,7 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ error: error.message });
     }
 }));
+
 // Get orders with optional filters (e.g., by manufacturer, status)
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

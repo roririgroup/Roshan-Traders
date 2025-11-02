@@ -18,6 +18,7 @@ import {
   Plus,
 } from 'lucide-react';
  
+
 export default function ManufacturersPage() {
   const [manufacturers, setManufacturers] = useState([]);
   const [loading, setLoading] = useState(true);
