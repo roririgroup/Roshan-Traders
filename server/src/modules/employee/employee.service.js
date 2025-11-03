@@ -1,30 +1,22 @@
 const prisma = require('../../shared/lib/db.js');
 
-/**
- * @param {Object} payload
- * @param {string} payload.name
- * @param {string} payload.phone
- * @param {string} [payload.email]
- * @param {string} [payload.role]
- * @param {string} [payload.status]
- * @param {string} [payload.image]
- * @param {number} [payload.salary]
- */
 const createEmployee = async (payload) => {
   const { name, phone, email, role, status, image, salary } = payload;
+
 
   // Validation
   if (!name || !phone) {
     throw new Error('Name and phone are required');
   }
 
+  
   // Trim inputs
   const trimmedPhone = phone.trim();
   const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;
 
   // Check if phone number already exists
   const existingUser = await prisma.user.findUnique({
-    where: { phoneNumber: trimmedPhone },
+    where: { phoneNumber: normalizedPhone },
   });
   if (existingUser) {
     throw new Error('Phone number already exists');
@@ -43,23 +35,38 @@ const createEmployee = async (payload) => {
   // Create user first
   const user = await prisma.user.create({
     data: {
-      phoneNumber: trimmedPhone,
+      phoneNumber: normalizedPhone,
+
+  // Create user first
+  const user = await prisma.user.create({
+    data: {
+      phoneNumber: phone,
+
       userType: 'CUSTOMER', // Using CUSTOMER as employees are not separate user type
       isVerified: true, // Assume verified for now
     },
   });
 
   // Create user profile if name or email provided
-  if (name || trimmedEmail) {
+  if (name || email) {
     await prisma.userProfile.create({
       data: {
         userId: user.id,
         fullName: name,
-        email: trimmedEmail,
+        email: email,
         profileImageUrl: image,
       },
     });
   }
+
+
+  // Prevent creating drivers through employee module (truck owners are allowed as employees)
+  const normalizedRole = (role || 'Loader').toLowerCase();
+  if (normalizedRole === 'driver') {
+    throw new Error('Drivers should be created through the acting labours module');
+  }
+
+
 
   // Create employee
   const employee = await prisma.employee.create({
@@ -122,12 +129,9 @@ const getAllEmployees = async () => {
   }));
 };
 
-/**
- * @param {string|number} id The employee ID to retrieve
- */
-const getEmployeeById = async (/** @type {string|number} */ id) => {
+const getEmployeeById = async (id) => {
   const employee = await prisma.employee.findUnique({
-    where: { id: parseInt(String(id)) },
+    where: { id: parseInt(id) },
     include: {
       user: {
         include: {
@@ -155,64 +159,23 @@ const getEmployeeById = async (/** @type {string|number} */ id) => {
   };
 };
 
-/**
- * @param {string|number} id The employee ID to update
- * @param {Object} payload
- * @param {string} payload.name
- * @param {string} payload.phone
- * @param {string} [payload.email]
- * @param {string} [payload.role]
- * @param {string} [payload.status]
- * @param {string} [payload.image]
- * @param {number} [payload.salary]
- */
-const updateEmployee = async (/** @type {string|number} */ id, payload) => {
+const updateEmployee = async (id, payload) => {
   const { name, phone, email, role, status, image, salary } = payload;
 
-  // Trim inputs
-  const trimmedPhone = phone.trim();
-  const trimmedEmail = email && email.trim() !== '' ? email.trim() : null;
-
   const employee = await prisma.employee.findUnique({
-    where: { id: parseInt(String(id)) },
-    include: {
-      user: {
-        include: {
-          profile: true,
-        },
-      },
-    },
+    where: { id: parseInt(id) },
+    include: { user: true },
   });
 
   if (!employee) {
     throw new Error('Employee not found');
   }
 
-  // Check if phone number is changing and if it already exists for another user
-  if (trimmedPhone !== employee.user.phoneNumber) {
-    const existingUser = await prisma.user.findUnique({
-      where: { phoneNumber: trimmedPhone },
-    });
-    if (existingUser) {
-      throw new Error('Phone number already exists');
-    }
-  }
-
-  // Check if email is changing and if it already exists for another profile
-  if (trimmedEmail && trimmedEmail !== employee.user.profile?.email) {
-    const existingProfile = await prisma.userProfile.findUnique({
-      where: { email: trimmedEmail },
-    });
-    if (existingProfile) {
-      throw new Error('Email already exists');
-    }
-  }
-
   // Update user
   await prisma.user.update({
     where: { id: employee.userId },
     data: {
-      phoneNumber: trimmedPhone,
+      phoneNumber: phone,
     },
   });
 
@@ -221,20 +184,20 @@ const updateEmployee = async (/** @type {string|number} */ id, payload) => {
     where: { userId: employee.userId },
     update: {
       fullName: name,
-      email: trimmedEmail,
+      email: email,
       profileImageUrl: image,
     },
     create: {
       userId: employee.userId,
       fullName: name,
-      email: trimmedEmail,
+      email: email,
       profileImageUrl: image,
     },
   });
 
   // Update employee
   const updatedEmployee = await prisma.employee.update({
-    where: { id: parseInt(String(id)) },
+    where: { id: parseInt(id) },
     data: {
       role: role,
       status: status,
@@ -265,12 +228,9 @@ const updateEmployee = async (/** @type {string|number} */ id, payload) => {
   };
 };
 
-/**
- * @param {string|number} id The employee ID to delete
- */
-const deleteEmployee = async (/** @type {string|number} */ id) => {
+const deleteEmployee = async (id) => {
   const employee = await prisma.employee.findUnique({
-    where: { id: parseInt(String(id)) },
+    where: { id: parseInt(id) },
     include: { user: true },
   });
 
@@ -280,7 +240,7 @@ const deleteEmployee = async (/** @type {string|number} */ id) => {
 
   // Delete employee first
   await prisma.employee.delete({
-    where: { id: parseInt(String(id)) },
+    where: { id: parseInt(id) },
   });
 
   // Delete user (cascade will handle profile and other relations)
@@ -289,10 +249,104 @@ const deleteEmployee = async (/** @type {string|number} */ id) => {
   });
 };
 
+const getEmployeeByPhone = async (phone, role) => {
+  let employee = await prisma.employee.findFirst({
+    where: {
+      user: {
+        phoneNumber: phone.trim()
+      },
+      role: { contains: role }
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+
+  // If employee not found and role is Truck Owner or Driver, try to create it
+  if (!employee && (role === 'Truck Owner' || role === 'Driver')) {
+    // Find the user by phone
+    const user = await prisma.user.findUnique({
+      where: { phoneNumber: phone.trim() },
+      include: { profile: true },
+    });
+
+    if (user) {
+      // Create employee record
+      employee = await prisma.employee.create({
+        data: {
+          userId: user.id,
+          employeeCode: `EMP${user.id.toString().padStart(4, '0')}`,
+          role: role,
+          status: 'Available',
+          salary: 0.0,
+        },
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  if (!employee) {
+    return null;
+  }
+
+  // Transform the response to match frontend expectations
+  return {
+    id: employee.id,
+    name: employee.user.profile?.fullName || 'Unknown',
+    phone: employee.user.phoneNumber,
+    email: employee.user.profile?.email || '',
+    role: employee.role,
+    status: employee.status,
+  };
+};
+
+const getEmployeeByPhoneWithoutRole = async (phone) => {
+  const employee = await prisma.employee.findFirst({
+    where: {
+      user: {
+        phoneNumber: phone.trim()
+      }
+    },
+    include: {
+      user: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+  });
+
+  if (!employee) {
+    throw new Error('Employee not found');
+  }
+
+  // Transform the response to match frontend expectations
+  return {
+    employeeId: employee.id,
+    name: employee.user.profile?.fullName || 'Unknown',
+    phone: employee.user.phoneNumber,
+    email: employee.user.profile?.email || '',
+    role: employee.role,
+    status: employee.status,
+  };
+};
+
 module.exports = {
   createEmployee,
   getAllEmployees,
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
+  getEmployeeByPhone,
+  getEmployeeByPhoneWithoutRole,
 };

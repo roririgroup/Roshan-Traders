@@ -7,16 +7,15 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { truck3, white } from '../../../../public/lottie/lottie';
 import { User, Factory, Wrench, Phone, Key, Loader2, Truck } from 'lucide-react'
 
+const API_BASE_URL = 'http://localhost:7700/api';
+
 export default function UserLogin() {
   const navigate = useNavigate()
-  const [phone, setPhone] = useState('') // Default phone number
-  const [otp, setOtp] = useState('') // Default OTP
+  const [phone, setPhone] = useState('9876543210') // Default phone number
+  const [otp, setOtp] = useState('1234') // Default OTP
+  const [selectedRoles, setSelectedRoles] = useState(['agent']) // Default to agent
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [showRoleSelection, setShowRoleSelection] = useState(false)
-  const [userData, setUserData] = useState(null)
-  const [availableRoles, setAvailableRoles] = useState([])
-  const [selectedRole, setSelectedRole] = useState('')
 
   if (isAuthenticated()) {
     return <Navigate to="/" replace />
@@ -33,11 +32,12 @@ export default function UserLogin() {
       }
 
       // Update user info with selected role
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      localStorage.setItem('currentUser', JSON.stringify({
+      const currentUser = JSON.parse(localStorage.getItem('rt_user') || '{}');
+      localStorage.setItem('rt_user', JSON.stringify({
         ...currentUser,
         selectedRole: selectedRole
       }));
+      
 
       // Redirect based on selected role
       if (selectedRole === 'agent') {
@@ -59,35 +59,116 @@ export default function UserLogin() {
       setError('Please enter both mobile number and OTP')
       return
     }
+    if (selectedRoles.length === 0) {
+      setError('Please select at least one role')
+      return
+    }
 
     setIsLoading(true)
     setError('')
 
-    // Check if user exists in approved users
-    const approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
-    const approvedUser = approvedUsers.find(user => user.phone === phone);
 
-    if (!approvedUser) {
-      // Check if user is pending approval
-      const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-      const pendingUser = pendingUsers.find(user => user.phone === phone);
-
-      if (pendingUser) {
-        setError('Your account is pending admin approval. Please wait for approval email/SMS.');
-      } else {
-        setError('No approved account found with this phone number. Please sign up first.');
+    try {
+      // Check user status and get employee details if needed
+      const statusResponse = await fetch(`${API_BASE_URL}/admins/check-user-status/${phone}`);
+      
+      if (!statusResponse.ok) {
+        throw new Error('Failed to check user status');
       }
-      setIsLoading(false)
-      return;
-    }
+      
+      const userStatus = await statusResponse.json();
 
-    // Handle both single role (string) and multiple roles (array)
-    const userRoles = Array.isArray(approvedUser.role) ? approvedUser.role : [approvedUser.role];
-    const normalizedUserRoles = userRoles.map(role => role.toLowerCase().replace(' ', ''));
+      if (!userStatus.exists) {
+        setError(userStatus.message);
+        setIsLoading(false);
+        return;
+      }
 
-    // If user has multiple roles, authenticate first then show role selection
-    if (normalizedUserRoles.length > 1) {
-      // Authenticate the user
+      if (userStatus.status !== 'APPROVED') {
+        setError(userStatus.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // For truck owners, fetch employee ID - with improved error handling
+      let employeeId = null;
+      const approvedUser = userStatus.user;
+      const userRoles = Array.isArray(approvedUser.roles) ? approvedUser.roles : [approvedUser.roles];
+      const normalizedUserRoles = userRoles.map(role => role.toLowerCase().replace(' ', ''));
+
+      if (normalizedUserRoles.includes('truckowner')) {
+        try {
+          const empResponse = await fetch(`${API_BASE_URL}/employees/by-phone?phone=${encodeURIComponent(phone)}&role=Truck%20Owner`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (empResponse.ok) {
+            const empData = await empResponse.json();
+            employeeId = empData.id;
+          } else if (empResponse.status === 404) {
+            // Employee record not found - this might be expected for some truck owners
+            console.warn('Employee record not found for truck owner, continuing login...');
+            employeeId = null;
+          } else {
+            throw new Error(`HTTP error! status: ${empResponse.status}`);
+          }
+        } catch (error) {
+          console.error('Error fetching employee details:', error);
+          // Don't block login for truck owners if employee details fail
+          // Just log the error and continue with null employeeId
+          employeeId = null;
+        }
+      }
+
+      // User is approved, proceed with login
+
+      // Handle both single role (string) and multiple roles (array)
+      
+
+      // If user has multiple roles, authenticate first then show role selection
+      if (normalizedUserRoles.length > 1) {
+        // Authenticate the user
+        const res = loginUser({
+          phone,
+          otp,
+          selectedRoles: normalizedUserRoles,
+          userData: approvedUser
+        })
+
+        if (!res.success) {
+          setError(res.error || 'Login failed')
+          setIsLoading(false)
+          return
+        }
+
+        // Store user info with appropriate display name based on user type
+        let displayName = approvedUser.name || 'Unknown';
+        if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
+          displayName = approvedUser.companyName;
+        } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
+          displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
+        }
+
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: approvedUser.id,
+          firstName: displayName.split(' ')[0] || '',
+          lastName: displayName.split(' ').slice(1).join(' ') || '',
+          phone: approvedUser.phone,
+          role: approvedUser.roles,
+          email: approvedUser.email,
+          displayName: displayName
+        }));
+
+        // Show role selection after successful login
+        setUserData(approvedUser);
+        setAvailableRoles(normalizedUserRoles);
+        setShowRoleSelection(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Single role user - proceed with login
       const res = loginUser({
         phone,
         otp,
@@ -101,55 +182,42 @@ export default function UserLogin() {
         return
       }
 
-      // Store user info
-      localStorage.setItem('currentUser', JSON.stringify({
+      // Store user info with appropriate display name based on user type
+      let displayName = approvedUser.name || 'Unknown';
+      if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
+        displayName = approvedUser.companyName;
+      } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
+        displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
+      }
+
+      // Store user data in rt_user key with employee ID if available
+      localStorage.setItem('rt_user', JSON.stringify({
         id: approvedUser.id,
-        firstName: approvedUser.firstName,
-        lastName: approvedUser.lastName,
+        employeeId: employeeId || approvedUser.employeeId || null,
+        roles: normalizedUserRoles,
+        activeRole: normalizedUserRoles[0],
         phone: approvedUser.phone,
-        role: approvedUser.role,
-        email: approvedUser.email
+        email: approvedUser.email,
+        name: displayName,
+        userType: approvedUser.userType
       }));
 
-      // Show role selection after successful login
-      setUserData(approvedUser);
-      setAvailableRoles(normalizedUserRoles);
-      setShowRoleSelection(true);
-      setIsLoading(false);
-      return;
-    }
-
-    // Single role user - proceed with login
-    const res = loginUser({
-      phone,
-      otp,
-      selectedRoles: normalizedUserRoles,
-      userData: approvedUser
-    })
-
+    // Direct login without any verification
+    const res = loginUser({ phone, otp, selectedRoles })
     if (!res.success) {
       setError(res.error || 'Login failed')
       setIsLoading(false)
       return
     }
 
-    // Store user info
-    localStorage.setItem('currentUser', JSON.stringify({
-      id: approvedUser.id,
-      firstName: approvedUser.firstName,
-      lastName: approvedUser.lastName,
-      phone: approvedUser.phone,
-      role: approvedUser.role,
-      email: approvedUser.email
-    }));
 
-    // Redirect based on role
-    const firstRole = normalizedUserRoles[0]
+    // Redirect based on first selected role
+    const firstRole = selectedRoles[0]
     if (firstRole === 'agent') {
       navigate('/agents/dashboard')
     } else if (firstRole === 'manufacturer') {
       navigate('/manufacturers/dashboard')
-    } else if (firstRole === 'truckowner') {
+    } else if (firstRole === 'truckOwner') {
       navigate('/truck-owners/dashboard')
     } else if (firstRole === 'driver') {
       navigate('/drivers/dashboard')
@@ -165,7 +233,7 @@ export default function UserLogin() {
   const userTypes = [
     { value: 'agent', label: 'Agent', icon: <User className="w-5 h-5" /> },
     { value: 'manufacturer', label: 'Manufacturer', icon: <Factory className="w-5 h-5" /> },
-    { value: 'truckowner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
+    { value: 'truckOwner', label: 'Truck Owner', icon: <Truck className="w-5 h-5" /> },
     { value: 'driver', label: 'Driver', icon: <Wrench className="w-5 h-5" /> }
   ]
 
@@ -187,49 +255,51 @@ export default function UserLogin() {
           <div className="p-6 sm:p-8">
             <div className="mb-6 ">
               <h1 className="text-2xl font-semibold tracking-tight text-center mr-3">User Login</h1>
-              <p className="mt-1 text-sm text-gray-600 text-center">Login with approved account only</p>
+              <p className="mt-1 text-sm text-gray-600 text-center">Use default credentials to login instantly</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {showRoleSelection && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Select Your Role</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {userTypes
-                      .filter(type => availableRoles.includes(type.value))
-                      .map((type) => {
-                        const isSelected = selectedRole === type.value
-                        return (
-                          <button
-                            key={type.value}
-                            type="button"
-                            onClick={() => setSelectedRole(type.value)}
-                            className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${
-                              isSelected
-                                ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
-                            }`}
-                          >
-                            <div className="flex flex-col items-center gap-1">
-                              {type.icon}
-                              <span className="text-xs">{type.label}</span>
-                            </div>
-                            {isSelected && (
-                              <div className="absolute top-1 right-1 w-3 h-3 bg-indigo-600 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs">✓</span>
-                              </div>
-                            )}
-                          </button>
-                        )
-                      })}
-                  </div>
-                  {selectedRole && (
-                    <p className="text-xs text-indigo-600 mt-2">
-                      Selected: {userTypes.find(t => t.value === selectedRole)?.label}
-                    </p>
-                  )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Select User Roles (Multiple allowed)</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {userTypes.map((type) => {
+                    const isSelected = selectedRoles.includes(type.value)
+                    return (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedRoles(prev => prev.filter(r => r !== type.value))
+                          } else {
+                            setSelectedRoles(prev => [...prev, type.value])
+                          }
+                        }}
+                        className={`flex flex-col items-center justify-center h-16 rounded-xl border text-sm font-medium transition-all relative ${
+                          isSelected
+                            ? 'bg-indigo-100 text-indigo-700 border-indigo-300 shadow-sm'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          {type.icon}
+                          <span className="text-xs">{type.label}</span>
+                        </div>
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 w-3 h-3 bg-indigo-600 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs">✓</span>
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
-              )}
+                {selectedRoles.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Selected: {selectedRoles.map(role => userTypes.find(t => t.value === role)?.label).join(', ')}
+                  </p>
+                )}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile number</label>
@@ -241,20 +311,14 @@ export default function UserLogin() {
                     inputMode="tel"
                     autoComplete="tel"
                     value={phone}
-                    onChange={(e) => {
-                      const newPhone = e.target.value;
-                      setPhone(newPhone);
-                      setShowRoleSelection(false);
-                      setSelectedRole('');
-                      setError('');
-                    }}
+                    onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-12 pr-3 py-2 rounded-r-xl outline-none placeholder:text-gray-400"
-                    placeholder="Enter registered mobile number"
+                    placeholder="Enter mobile number"
                     required
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Use the phone number you registered with
+                  Default: 9876543210
                 </p>
               </div>
 
@@ -275,7 +339,7 @@ export default function UserLogin() {
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter any OTP (demo purpose)
+                  Default: 1234 (or any OTP will work)
                 </p>
               </div>
 
@@ -288,10 +352,10 @@ export default function UserLogin() {
               <Button
                 type="submit"
                 className="w-full h-11 rounded-xl text-[15px] flex items-center justify-center gap-2 cursor-pointer"
-                disabled={isLoading || (showRoleSelection && !selectedRole)}
+                disabled={isLoading}
               >
                 {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
-                {isLoading ? 'Logging in...' : showRoleSelection ? 'Continue' : 'Login'}
+                {isLoading ? 'Logging in...' : 'Login Instantly'}
               </Button>
 
               <div className="mt-6 text-center text-sm">
@@ -306,14 +370,14 @@ export default function UserLogin() {
                   </button>
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  Your account needs admin approval before you can login
+                  For demo purposes, you can login with any credentials
                 </p>
               </div>
             </form>
 
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-xs text-blue-700 text-center">
-                <strong>Note:</strong> Only approved accounts can login. Check your email/SMS for approval notification.
+                <strong>Demo Instructions:</strong> Just click "Login Instantly" with default values or enter any phone number and OTP
               </p>
             </div>
 

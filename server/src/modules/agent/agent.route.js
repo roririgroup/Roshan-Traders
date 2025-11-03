@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/agents/:id - Get agent by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -33,7 +34,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(agent);
   } catch (error) {
     console.error('Error creating agent:', error);
-    res.status(400).json({ message: error.message || 'Failed to create agent' });
+    res.status(500).json({ message: 'Failed to create agent' });
   }
 });
 

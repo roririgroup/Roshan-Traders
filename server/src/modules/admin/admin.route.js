@@ -1,5 +1,6 @@
 const { Router } = require('express');
-const { createAdmin, getAllAdmins, getAdminById, updateAdmin, deleteAdmin, getDashboardStats } = require('./admin.service.js');
+const { createAdmin, getAllAdmins, getAdminById, updateAdmin, deleteAdmin } = require('./admin.service.js');
+
 
 const router = Router();
 
@@ -58,17 +59,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting admin:', error);
     res.status(500).json({ message: 'Failed to delete admin' });
-  }
-});
-
-// GET /api/admins/stats - Get dashboard stats
-router.get('/stats', async (req, res) => {
-  try {
-    const stats = await getDashboardStats();
-    res.json(stats);
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    res.status(500).json({ message: 'Failed to fetch dashboard stats' });
   }
 });
 

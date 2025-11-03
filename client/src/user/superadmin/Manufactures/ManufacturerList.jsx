@@ -10,6 +10,7 @@ const ManufacturersList = () => {
   const handleViewDetails = (manufacturerId) => {
     navigate(`/superadmin/manufacturers/${manufacturerId}`);
   };
+  
 
   return (
     <div className="manufacturers-list">

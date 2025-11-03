@@ -1,14 +1,26 @@
-# Dashboard Stats Implementation
 
-## Backend Changes
-- [x] Add `getDashboardStats` function to `server/src/modules/admin/admin.service.js`
-- [x] Add GET route `/stats` to `server/src/modules/admin/admin.route.js`
+# TODO: Fix Authentication Key Inconsistency
 
-## Frontend Changes
-- [x] Remove "Reports" and "Available Bricks" StatCard components from `client/src/user/superadmin/DashboradPage/DashboradPage.jsx`
-- [x] Replace hardcoded stats object with API call to fetch real data
-- [x] Update remaining StatCard components to use fetched data
+## Information Gathered
+- Dashboard.jsx and DriverManagement.jsx use `localStorage.getItem('currentUser')` directly, while auth.js uses 'rt_user' as the key.
+- TruckManagement.jsx correctly uses `getCurrentUser()` from auth.js.
+- This inconsistency causes `user` to be undefined, leading to "Cannot read properties of undefined (reading 'includes')" errors.
 
-## Testing
-- [ ] Test the API endpoint to ensure it returns correct counts
-- [ ] Verify the dashboard displays real data after changes
+## Plan
+- Update Dashboard.jsx to import and use `getCurrentUser()` from auth.js, and update localStorage.setItem to use 'rt_user'.
+- Update DriverManagement.jsx similarly.
+- TruckManagement.jsx is already correct.
+
+## Dependent Files to be edited
+- client/src/user/truck owners/dashboard/Dashboard.jsx
+- client/src/user/truck owners/dashboard/DriverManagement.jsx
+
+## Followup steps
+- Test the application to ensure authentication works correctly.
+- Verify that dashboard stats, drivers, and trucks load without errors.
+# TODO: Add Search Endpoint to Products API
+
+- [x] Edit `server/src/modules/product/product.service.js` to add `searchProducts` function and export it
+- [x] Edit `server/src/modules/product/product.route.js` to add the new `/search` GET route and import `searchProducts`
+- [ ] Test the new endpoint by making requests with query parameters (e.g., `/api/products/search?name=example&category=electronics`)
+

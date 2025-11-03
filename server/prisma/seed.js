@@ -19,6 +19,7 @@
 //     },
 //   });
 
+
 //   await prisma.manufacturer.upsert({
 //     where: { userId: manufacturer1User.id },
 //     update: {},

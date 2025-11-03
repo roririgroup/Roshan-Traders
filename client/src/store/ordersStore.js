@@ -134,6 +134,7 @@ export const addOrder = (orderData) => {
         price: Number(orderData.price) || 0
       }]
 
+      
   // Compute totalAmount if not provided
   const computedTotal = items.reduce((sum, it) => sum + it.quantity * it.price, 0)
   const totalAmount = typeof orderData.totalAmount === 'number' && orderData.totalAmount >= 0
@@ -202,24 +203,6 @@ export const assignManufacturer = (orderId, manufacturer) => {
 
   orders[idx].assignedBy = { id: manufacturer.id, companyName: manufacturer.companyName }
   if (!orders[idx].status || orders[idx].status === 'pending') orders[idx].status = 'in_progress'
-  persist()
-  return true
-}
-
-/**
- * Assign truck owner to order
- */
-export const assignTruckOwner = (orderId, truckOwner) => {
-  const idx = orders.findIndex(o => Number(o.id) === Number(orderId))
-  if (idx === -1) return false
-
-  orders[idx].assignedTruckOwner = {
-    id: truckOwner.id,
-    name: truckOwner.name,
-    companyName: truckOwner.companyName,
-    phone: truckOwner.phone
-  }
-  if (orders[idx].status === 'confirmed') orders[idx].status = 'assigned'
   persist()
   return true
 }

@@ -12,6 +12,7 @@ async function migrateData() {
         productId: true,
       },
     });
+    
 
     console.log(`Found ${existingAssociations.length} existing manufacturer-product associations`);
 

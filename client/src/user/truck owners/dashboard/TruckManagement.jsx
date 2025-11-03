@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import { Edit, Trash2, Truck, Plus } from 'lucide-react'
+import { getCurrentUser } from '../../../lib/auth'
+import { useNavigate } from 'react-router-dom'
+
+const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function TruckManagement() {
   const [trucks, setTrucks] = useState([
@@ -55,13 +59,66 @@ export default function TruckManagement() {
     setIsModalOpen(true)
   }
 
-  const handleDelete = (id) => {
-    setTrucks(trucks.filter(truck => truck.id !== id))
+  const handleDelete = async (id) => {
+    try {
+      let user = getCurrentUser();
+      if (!user) {
+        navigate('/user/login');
+        return;
+      }
+
+      // Ensure employeeId is available for truck owners
+      if (!user.employeeId && user.roles.includes('truck owner')) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/employees/by-phone`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ phone: user.phone.replace(/^\+91/, '').trim(), role: 'Truck Owner' })
+          });
+
+            if (response.ok) {
+              const data = await response.json();
+              user.employeeId = data.id;
+              localStorage.setItem('rt_user', JSON.stringify(user));
+            } else {
+              throw new Error('Employee record not found');
+            }
+          } catch (err) {
+            throw new Error('Employee ID not found. Please contact support.');
+          }
+        }
+
+        if (!user.employeeId) {
+          throw new Error('Employee ID not found. Please contact support.');
+        }
+
+      const response = await fetch(`${API_BASE_URL}/truck-owners/trucks/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Employee-Id': user.employeeId.toString(),
+          'X-User-Roles': 'Truck Owner'
+        }
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Failed to delete truck')
+      }
+
+      setTrucks(trucks.filter(truck => truck.id !== id))
+    } catch (err) {
+      setError(err.message)
+      console.error('Error deleting truck:', err)
+    }
   }
 
   const handleView = (truck) => {
     setViewingTruck(truck)
   }
+
 
   const validateTruckNumber = (truckNo) => {
     // Indian vehicle registration number pattern
@@ -70,7 +127,7 @@ export default function TruckManagement() {
     return pattern.test(truckNo.toUpperCase())
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     // Validate truck number
@@ -79,16 +136,9 @@ export default function TruckManagement() {
       return
     }
 
-    // Check for duplicate truck numbers
-    const isDuplicate = trucks.some(truck =>
-      truck.truckNo.toUpperCase() === formData.truckNo.toUpperCase() &&
-      (!editingTruck || truck.id !== editingTruck.id)
-    )
 
-    if (isDuplicate) {
-      alert('This truck number already exists. Please enter a unique truck number.')
-      return
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault()
 
     let newDocuments = editingTruck ? [...editingTruck.documents] : []
     if (formData.rcBookFile && !newDocuments.includes('RC Book')) newDocuments.push('RC Book')
@@ -96,13 +146,87 @@ export default function TruckManagement() {
     if (formData.fitnessFile && !newDocuments.includes('Fitness Certificate')) newDocuments.push('Fitness Certificate')
     if (formData.licenseFile && !newDocuments.includes('License')) newDocuments.push('License')
     if (formData.aadhaarFile && !newDocuments.includes('Aadhaar')) newDocuments.push('Aadhaar')
-    const newTruck = { ...formData, documents: newDocuments }
-    if (editingTruck) {
-      setTrucks(trucks.map(truck => truck.id === editingTruck.id ? { ...newTruck, id: editingTruck.id } : truck))
-    } else {
-      setTrucks([...trucks, { ...newTruck, id: Date.now() }])
+
+    try {
+      let user = getCurrentUser();
+      if (!user) {
+        navigate('/user/login');
+        return;
+      }
+
+      // Ensure employeeId is available for truck owners
+      if (!user.employeeId && user.roles.includes('truck owner')) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/employees/by-phone`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ phone: user.phone.replace(/^\+91/, '').trim(), role: 'Truck Owner' })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            user.employeeId = data.id;
+            localStorage.setItem('rt_user', JSON.stringify(user));
+          } else {
+            throw new Error('Employee record not found');
+          }
+        } catch (err) {
+          throw new Error('Employee ID not found. Please contact support.');
+        }
+      }
+
+      if (!user.employeeId) {
+        throw new Error('Employee ID not found. Please contact support.');
+      }
+
+      const truckData = {
+        truckNo: formData.truckNo.toUpperCase(),
+        type: formData.type,
+        capacity: formData.capacity,
+        rcDetails: formData.rcDetails,
+        status: formData.status,
+        documents: newDocuments,
+        truckOwnerId: parseInt(user.employeeId)
+      }
+
+      const url = editingTruck 
+        ? `${API_BASE_URL}/truck-owners/trucks/${editingTruck.id}`
+        : `${API_BASE_URL}/truck-owners/trucks`
+
+      const method = editingTruck ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Employee-Id': (user.employeeId || user.id).toString(),
+          'X-User-Roles': user.role || 'Truck Owner'
+        },
+        body: JSON.stringify(truckData)
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || `Failed to ${editingTruck ? 'update' : 'create'} truck`)
+      }
+
+      const data = await response.json()
+      
+      if (editingTruck) {
+        setTrucks(trucks.map(truck => truck.id === editingTruck.id ? data.data : truck))
+      } else {
+        setTrucks([...trucks, data.data])
+      }
+      
+      setIsModalOpen(false)
+      setError(null)
+
+    } catch (err) {
+      setError(err.message)
+      console.error(`Error ${editingTruck ? 'updating' : 'creating'} truck:`, err)
     }
-    setIsModalOpen(false)
   }
 
   const [currentTruckId, setCurrentTruckId] = useState(null)
@@ -170,7 +294,25 @@ export default function TruckManagement() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {trucks.map((truck) => (
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="px-6 py-4 text-center">
+                  Loading trucks...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan="7" className="px-6 py-4 text-center text-red-500">
+                  {error}
+                </td>
+              </tr>
+            ) : trucks.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="px-6 py-4 text-center">
+                  No trucks found.
+                </td>
+              </tr>
+            ) : trucks.map((truck) => (
               <tr key={truck.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-center">{truck.truckNo}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">{truck.type}</td>
@@ -231,12 +373,10 @@ export default function TruckManagement() {
               <input
                 type="text"
                 value={formData.truckNo}
-                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value.toUpperCase() })}
+                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value })}
                 className="w-full p-2 border rounded"
-                placeholder="e.g., TN01AB1234"
                 required
               />
-              
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Type</label>

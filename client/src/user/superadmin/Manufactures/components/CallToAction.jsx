@@ -5,8 +5,8 @@ const CallToAction = () => {
   const handleGetQuote = () => {
     console.log('Get Custom Quote clicked')
   }
-
   
+
   const handleContact = (method) => {
     console.log(`Contact via ${method}`)
   }

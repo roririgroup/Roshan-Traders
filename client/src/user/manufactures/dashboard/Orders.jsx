@@ -1,79 +1,27 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink, Package, Edit, Trash2, Star, Users, RotateCcw, CreditCard } from 'lucide-react'
-import { getOrders, updateOrderStatus, addOrder, assignTruckOwner } from '../../../store/ordersStore'
+import { ShoppingCart, CheckCircle, Clock, Truck, ExternalLink } from 'lucide-react'
+import { getOrders, updateOrderStatus } from '../../../store/ordersStore'
 import NotificationContainer from '../../../components/ui/NotificationContainer'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal'
-import AssignOrderModal from '../../../components/ui/AssignOrderModal'
 import { useNotifications } from '../../../lib/notifications.jsx'
 import FilterBar from '../../../components/ui/FilterBar'
 import { getCurrentUser } from '../../../lib/auth'
-import Button from '../../../components/ui/Button'
-import Modal from '../../../components/ui/Modal'
 
 export default function Orders() {
-  const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
   const [outsourceOrders, setOutsourceOrders] = useState([])
   const [yourOrders, setYourOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState('products')
+  const [activeTab, setActiveTab] = useState('your-orders')
   const [newOutsourceOrder, setNewOutsourceOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [selectedProduct, setSelectedProduct] = useState(null)
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false)
-  const [isOrderFormModalOpen, setIsOrderFormModalOpen] = useState(false)
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false)
-  const [orderFormData, setOrderFormData] = useState({
-    customerName: '',
-    phoneNumber: '',
-    deliveryAddress: '',
-    quantity: 1,
-    estimatedDeliveryDate: '',
-    paymentMethod: 'cash',
-    selectedPaymentOption: ''
-  })
-  const [errors, setErrors] = useState({})
-  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
-  const [selectedOrderForAssign, setSelectedOrderForAssign] = useState(null)
 
   const { notifications, removeNotification, showOrderNotification, showSuccessNotification, showErrorNotification } = useNotifications()
-
-// ✅ Load products from API
-useEffect(() => {
-  async function fetchProducts() {
-    try {
-      const response = await fetch('http://localhost:7700/api/products');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-      setProducts([]);
-    }
-  }
-
-  fetchProducts();
-}, []);
-
-// ✅ Load manufacturers from API
-useEffect(() => {
-  async function fetchManufacturers() {
-    try {
-      const response = await fetch('http://localhost:7700/api/manufacturers');
-      const data = await response.json();
-      setManufacturers(data);
-    } catch (error) {
-      console.error('Failed to fetch manufacturers:', error);
-      setManufacturers([]);
-    }
-  }
-
-  fetchManufacturers();
-}, []);
 
   // ✅ Load orders from store
   useEffect(() => {
@@ -187,129 +135,6 @@ useEffect(() => {
     }
   }
 
-  const handleProductClick = (product) => {
-    setSelectedProduct(product)
-    setIsProductModalOpen(true)
-  }
-
-  const handlePlaceOrderClick = () => {
-    setIsProductModalOpen(false)
-    setIsOrderFormModalOpen(true)
-  }
-  const handlePaymentOptionSelect = (paymentOption) => {
-    setOrderFormData(prev => ({
-      ...prev,
-      selectedPaymentOption: paymentOption
-    }));
-  };
-  const handlePaymentConfirm = () => {
-    if (orderFormData.selectedPaymentOption) {
-      setShowPaymentOptions(false);
-    }
-  };
-
-  const handleAssignOrder = (orderId, truckOwner) => {
-    assignTruckOwner(orderId, truckOwner)
-    updateOrderStatus(orderId, 'shipped')
-    setRefreshTrigger(prev => prev + 1)
-    showSuccessNotification('Order assigned successfully!')
-    setIsAssignModalOpen(false)
-    setSelectedOrderForAssign(null)
-  };
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!orderFormData.customerName.trim()) {
-      newErrors.customerName = 'Customer name is required'
-    } else if (orderFormData.customerName.trim().length < 2) {
-      newErrors.customerName = 'Customer name must be at least 2 characters'
-    }
-
-    if (!orderFormData.phoneNumber.trim()) {
-      newErrors.phoneNumber = 'Phone number is required'
-    } else if (!/^\d{10}$/.test(orderFormData.phoneNumber.trim())) {
-      newErrors.phoneNumber = 'Phone number must be 10 digits'
-    }
-
-    if (!orderFormData.deliveryAddress.trim()) {
-      newErrors.deliveryAddress = 'Delivery address is required'
-    } else if (orderFormData.deliveryAddress.trim().length < 10) {
-      newErrors.deliveryAddress = 'Delivery address must be at least 10 characters'
-    }
-
-    if (!orderFormData.quantity || orderFormData.quantity < 1) {
-      newErrors.quantity = 'Quantity must be at least 1'
-    }
-
-    if (!orderFormData.estimatedDeliveryDate) {
-      newErrors.estimatedDeliveryDate = 'Estimated delivery date is required'
-    } else {
-      const selectedDate = new Date(orderFormData.estimatedDeliveryDate)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      if (selectedDate < today) {
-        newErrors.estimatedDeliveryDate = 'Delivery date cannot be in the past'
-      }
-    }
-
-    if (!orderFormData.selectedPaymentOption) {
-      newErrors.selectedPaymentOption = 'Please select a payment method'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleOrderFormSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const totalPrice = selectedProduct.price * orderFormData.quantity
-      const newOrder = {
-        id: Date.now(),
-        customerName: orderFormData.customerName,
-        phoneNumber: orderFormData.phoneNumber,
-        deliveryAddress: orderFormData.deliveryAddress,
-        items: [{
-          id: selectedProduct.id,
-          name: selectedProduct.name,
-          price: selectedProduct.price,
-          quantity: orderFormData.quantity
-        }],
-        totalAmount: totalPrice,
-        estimatedDeliveryDate: orderFormData.estimatedDeliveryDate,
-        paymentMethod: orderFormData.selectedPaymentOption,
-        status: 'pending',
-        orderDate: new Date().toISOString(),
-        userInfo: getCurrentUser()
-      }
-      addOrder(newOrder)
-      setRefreshTrigger(prev => prev + 1)
-      showSuccessNotification('Order placed successfully!')
-      setIsOrderFormModalOpen(false)
-      setSelectedProduct(null)
-      setOrderFormData({
-        customerName: '',
-        phoneNumber: '',
-        deliveryAddress: '',
-        quantity: 1,
-        estimatedDeliveryDate: '',
-        paymentMethod: 'cod',
-        selectedPaymentOption: ''
-      })
-      setErrors({})
-    } catch (error) {
-      showErrorNotification('Failed to place order. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   // ✅ Table for "Your Orders"
   const renderYourOrdersTable = (orderList) => (
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
@@ -358,51 +183,6 @@ useEffect(() => {
           </tbody>
         </table>
       </div>
-    </div>
-  )
-
-  // ✅ Super Admin Style Grid Layout for Products
-  const renderProductsCards = (productList) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {productList.map((product) => (
-        <div
-          key={product.id}
-          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-gray-100 overflow-hidden"
-          onClick={() => handleProductClick(product)}
-        >
-          <div className="h-48 bg-gray-200 flex items-center justify-center">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/300x200?text=Product'
-              }}
-            />
-          </div>
-          <div className="p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
-            <div className="flex items-center mb-2">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-sm text-gray-600 ml-1">{product.qualityRating}</span>
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-2xl font-bold text-[#F08344]">₹{product.priceRange}</span>
-              <span className="text-sm text-green-600 font-medium">{product.offer}</span>
-            </div>
-            <div className="flex items-center text-sm text-gray-600 mb-4">
-              <Users className="w-4 h-4 mr-1" />
-              <span>{product.buyersCount} buyers</span>
-            </div>
-            <Button
-              className="w-full bg-[#F08344] hover:bg-[#e0733a] text-white px-8 py-2 rounded-lg font-medium transition-colors duration-200"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              Place Order
-            </Button>
-          </div>
-        </div>
-      ))}
     </div>
   )
 
@@ -460,18 +240,6 @@ useEffect(() => {
                   {order.deliveryAddress || 'N/A'}
                 </td>
                 <td className="py-4 px-6">
-                  {order.status === 'pending' && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleAssignClick(order)
-                      }}
-                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors cursor-pointer"
-                      disabled={isLoading}
-                    >
-                      Assign
-                    </button>
-                  )}
                   {order.status === 'in_progress' && (
                     <div className="flex gap-2">
                       <button
@@ -495,19 +263,6 @@ useEffect(() => {
                         Reject
                       </button>
                     </div>
-                  )}
-                  {order.status === 'confirmed' && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setIsAssignModalOpen(true)
-                        setSelectedOrderForAssign(order)
-                      }}
-                      className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors cursor-pointer"
-                      disabled={isLoading}
-                    >
-                      Assign
-                    </button>
                   )}
                 </td>
               </tr>
@@ -562,16 +317,6 @@ useEffect(() => {
       <div className="mb-6">
         <div className="flex gap-2">
           <button
-            onClick={() => setActiveTab('products')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'products'
-                ? 'bg-[#F08344] text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Products ({products.length})
-          </button>
-          <button
             onClick={() => setActiveTab('your-orders')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'your-orders'
@@ -618,15 +363,6 @@ useEffect(() => {
         ]}
       />
 
-      {activeTab === 'products' && products.length > 0 &&
-        renderProductsCards(
-          products
-            .filter(p =>
-              p.name?.toLowerCase().includes(search.toLowerCase()) ||
-              String(p.id).includes(search)
-            )
-        )}
-
       {activeTab === 'your-orders' && yourOrders.length > 0 &&
         renderYourOrdersTable(
           yourOrders
@@ -646,14 +382,6 @@ useEffect(() => {
             )
             .filter(o => (statusFilter === 'all' ? true : o.status === statusFilter))
         )}
-
-      {activeTab === 'products' && products.length === 0 && (
-        <div className="text-center py-12">
-          <Package className="size-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">No products yet</h3>
-          <p className="text-slate-600">Products will appear here once available</p>
-        </div>
-      )}
 
       {activeTab === 'your-orders' && yourOrders.length === 0 && (
         <div className="text-center py-12">
@@ -878,6 +606,7 @@ useEffect(() => {
             </div>
             {errors.paymentMethod && <p className="text-red-500 text-sm mt-1">{errors.paymentMethod}</p>}
           </div>
+
 
           <div className="flex justify-end space-x-3 pt-4">
             <Button

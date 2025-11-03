@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -32,7 +32,7 @@ import {
   Clock3,
   AlertCircle,
 } from 'lucide-react';
-import { getManufacturerById } from '../manufactures.js';
+import { getManufacturerById } from '../manufactures';
 
 // StatCard Component
 function StatCard({ icon, label, value, color, gradient }) {
@@ -85,17 +85,57 @@ export default function ManufacturerDetailsPage() {
   const [manufacturer, setManufacturer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('orders'); // Set orders as default tab
+  const [activeTab, setActiveTab] = useState('about'); // Set about as default tab
   const [isFavorited, setIsFavorited] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [employeesLoading, setEmployeesLoading] = useState(false);
+  const [employeesError, setEmployeesError] = useState(null);
+  const [employeeStats, setEmployeeStats] = useState(null);
 
   useEffect(() => {
     fetchManufacturer();
   }, [manufacturerId]);
 
-  // Refresh the content to show the About Company tab first
+  // Fetch employees when employees tab is clicked
   useEffect(() => {
-    setActiveTab('about');
-  }, []);
+    if (activeTab === 'employees' && manufacturerId) {
+      fetchEmployees();
+      fetchEmployeeStats();
+    }
+  }, [activeTab, manufacturerId]);
+
+  const fetchEmployees = async () => {
+    try {
+      setEmployeesLoading(true);
+      setEmployeesError(null);
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees`);
+      if (response.ok) {
+        const data = await response.json();
+        setEmployees(data.data || []);
+      } else {
+        setEmployeesError('Failed to load employees');
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setEmployeesError('Failed to load employees');
+    } finally {
+      setEmployeesLoading(false);
+    }
+  };
+
+  const fetchEmployeeStats = async () => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employee-stats`);
+      if (response.ok) {
+        const data = await response.json();
+        setEmployeeStats(data.data || data);
+      } else {
+        console.error('Failed to load employee stats');
+      }
+    } catch (error) {
+      console.error('Error fetching employee stats:', error);
+    }
+  };
 
   const fetchManufacturer = async () => {
     try {
@@ -191,13 +231,11 @@ export default function ManufacturerDetailsPage() {
             <Award className="w-10 h-10 text-red-500" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {error || 'Manufacturer Not Found'}
+            Manufacturer Not Found
           </h2>
-          <p className="text-gray-600 mb-8">
-            {error ? 'Failed to load manufacturer details. Please try again.' : 'The manufacturer you\'re looking for doesn\'t exist or has been removed.'}
-          </p>
+          <p className="text-gray-600 mb-8">The manufacturer you're looking for doesn't exist or has been removed.</p>
           <Link
-            to="/Manufactures/ManufacturersPage"
+            to="/manufacturers"
             className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors duration-200 font-semibold"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -232,7 +270,7 @@ export default function ManufacturerDetailsPage() {
         <div className="relative z-10 bg-white/10 backdrop-blur-md border-b border-white/20">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link
-              to="/dashboard/manufacturers"
+              to="/manufacturers"
               className="inline-flex items-center text-white hover:text-blue-200 font-semibold transition-colors duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -451,7 +489,13 @@ export default function ManufacturerDetailsPage() {
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6">
                 <nav className="flex flex-wrap gap-3" aria-label="Tabs">
-                 
+                  <TabButton
+                    active={activeTab === 'orders'}
+                    onClick={() => setActiveTab('orders')}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Orders ({totalOrders})
+                  </TabButton>
                   <TabButton
                     active={activeTab === 'about'}
                     onClick={() => setActiveTab('about')}
@@ -472,6 +516,13 @@ export default function ManufacturerDetailsPage() {
                   >
                     <FileText className="w-5 h-5 mr-2" />
                     Certifications
+                  </TabButton>
+                  <TabButton
+                    active={activeTab === 'employees'}
+                    onClick={() => setActiveTab('employees')}
+                  >
+                    <Users className="w-5 h-5 mr-2" />
+                    Employees ({employees.length || manufacturer.teamSize || 0})
                   </TabButton>
                    <TabButton
                     active={activeTab === 'orders'}
@@ -561,6 +612,7 @@ export default function ManufacturerDetailsPage() {
                                 </div>
                               </div>
                             </div>
+                            
 
                             {/* Order Details */}
                             <div className="p-6">
@@ -708,55 +760,45 @@ export default function ManufacturerDetailsPage() {
                       <h3 className="text-2xl font-bold text-gray-800 mb-2">Our Product Portfolio</h3>
                       <p className="text-gray-600">High-quality products designed to meet your specific requirements</p>
                     </div>
-
-                    {manufacturer.products && manufacturer.products.length > 0 ? (
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {manufacturer.products.map((product) => (
-                          <div
-                            key={product.id}
-                            className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                          >
-                            {product.image && (
-                              <div className="relative overflow-hidden rounded-xl mb-4">
-                                <img
-                                  src={product.image}
-                                  alt={product.name}
-                                  className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
-                                />
-                                <div className="absolute top-4 right-4">
-                                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
-                                    {product.category}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-
-                            <h4 className="font-bold text-xl text-gray-800 mb-3">
-                              {product.name}
-                            </h4>
-
-                            <div className="flex items-center justify-between mb-4">
-                              <span className="text-lg font-semibold text-blue-600">
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {manufacturer.products.map((product) => (
+                        <div
+                          key={product.id}
+                          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                        >
+                          <div className="relative overflow-hidden rounded-xl mb-4">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
+                            />
+                            <div className="absolute top-4 right-4">
+                              <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
                                 {product.category}
                               </span>
-                              {/* <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
-                                View Details
-                              </button> */}
                             </div>
-
-                            <p className="text-gray-600 text-sm leading-relaxed">
-                              {product.description || `Premium quality ${product.name.toLowerCase()} designed for durability and aesthetic appeal.`}
-                            </p>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">No Products Found</h3>
-                        <p className="text-gray-500">This manufacturer doesn't have any products yet.</p>
-                      </div>
-                    )}
+                          
+                          <h4 className="font-bold text-xl text-gray-800 mb-3">
+                            {product.name}
+                          </h4>
+                          
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="text-2xl font-bold text-blue-600">
+                              {product.priceRange}
+                            </span>
+                            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
+                              View Details
+                            </button>
+                          </div>
+                          
+                          <p className="text-gray-600 text-sm leading-relaxed">
+                            Premium quality {product.name.toLowerCase()} designed for durability and aesthetic appeal.
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -792,6 +834,107 @@ export default function ManufacturerDetailsPage() {
                       <p className="text-green-700 leading-relaxed">
                         All our products undergo rigorous quality testing and meet international standards. 
                         We maintain strict quality control processes to ensure customer satisfaction and product reliability.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'employees' && (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-gray-800 mb-2">Our Team</h3>
+                      <p className="text-gray-600">Meet the dedicated professionals behind our success</p>
+                    </div>
+
+                    {/* Team Statistics */}
+                    {/* <div className="grid md:grid-cols-1 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <Users className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-blue-800 text-lg">{manufacturer.teamSize || 0}</h4>
+                        <p className="text-blue-600 text-sm">Total Employees</p>
+                      </div>
+                    </div> */}
+
+                    {/* Employee List */}
+                    <div className="space-y-4">
+                      {/* Founder */}
+                      {manufacturer.founder && (
+                        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200/50">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center">
+                              <User className="w-8 h-8 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-xl font-bold text-indigo-900 mb-1">
+                                {manufacturer.founder?.name || 'N/A'}
+                              </h4>
+                              <p className="text-lg font-semibold text-indigo-700 mb-2">
+                                Founder & CEO
+                              </p>
+                              <div className="flex items-center space-x-4 text-sm text-indigo-600">
+                                <span className="flex items-center">
+                                  <Award className="w-4 h-4 mr-1" />
+                                  {manufacturer.founder?.experience || 'N/A'} experience
+                                </span>
+                                <span className="flex items-center">
+                                  <FileText className="w-4 h-4 mr-1" />
+                                  {manufacturer.founder?.qualification || 'N/A'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actual Employees */}
+                      {employeesLoading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                          <p className="text-gray-600">Loading employees...</p>
+                        </div>
+                      ) : employeesError ? (
+                        <div className="text-center py-8">
+                          <p className="text-red-600">{employeesError}</p>
+                        </div>
+                      ) : employees && employees.length > 0 ? (
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {employees.map((employee, index) => (
+                            <div key={employee.id || index} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 hover:shadow-xl transition-all duration-300">
+                              <div className="flex items-center space-x-4">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                  ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-red-500', 'bg-yellow-500'][index % 5]
+                                }`}>
+                                  <User className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                  <h5 className="font-bold text-gray-800">{employee.name || 'N/A'}</h5>
+                                  <p className="text-gray-600 text-sm">{employee.role || employee.position || 'Employee'}</p>
+                                  <p className="text-gray-500 text-xs">{employee.experience ? `${employee.experience} years experience` : ''}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Employees Found</h3>
+                          <p className="text-gray-500">No employee data available for this manufacturer.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Team Culture Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200/50">
+                      <div className="flex items-center mb-4">
+                        <Users className="w-8 h-8 text-blue-500 mr-3" />
+                        <h4 className="text-xl font-bold text-blue-800">Our Culture</h4>
+                      </div>
+                      <p className="text-blue-700 leading-relaxed">
+                        Our team is built on collaboration, innovation, and a shared commitment to excellence.
+                        We foster a supportive environment where every team member can grow and contribute to our mission of delivering exceptional products.
                       </p>
                     </div>
                   </div>

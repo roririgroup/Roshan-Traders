@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/manufacturers/:id - Get manufacturer by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -43,12 +44,7 @@ router.put('/:id', async (req, res) => {
     const manufacturer = await updateManufacturer(req.params.id, req.body);
     res.json(manufacturer);
   } catch (error) {
-    console.error('Error updating manufacturer:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    res.status(500).json({ 
-      message: 'Failed to update manufacturer',
-      error: errorMessage 
-    });
+    res.status(500).json({ message: 'Failed to update manufacturer' });
   }
 });
 

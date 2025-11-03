@@ -5,16 +5,16 @@ import { MapPin, ArrowRight, Star, Package, TrendingUp, Award, Globe, ShoppingCa
 const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete }) => {
   if (viewMode === 'list') {
     return (
-      <Link
-        to={`/dashboard/manufacturers/${manufacturer.id}`}
+      <Link 
+        to={`/manufacturers/${manufacturer.id}`}
         className="group block"
       >
         <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden border border-gray-200/50 hover:border-blue-400/60">
           <div className="flex flex-col md:flex-row">
             {/* Image Section */}
             <div className="relative md:w-80 h-48 md:h-auto overflow-hidden">
-              <img
-                src={manufacturer.image || null}
+              <img 
+                src={manufacturer.image} 
                 alt={manufacturer.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:brightness-105"
               />
@@ -75,7 +75,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
                   </div>
                   <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-3 text-center hover:scale-105 transition">
                     <Globe className="w-5 h-5 text-amber-600 mx-auto mb-1" />
-                    <div className="text-lg font-extrabold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">{manufacturer.exportCountriesCount || manufacturer.exportCountries || 0}+</div>
+                    <div className="text-lg font-extrabold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">{manufacturer.exportCountries}+</div>
                     <div className="text-xs text-amber-700 font-medium">Countries</div>
                   </div>
                   <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-3 text-center hover:scale-105 transition">
@@ -94,14 +94,14 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
                   </div>
                   <div className="flex space-x-2">
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(manufacturer); }}
+                      onClick={(e) => { e.stopPropagation(); onEdit(manufacturer); }}
                       className="p-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-700 transition"
                       title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(manufacturer.id); }}
+                      onClick={(e) => { e.stopPropagation(); onDelete(manufacturer.id); }}
                       className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition"
                       title="Delete"
                     >
@@ -123,15 +123,15 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
 
   // Grid view (default)
   return (
-    <Link
-      to={`/dashboard/manufacturers/${manufacturer.id}`}
+    <Link 
+      to={`/manufacturers/${manufacturer.id}`}
       className="group block"
     >
       <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden border border-gray-200/50 hover:border-gray-400/60">
         {/* Image Section with Gradient Overlay */}
         <div className="relative h-48 overflow-hidden">
-          <img
-            src={manufacturer.image || null}
+          <img 
+            src={manufacturer.image} 
             alt={manufacturer.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:brightness-105"
           />
@@ -178,6 +178,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
               </div>
             )}
           </div>
+          
 
           {/* Stats Grid (removed Employees) */}
           <div className="grid grid-cols-2 gap-3 mb-6">
@@ -205,7 +206,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-500">Export Countries</span>
-              <span className="font-semibold text-gray-900">{manufacturer.exportCountriesCount || manufacturer.exportCountries || 0}+</span>
+              <span className="font-semibold text-gray-900">{manufacturer.exportCountries}+</span>
             </div>
           </div>
 
@@ -214,14 +215,14 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
             <span className="text-sm text-gray-500">Actions</span>
             <div className="flex space-x-2">
               <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(manufacturer); }}
+                onClick={(e) => { e.stopPropagation(); onEdit(manufacturer); }}
                 className="p-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-700 transition"
                 title="Edit"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(manufacturer.id); }}
+                onClick={(e) => { e.stopPropagation(); onDelete(manufacturer.id); }}
                 className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition"
                 title="Delete"
               >
@@ -240,4 +241,3 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
 }
 
 export default ManufacturerCard
-
