@@ -29,6 +29,7 @@ const createOrder = async (payload) => {
     throw new Error('Product not found');
   }
 
+  
   // Handle priceRange - extract first price from range or use default
   let unitPrice = 0;
   if (product.priceRange) {

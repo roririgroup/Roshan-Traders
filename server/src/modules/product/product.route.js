@@ -27,6 +27,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
 // POST /api/products - Create new product
 router.post('/', async (req, res) => {
   try {

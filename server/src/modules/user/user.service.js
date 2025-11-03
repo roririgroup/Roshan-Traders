@@ -4,9 +4,22 @@ const prisma = require('../../shared/lib/db.js');
 const signupUser = async (userData) => {
   const { firstName, lastName, email, phone, address, role, password, confirmPassword } = userData;
 
+  // Trim inputs
+  const trimmedFirstName = firstName?.trim() || '';
+  const trimmedLastName = lastName?.trim() || '';
+  const trimmedEmail = email?.trim() || '';
+  const trimmedPhone = phone?.trim() || '';
+  const trimmedAddress = address?.trim() || '';
+
   // Validation
-  if (!firstName || !lastName || !email || !phone || !role || !password || !confirmPassword) {
+  if (!trimmedFirstName || !trimmedLastName || !trimmedEmail || !trimmedPhone || !role || !password || !confirmPassword) {
     throw new Error('All fields are required');
+  }
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail)) {
+    throw new Error('Invalid email format');
   }
 
   if (password !== confirmPassword) {
@@ -18,7 +31,12 @@ const signupUser = async (userData) => {
   }
 
   // Normalize phone number (remove +91 prefix if present)
-  const normalizedPhone = phone.replace(/^\+91/, '').trim();
+  const normalizedPhone = trimmedPhone.replace(/^\+91/, '').trim();
+
+  // Phone number format validation
+  if (!/^\d{10}$/.test(normalizedPhone)) {
+    throw new Error('Phone number must be 10 digits');
+  }
 
   // Check if phone number already exists
   const existingUser = await prisma.user.findUnique({
@@ -31,25 +49,33 @@ const signupUser = async (userData) => {
 
   // Check if email already exists
   const existingEmail = await prisma.userProfile.findUnique({
-    where: { email }
+    where: { email: trimmedEmail }
   });
 
   if (existingEmail) {
     throw new Error('Email already registered');
   }
 
+  // Determine userType based on roles
+  let userType = 'CUSTOMER';
+  if (role.includes('Agent')) {
+    userType = 'AGENT';
+  } else if (role.includes('Manufacturer')) {
+    userType = 'MANUFACTURER';
+  }
+
   // Create user with PENDING status
   const user = await prisma.user.create({
     data: {
       phoneNumber: normalizedPhone,
-      userType: 'CUSTOMER', // Default, will be updated based on roles during approval
+      userType: userType,
       roles: role,
       status: 'PENDING',
       profile: {
         create: {
-          fullName: `${firstName} ${lastName}`,
-          email: email,
-          address: address
+          fullName: `${trimmedFirstName} ${trimmedLastName}`,
+          email: trimmedEmail,
+          address: trimmedAddress
         }
       }
     },

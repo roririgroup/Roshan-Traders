@@ -28,6 +28,7 @@ class ManufacturerEmployeeService {
       throw new Error(`Error fetching employees: ${error.message}`);
     }
   }
+  
 
   // Get employees by role for a manufacturer
   async getEmployeesByRole(manufacturerId, role) {

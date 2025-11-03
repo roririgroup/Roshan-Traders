@@ -32,6 +32,7 @@ const createAdmin = async (payload) => {
       },
     });
   }
+  
 
   // For now, we'll store password as plain text (in production, hash it)
   // You might want to add an Admin model later for additional admin-specific fields

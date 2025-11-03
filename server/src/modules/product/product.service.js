@@ -41,6 +41,7 @@ const createProduct = async (payload) => {
     },
   });
 
+  
   // Transform the response to match frontend expectations
   let parsedPaymentOptions = [];
   try {

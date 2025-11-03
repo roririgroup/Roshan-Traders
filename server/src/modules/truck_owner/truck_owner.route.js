@@ -20,7 +20,11 @@ router.get('/dashboard/stats', async (req, res) => {
     const stats = await truckOwnerService.getDashboardStats(req.user.employeeId)
     sendResponse(res, 200, { success: true, data: stats })
   } catch (error) {
-    sendResponse(res, 500, { success: false, message: error.message })
+    console.error('Dashboard stats error:', error)
+    sendResponse(res, 500, {
+      success: false,
+      message: error.message || 'Failed to fetch dashboard stats'
+    })
   }
 })
 
@@ -79,75 +83,6 @@ router.post('/drivers', async (req, res) => {
   try {
     const driver = await truckOwnerService.createDriver(req.user.employeeId, req.body)
     sendResponse(res, 201, { success: true, data: driver, message: 'Driver created successfully' })
-  } catch (error) {
-    sendResponse(res, 400, { success: false, message: error.message })
-  }
-})
-
-router.put('/drivers/:id', async (req, res) => {
-  try {
-    const driver = await truckOwnerService.updateDriver(
-      parseInt(req.params.id),
-      req.user.employeeId,
-      req.body
-    )
-    sendResponse(res, 200, { success: true, data: driver, message: 'Driver updated successfully' })
-  } catch (error) {
-    sendResponse(res, 400, { success: false, message: error.message })
-  }
-})
-
-router.delete('/drivers/:id', async (req, res) => {
-  try {
-    await truckOwnerService.deleteDriver(parseInt(req.params.id), req.user.employeeId)
-    sendResponse(res, 200, { success: true, message: 'Driver deleted successfully' })
-  } catch (error) {
-    sendResponse(res, 400, { success: false, message: error.message })
-  }
-})
-
-router.post('/drivers/:driverId/assign/:truckId', async (req, res) => {
-  try {
-    const result = await truckOwnerService.assignDriverToTruck(
-      parseInt(req.params.driverId),
-      parseInt(req.params.truckId),
-      req.user.employeeId
-    )
-    sendResponse(res, 200, { success: true, data: result, message: 'Driver assigned successfully' })
-  } catch (error) {
-    sendResponse(res, 400, { success: false, message: error.message })
-  }
-})
-
-// Trip Management
-router.get('/trips', async (req, res) => {
-  try {
-    const trips = await truckOwnerService.getTrips(req.user.employeeId)
-    sendResponse(res, 200, { success: true, data: trips })
-  } catch (error) {
-    sendResponse(res, 500, { success: false, message: error.message })
-  }
-})
-
-router.post('/trips', async (req, res) => {
-  try {
-    const trip = await truckOwnerService.createTrip(req.user.employeeId, req.body)
-    sendResponse(res, 201, { success: true, data: trip, message: 'Trip created successfully' })
-  } catch (error) {
-    sendResponse(res, 400, { success: false, message: error.message })
-  }
-})
-
-router.put('/trips/:id/status', async (req, res) => {
-  try {
-    const { status, ...additionalData } = req.body
-    const trip = await truckOwnerService.updateTripStatus(
-      parseInt(req.params.id),
-      req.user.employeeId,
-      status,
-      additionalData
-    )
-    sendResponse(res, 200, { success: true, data: trip, message: 'Trip status updated successfully' })
   } catch (error) {
     sendResponse(res, 400, { success: false, message: error.message })
   }

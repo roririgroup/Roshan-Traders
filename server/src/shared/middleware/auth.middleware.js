@@ -27,6 +27,7 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
+
 const authorizeRoles = (allowedRoles = []) => (req, res, next) => {
   // If no allowedRoles specified, allow through
   if (!allowedRoles || allowedRoles.length === 0) return next();
