@@ -28,6 +28,7 @@ const EmployeeCard = ({ employee, onRemoveClick, onEdit, isLoading }) => {
     setIsEditModalOpen(false);
   };
 
+  
   return (
     <>
       <Card className="p-4 border-gray-200 hover:shadow-md transition-shadow duration-200">

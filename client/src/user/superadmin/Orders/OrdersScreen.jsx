@@ -10,6 +10,7 @@ import Modal from '../../../components/ui/Modal.jsx'
 
 const API_BASE_URL = 'http://localhost:7700/api'
 
+
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)

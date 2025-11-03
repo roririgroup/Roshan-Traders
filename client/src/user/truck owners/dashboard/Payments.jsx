@@ -14,6 +14,7 @@ export default function Payments() {
       dueDate: '2024-10-10',
       description: 'Chennai to Bangalore delivery'
     },
+    
     {
       id: 2,
       tripId: 'T002',

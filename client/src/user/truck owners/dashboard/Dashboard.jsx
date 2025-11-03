@@ -16,6 +16,8 @@ export default function Dashboard() {
     monthlyEarnings: 0,
     yearlyEarnings: 0
   })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   // Mock data - replace with API calls
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function Dashboard() {
         const response = await fetch(`${API_BASE_URL}/truck-owners/dashboard/stats`, {
           headers: {
             'Content-Type': 'application/json',
-            'X-Employee-Id': user.employeeId.toString(),
+            'X-Employee-Id': user.employeeId ? user.employeeId.toString() : '',
             'X-User-Roles': 'Truck Owner'
           }
         })

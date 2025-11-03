@@ -33,6 +33,7 @@ const SignUpApprovalPage = () => {
         throw new Error('Failed to fetch users');
       }
 
+      
       const pending = await pendingRes.json();
       const approved = await approvedRes.json();
       const rejected = await rejectedRes.json();

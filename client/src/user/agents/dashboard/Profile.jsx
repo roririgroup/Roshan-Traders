@@ -17,6 +17,7 @@ export default function Profile() {
     services: []
   })
   
+  
 
   // Mock data - replace with API calls
   useEffect(() => {

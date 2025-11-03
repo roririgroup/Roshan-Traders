@@ -24,6 +24,7 @@ const ManufacturersList = () => {
           <div key={manufacturer.id} className="manufacturer-card">
             <div className="card-image">
               <img src={manufacturer.image} alt={manufacturer.name} />
+         
               <div className="rating-badge">
                 ⭐ {manufacturer.rating}
               </div>

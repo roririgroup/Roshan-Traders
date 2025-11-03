@@ -74,6 +74,7 @@ function LandingPage() {
       },
       { threshold: 0.1 }
     );
+    
 
     document.querySelectorAll('.fade-in-section').forEach((el) => {
       observer.observe(el);

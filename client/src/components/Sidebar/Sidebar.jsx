@@ -16,6 +16,7 @@ const active = ({ isActive }) =>
   isActive
     ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25`
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`;
+    
 
 const MENU_CONFIG = {
   superadmin: [

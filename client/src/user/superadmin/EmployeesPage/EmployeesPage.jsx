@@ -81,7 +81,15 @@ const EmployeesPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || 'Failed to add employee');
+        // Handle specific validation errors more user-friendly
+        const errorMessage = data.error || data.message || data;
+        if (errorMessage === 'Email already exists') {
+          throw new Error('This email address is already in use. Please use a different email.');
+        }
+        if (errorMessage === 'Phone number already exists') {
+          throw new Error('This phone number is already in use. Please use a different phone number.');
+        }
+        throw new Error(errorMessage || 'Failed to add employee');
       }
 
       await fetchEmployees(); // Refresh the list
@@ -89,8 +97,7 @@ const EmployeesPage = () => {
       setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error adding employee:', error);
-      setError(error.message);
-      // Keep modal open so user can fix the error
+      throw error; // Re-throw to let modal handle it
     }
   };
 

@@ -12,6 +12,7 @@ export default function Button({ children, onClick, variant = 'default', size = 
     default: 'h-10 py-2 px-4',
     sm: 'h-9 px-3 rounded-md',
   }
+  
 
   return (
     <button

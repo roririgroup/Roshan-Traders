@@ -21,6 +21,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     }
     return roleNames[role] || role
   }
+  
 
   const getUserInitials = () => {
     // For Super Admin, always show "SA"

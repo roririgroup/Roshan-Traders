@@ -18,6 +18,7 @@ const EditManufacturerModal = ({ isOpen, onClose, onSubmit, manufacturer }) => {
       website: '',
       address: '',
     },
+    
     companyInfo: {
       employees: '',
       annualTurnover: '',

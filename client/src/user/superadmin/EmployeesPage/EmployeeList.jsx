@@ -45,6 +45,7 @@ const EmployeeList = () => {
       setIsLoading(false);
     }
   };
+  
 
   const handleRemoveEmployee = (employeeId) => {
     setEmployees(prev => prev.filter(emp => emp.id !== employeeId));

@@ -28,7 +28,7 @@ export default function Employees() {
   const fetchEmployees = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees?role=${activeTab}`)
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees?role=${activeTab}`)
       const result = await response.json()
       if (result.success) {
         setAgents(result.data)
@@ -80,7 +80,7 @@ export default function Employees() {
   const handleDeleteAgent = async (agentId) => {
     if (window.confirm('Are you sure you want to delete this agent/employee?')) {
       try {
-        const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees/${agentId}`, {
+        const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees/${agentId}`, {
           method: 'DELETE'
         })
         const result = await response.json()
@@ -101,7 +101,7 @@ export default function Employees() {
       let response
       if (editingAgent) {
         // Update existing agent
-        response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees/${editingAgent.id}`, {
+        response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees/${editingAgent.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -110,7 +110,7 @@ export default function Employees() {
         })
       } else {
         // Add new agent
-        response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees`, {
+        response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

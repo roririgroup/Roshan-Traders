@@ -70,52 +70,36 @@ export default function ActingLaboursPage() {
     try {
       setLoading(true);
 
-      const [actingLaboursResponse, manufacturersResponse, employeesResponse] = await Promise.all([
+      const [actingLaboursResponse, manufacturersResponse] = await Promise.all([
         fetch('http://localhost:7700/api/acting-labours'),
-        fetch('http://localhost:7700/api/manufacturers'),
-        fetch('http://localhost:7700/api/employees?onlyLabours=true')
+        fetch('http://localhost:7700/api/manufacturers')
       ]);
 
       const actingLabours = actingLaboursResponse.ok ? await actingLaboursResponse.json() : [];
       const manufacturersData = manufacturersResponse.ok ? await manufacturersResponse.json() : [];
-      const employeeLabours = employeesResponse.ok ? await employeesResponse.json() : [];
-      
-      // Combine both acting labours and employee labours
-      const allLaboursData = [
-        ...actingLabours,
-        ...employeeLabours.map(emp => ({
-          ...emp,
-          source: 'employee'
-        }))
-      ];
 
-      // Filter truck owners for assignment dropdown
-      const truckOwnersData = allLaboursData.filter(l => l.source === 'employee' && l.role === 'Truck Owner');
-
-      // Transform and combine all labours into a consistent format
-      const combinedLabours = allLaboursData.map((labour) => ({
-        id: labour.source === 'employee' ? `emp_${labour.id}` : `acting-${labour.id}`,
+      // Transform acting labours into a consistent format
+      const combinedLabours = actingLabours.map((labour) => ({
+        id: `acting-${labour.id}`,
         name: labour.name || 'Unknown',
-        type: (labour.type || labour.role || '').toLowerCase(),
+        type: (labour.type || '').toLowerCase(),
         phone: labour.phone || '',
         email: labour.email || '',
         location: labour.location || 'Not specified',
         status: (labour.status || 'available').toLowerCase(),
         rating: Number(labour.rating) || 0,
         experience: Number(labour.experience) || 0,
-        assignedTo: labour.assignedToId 
-          ? (labour.assignedToType === 'manufacturer'
-              ? manufacturersData.find(m => m.id === labour.assignedToId)?.companyName 
-              : truckOwnersData.find(t => t.id === labour.assignedToId)?.name)
+        assignedTo: labour.assignedToId
+          ? manufacturersData.find(m => m.id === labour.assignedToId)?.companyName
           : null,
-        assignedType: labour.assignedToType === 'truck_owner' ? 'truckOwner' : labour.assignedToType,
+        assignedType: labour.assignedToType,
         originalData: labour,
-        source: labour.source || 'acting_labour'
+        source: 'acting_labour'
       }));
 
       setLabours(combinedLabours);
       setManufacturers(manufacturersData);
-      setTruckOwners(truckOwnersData);
+      setTruckOwners([]); // No truck owners for assignment in acting labours
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -282,30 +266,32 @@ export default function ActingLaboursPage() {
   };
 
   const handleAddTruckOwner = async () => {
-    if (!addTruckOwnerForm.name || !addTruckOwnerForm.phone) {
-      alert('Please fill in all required fields (Name, Phone)');
+    if (!addTruckOwnerForm.name || !addTruckOwnerForm.phone || !addTruckOwnerForm.address) {
+      alert('Please fill in all required fields (Name, Phone, Address)');
       return;
     }
 
     try {
-      // Make API call to add truck owner as employee
-      const response = await fetch('http://localhost:7700/api/employees', {
+      // Make API call to add truck owner as acting labour
+      const response = await fetch('http://localhost:7700/api/acting-labours', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: addTruckOwnerForm.name,
+          type: 'TRUCK_OWNER',
           phone: addTruckOwnerForm.phone,
           email: addTruckOwnerForm.email || null,
-          role: 'Truck Owner',
-          status: 'Available'
+          location: addTruckOwnerForm.address,
+          experience: 0,
+          rating: 0
         })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add truck owner');
+        throw new Error(errorData.error || 'Failed to add truck owner');
       }
 
       // Refresh data to get updated state

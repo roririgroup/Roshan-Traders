@@ -378,6 +378,7 @@ export default function UserLogin() {
                 <strong>Note:</strong> Only approved accounts can login. Check your email/SMS for approval notification.
               </p>
             </div>
+            
 
             <p className="text-xs text-gray-500 text-center mt-4">
               By continuing you agree to our <span className="underline underline-offset-2">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.

@@ -18,6 +18,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
       website: '',
       address: '',
     },
+    
     companyInfo: {
       employees: '',
       annualTurnover: '',

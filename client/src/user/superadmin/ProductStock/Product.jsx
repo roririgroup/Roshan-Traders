@@ -31,6 +31,7 @@ const ProductAvailability = () => {
     
     },
   ]);
+  
 
   // Stock status function
   const getStockStatus = (stock) => {

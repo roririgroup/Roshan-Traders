@@ -13,6 +13,7 @@ export default function ManufacturerDashboard() {
     monthlyRevenue: 0
   })
   
+  
 
   // Mock data - replace with API calls
   useEffect(() => {

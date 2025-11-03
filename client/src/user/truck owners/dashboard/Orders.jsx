@@ -8,6 +8,7 @@ const API_BASE_URL = 'http://localhost:7700/api'
 export default function Orders() {
   const [assignedOrders, setAssignedOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   // Mock data - replace with API call
   useEffect(() => {

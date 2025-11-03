@@ -68,11 +68,13 @@ export function setCurrentUserActiveRole(role) {
   return false
 }
 
+
 export function hasRole(expectedRoles) {
   const role = getCurrentUserActiveRole()
   if (!role) return false
   if (Array.isArray(expectedRoles)) return expectedRoles.map(r => String(r).toLowerCase()).includes(role)
   return role === String(expectedRoles).toLowerCase()
 }
+
 
 

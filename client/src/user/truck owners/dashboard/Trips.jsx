@@ -24,6 +24,7 @@ export default function Trips() {
         agent: "ABC Logistics",
         podUploaded: false,
       },
+      
       {
         id: 2,
         truckNo: "TN02CD5678",

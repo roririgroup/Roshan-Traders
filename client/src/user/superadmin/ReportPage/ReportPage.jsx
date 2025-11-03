@@ -29,6 +29,7 @@ export default function ReportPage() {
             {reportData.reduce((prev, curr) => (curr.sales > prev.sales ? curr : prev)).name}
           </span>
         </div>
+        
         <div className="bg-white p-4 rounded-lg shadow flex flex-col">
           <span className="text-gray-500">Total Sales</span>
           <span className="text-2xl font-bold text-gray-800">
