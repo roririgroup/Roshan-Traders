@@ -15,7 +15,6 @@ import {
   Award,
   Box,
   Building,
-  Plus,
 } from 'lucide-react';
  
 
@@ -206,13 +205,6 @@ export default function ManufacturersPage() {
               <p className="text-slate-600">Manage your manufacturer network and track performance</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-3 rounded-xl font-semibold transition-colors duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl"
-          >
-            <Plus className="w-5 h-5" />
-            Add Manufacturer
-          </button>
         </div>
       </div>
 

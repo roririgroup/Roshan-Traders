@@ -4,11 +4,8 @@ import Button from "../../../components/ui/Button";
 const AddEmployeeModal = ({ onClose, onAdd }) => {
   const [form, setForm] = useState({
     name: "",
-    phone: "",
-    email: "",
     role: "",
     status: "Available",
-    salary: "",
     image: null, // store File object
   });
 
@@ -105,33 +102,6 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
             />
           </div>
 
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-            <input
-              type="text"
-              name="phone"
-              placeholder="Enter phone number"
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-lg px-4 py-3 text-sm outline-none"
-              required
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter email address"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-lg px-4 py-3 text-sm outline-none"
-            />
-          </div>
-
           {/* Role */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Job Role</label>
@@ -143,19 +113,6 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
               onChange={handleChange}
               className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-lg px-4 py-3 text-sm outline-none"
               required
-            />
-          </div>
-
-          {/* Salary */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Salary</label>
-            <input
-              type="number"
-              name="salary"
-              placeholder="Enter salary amount"
-              value={form.salary}
-              onChange={handleChange}
-              className="w-full border-2 border-gray-200 focus:border-[#F08344] focus:ring-2 focus:ring-[#F08344]/20 rounded-lg px-4 py-3 text-sm outline-none"
             />
           </div>
 

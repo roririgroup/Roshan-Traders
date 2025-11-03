@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Badge from '../../../components/ui/Badge.jsx'
 import { ShoppingCart, UserPlus } from 'lucide-react'
+import { getOrders, updateOrderStatus } from '../../../store/ordersStore.js'
 import NotificationContainer from '../../../components/ui/NotificationContainer.jsx'
 import OrderDetailsModal from '../../../components/ui/OrderDetailsModal.jsx'
 import { useNotifications } from '../../../lib/notifications.jsx'
@@ -20,53 +21,56 @@ export default function Orders() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [manufacturers, setManufacturers] = useState([])
-  const [products, setProducts] = useState([])
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
   const [selectedOrderForAssign, setSelectedOrderForAssign] = useState(null)
   const [selectedManufacturer, setSelectedManufacturer] = useState('')
-  const [selectedProduct, setSelectedProduct] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('bricks')
   const [activeTab, setActiveTab] = useState('your-orders')
-  const [manufacturersLoading, setManufacturersLoading] = useState(true)
-  const [manufacturersError, setManufacturersError] = useState(null)
 
   const { notifications, removeNotification, showSuccessNotification, showErrorNotification } = useNotifications()
 
-  // Load orders from backend API
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/orders`)
-        if (response.ok) {
-          const backendOrders = await response.json()
-          
-          // Transform backend data to frontend format
-          const transformedOrders = backendOrders.map(order => ({
-            ...order,
-            status: order.status.toLowerCase(),
-            items: order.items?.map(item => ({
-              name: item.product?.name || 'Unknown Product',
-              quantity: item.quantity,
-              price: item.unitPrice
-            })) || [],
-            manufacturerName: order.manufacturer ? order.manufacturer.companyName : null,
-            orderDate: order.orderDate,
-            deliveryDate: order.deliveryDate,
-            estimatedDeliveryDate: order.estimatedDeliveryDate
-          }))
+  // Mock manufacturers data for both bricks and clay roofs
+  const mockManufacturers = [
+    // Brick Manufacturers
+    { id: '1', companyName: 'Sujin Bricks', stock: 50000, category: 'bricks', productType: 'Full & Half Bricks' },
+    { id: '2', companyName: 'Rajesh Brickworks', stock: 32000, category: 'bricks', productType: 'All Types of Bricks' },
+    { id: '3', companyName: 'Anand Constructions', stock: 120000, category: 'bricks', productType: 'Hollow & Solid Bricks' },
+    
+    // Clay Roof Manufacturers
+    { id: '4', companyName: 'Clay Masters', stock: 450, category: 'clay_roof', productType: 'Classic Clay Tiles' },
+    { id: '5', companyName: 'Roof Experts', stock: 320, category: 'clay_roof', productType: 'Modern Shingles' },
+    { id: '6', companyName: 'Heritage Roofing', stock: 180, category: 'clay_roof', productType: 'Spanish Style Tiles' },
+    { id: '7', companyName: 'Premium Roofs', stock: 600, category: 'clay_roof', productType: 'All Clay Roof Types' }
+  ]
 
-          setOrders(transformedOrders)
-        } else {
-          console.error('Failed to fetch orders')
-          showErrorNotification('Failed to load orders data')
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-        showErrorNotification('Error loading orders data')
-      }
-    }
+  // Load orders from shared store AND localStorage manufacturer orders
+ useEffect(() => {
+  const allOrders = getOrders()
+  const user = getCurrentUser()
+  
+  // Get assigned orders from localStorage
+  const manufacturerOrders = JSON.parse(localStorage.getItem('manufacturerOrders')) || []
 
-    fetchOrders()
-  }, [refreshTrigger])
+  // Get agent orders from localStorage
+  const agentOrders = JSON.parse(localStorage.getItem('agentOrders')) || []
+
+  // Combine all orders: store + manufacturer + agent
+  const combinedOrders = [...allOrders, ...manufacturerOrders, ...agentOrders]
+  
+  // Remove duplicates based on order ID
+  const uniqueOrders = combinedOrders.filter((order, index, self) =>
+    index === self.findIndex((o) => o.id === order.id)
+  )
+
+  if (isSuperAdmin()) {
+    // Super Admin sees all orders
+    setOrders(uniqueOrders)
+  } else {
+    // Others see only their own orders
+    setOrders(uniqueOrders.filter(order => order.userInfo && order.userInfo.id === user?.id))
+  }
+}, [refreshTrigger])
+
 
   // Auto-refresh periodically to check for updates
   useEffect(() => {
@@ -77,79 +81,27 @@ export default function Orders() {
     return () => clearInterval(interval)
   }, [])
 
-  // Fetch manufacturers from backend - FIXED VERSION
+  // Fetch manufacturers
   useEffect(() => {
     const fetchManufacturers = async () => {
-      setManufacturersLoading(true)
-      setManufacturersError(null)
-      
       try {
-        console.log('Fetching manufacturers from:', `${API_BASE_URL}/manufacturers`)
-        const response = await fetch(`${API_BASE_URL}/manufacturers`)
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+        // First try to fetch from API
+        const response = await fetch('/api/users/manufacturers')
+        if (response.ok) {
+          const data = await response.json()
+          setManufacturers(data)
+        } else {
+          // If API fails, use mock data
+          setManufacturers(mockManufacturers)
         }
-        
-        const manufacturersData = await response.json()
-        console.log('Raw manufacturers data:', manufacturersData)
-        
-        if (!Array.isArray(manufacturersData)) {
-          throw new Error('Manufacturers data is not an array')
-        }
-
-        if (manufacturersData.length === 0) {
-          console.warn('No manufacturers found in database')
-          setManufacturers([])
-          return
-        }
-
-        // More flexible data transformation
-        const transformedManufacturers = manufacturersData.map(manufacturer => ({
-          id: manufacturer.id || manufacturer._id,
-          companyName: manufacturer.companyName || manufacturer.name || 'Unknown Company',
-          stock: manufacturer.stock || manufacturer.availableStock || 0,
-          category: manufacturer.category || 'bricks',
-          productType: manufacturer.productType || manufacturer.type || 'All Types',
-          email: manufacturer.email || '',
-          phone: manufacturer.phone || '',
-          address: manufacturer.address || ''
-        }))
-
-        console.log('Transformed manufacturers:', transformedManufacturers)
-        setManufacturers(transformedManufacturers)
-        
       } catch (error) {
-        console.error('Error fetching manufacturers:', error)
-        setManufacturersError(error.message)
-        showErrorNotification(`Failed to load manufacturers: ${error.message}`)
-        setManufacturers([])
-      } finally {
-        setManufacturersLoading(false)
+        console.error('Failed to fetch manufacturers, using mock data:', error)
+        // Fallback to mock data
+        setManufacturers(mockManufacturers)
       }
     }
 
     fetchManufacturers()
-  }, [])
-
-  // Fetch products
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/products`)
-        if (response.ok) {
-          const data = await response.json()
-          setProducts(Array.isArray(data) ? data : [])
-        } else {
-          console.error('Failed to fetch products')
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        setProducts([])
-      }
-    }
-
-    fetchProducts()
   }, [])
 
   const getStatusBadge = (status) => {
@@ -169,24 +121,9 @@ export default function Orders() {
     }
   }
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus.toUpperCase() })
-      })
-
-      if (response.ok) {
-        setRefreshTrigger(prev => prev + 1)
-      } else {
-        console.error('Failed to update status')
-      }
-    } catch (error) {
-      console.error('Error updating status:', error)
-    }
+  const handleStatusChange = (orderId, newStatus) => {
+    updateOrderStatus(orderId, newStatus)
+    setRefreshTrigger(prev => prev + 1)
   }
 
   const handleNotificationClick = (notificationId) => {
@@ -238,24 +175,32 @@ export default function Orders() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/orders/${selectedOrderForAssign.id}/assign`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ manufacturerId: selectedManufacturer })
-      })
+      // 1️⃣ Get all assigned orders from localStorage
+      const existing = JSON.parse(localStorage.getItem('manufacturerOrders')) || [];
 
-      if (response.ok) {
-        setRefreshTrigger(prev => prev + 1);
-        showSuccessNotification('Order assigned successfully!');
-        setIsAssignModalOpen(false);
-        setSelectedOrderForAssign(null);
-        setSelectedManufacturer('');
-        setSelectedProduct('');
-      } else {
-        showErrorNotification('Failed to assign order. Please try again.');
-      }
+      // 2️⃣ Add manufacturer info to order
+      const assignedOrder = {
+        ...selectedOrderForAssign,
+        manufacturerId: selectedManufacturer,
+        manufacturerName: manufacturers.find(m => m.id === selectedManufacturer)?.companyName || 'Unknown Manufacturer',
+        assignedAt: new Date().toISOString(),
+        category: selectedCategory,
+        status: 'in_progress',
+      };
+
+      // 3️⃣ Store back to localStorage
+      localStorage.setItem('manufacturerOrders', JSON.stringify([...existing, assignedOrder]));
+
+      // 4️⃣ Update status in main store if you want
+      updateOrderStatus(selectedOrderForAssign.id, 'in_progress');
+
+      // 5️⃣ UI + notification updates
+      setRefreshTrigger(prev => prev + 1);
+      showSuccessNotification('Order assigned successfully!');
+      setIsAssignModalOpen(false);
+      setSelectedOrderForAssign(null);
+      setSelectedManufacturer('');
+      setSelectedCategory('bricks');
     } catch (error) {
       console.error(error);
       showErrorNotification('Failed to assign order. Please try again.');
@@ -263,6 +208,11 @@ export default function Orders() {
       setIsLoading(false);
     }
   };
+
+  // Filter manufacturers by selected category
+  const filteredManufacturers = manufacturers.filter(manufacturer => 
+    manufacturer.category === selectedCategory
+  )
 
   // Get orders based on active tab
   const getFilteredOrders = () => {
@@ -280,16 +230,22 @@ export default function Orders() {
 
     // Apply tab-specific filtering
     if (activeTab === 'your-orders') {
+      // For Super Admin: show all orders that are not assigned to manufacturers
+      // For regular users: show their own orders
       if (isSuperAdmin()) {
-        filtered = filtered.filter(order => !order.manufacturerName && order.status === 'pending')
+        filtered = filtered.filter(order => !order.manufacturerId && !order.manufacturerName)
       } else {
-        filtered = filtered
+        filtered = filtered.filter(order => order.userInfo && order.userInfo.id === user?.id)
       }
     } else if (activeTab === 'outsource') {
-      filtered = filtered
+      // Show ALL orders from other users (customer orders)
+      filtered = filtered.filter(order => 
+        order.userInfo && order.userInfo.id !== user?.id
+      )
     } else if (activeTab === 'confirm') {
-      filtered = filtered.filter(order =>
-        order.status === 'rejected'
+      // Show orders that are assigned to manufacturers and in progress
+      filtered = filtered.filter(order => 
+        (order.manufacturerId || order.manufacturerName) && order.status === 'in_progress'
       )
     }
 
@@ -300,64 +256,17 @@ export default function Orders() {
 
   // Calculate order counts for tabs
   const user = getCurrentUser()
-  const yourOrdersCount = orders.filter(order =>
-    isSuperAdmin()
-      ? !order.manufacturerName && order.status === 'pending'
-      : true
+  const yourOrdersCount = orders.filter(order => 
+    isSuperAdmin() 
+      ? !order.manufacturerId && !order.manufacturerName
+      : order.userInfo && order.userInfo.id === user?.id
   ).length
-  const outsourceOrdersCount = orders.length
-  const confirmOrdersCount = orders.filter(order =>
-    order.status === 'rejected'
+  const outsourceOrdersCount = orders.filter(order => 
+    order.userInfo && order.userInfo.id !== user?.id
   ).length
-
-  const renderManufacturerSelect = () => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium mb-2 text-gray-700">
-        Available Manufacturers
-      </label>
-      
-      {manufacturersLoading ? (
-        <div className="text-center py-4 text-gray-500">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2">Loading manufacturers...</p>
-        </div>
-      ) : manufacturersError ? (
-        <div className="text-center py-4 text-red-600 bg-red-50 rounded-lg border border-red-200">
-          <p>Failed to load manufacturers</p>
-          <p className="text-sm text-red-500 mt-1">{manufacturersError}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-          >
-            Retry
-          </button>
-        </div>
-      ) : manufacturers.length === 0 ? (
-        <div className="text-center py-4 text-gray-500 bg-yellow-50 rounded-lg border border-yellow-200">
-          <p>No manufacturers found in database</p>
-          <p className="text-sm text-yellow-600 mt-1">
-            Please check if manufacturers exist in your database
-          </p>
-        </div>
-      ) : (
-        <select
-          value={selectedManufacturer}
-          onChange={(e) => setSelectedManufacturer(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          disabled={!selectedProduct}
-        >
-          <option value="">Select Manufacturer</option>
-          {selectedProduct && manufacturers
-            .map((manufacturer) => (
-              <option key={manufacturer.id} value={manufacturer.id}>
-                {manufacturer.companyName} - {manufacturer.productType}
-                {manufacturer.stock > 0 ? ` (Stock: ${manufacturer.stock})` : ' (No stock)'}
-              </option>
-            ))}
-        </select>
-      )}
-    </div>
-  )
+  const confirmOrdersCount = orders.filter(order => 
+    (order.manufacturerId || order.manufacturerName) && order.status === 'in_progress'
+  ).length
 
   const renderOrderTable = (orderList, title) => (
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
@@ -369,12 +278,12 @@ export default function Orders() {
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Order BY</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Estimated Delivery Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Manufacturer</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
@@ -388,6 +297,9 @@ export default function Orders() {
               >
                 <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
                   #{order.id}
+                </td>
+                <td className="py-4 px-6 text-slate-900 group-hover:text-[#F08344] transition-colors">
+                  {order.customerName || order.userInfo?.name || 'N/A'}
                 </td>
                 <td className="py-4 px-6">
                   <div className="space-y-1">
@@ -412,10 +324,7 @@ export default function Orders() {
                   {order.deliveryAddress || 'N/A'}
                 </td>
                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
-                  {order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toLocaleDateString() : 'N/A'}
-                </td>
-                <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
-                  {order.manufacturerName || 'Not Assigned'}
+                  {order.manufacturerName || order.manufacturer?.companyName || 'Not Assigned'}
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
@@ -492,41 +401,64 @@ export default function Orders() {
           setIsAssignModalOpen(false)
           setSelectedOrderForAssign(null)
           setSelectedManufacturer('')
-          setSelectedProduct('')
+          setSelectedCategory('bricks')
         }}
         title="Assign Order to Manufacturer"
       >
         <div className="p-6">
-          {/* Product Selection */}
+          {/* Product Category Selection */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2 text-gray-700">
-              Select Product
+              Product Category
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSelectedCategory('bricks')}
+                className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                  selectedCategory === 'bricks'
+                    ? 'bg-red-100 border-red-300 text-red-700 font-medium'
+                    : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🧱 Brick Products
+              </button>
+              <button
+                onClick={() => setSelectedCategory('clay_roof')}
+                className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                  selectedCategory === 'clay_roof'
+                    ? 'bg-orange-100 border-orange-300 text-orange-700 font-medium'
+                    : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🏠 Clay Roof Products
+              </button>
+            </div>
+          </div>
+
+          {/* Manufacturer Select */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2 text-gray-700">
+              Manufacturer
             </label>
             <select
-              value={selectedProduct}
-              onChange={(e) => {
-                setSelectedProduct(e.target.value)
-                setSelectedManufacturer('')
-              }}
+              value={selectedManufacturer}
+              onChange={(e) => setSelectedManufacturer(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
-              <option value="">Select Product</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name} - {product.category}
+              <option value="">Select Manufacturer</option>
+              {filteredManufacturers.map((manufacturer) => (
+                <option key={manufacturer.id} value={manufacturer.id}>
+                  {manufacturer.companyName} - {manufacturer.productType}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Manufacturer Select */}
-          {renderManufacturerSelect()}
-
           {/* Stock Display */}
           {selectedManufacturer && (
             <div className={`mb-4 p-4 rounded-lg border ${
-              manufacturers.find(m => m.id === selectedManufacturer)?.category === 'bricks'
-                ? 'bg-red-50 border-red-200'
+              selectedCategory === 'bricks' 
+                ? 'bg-red-50 border-red-200' 
                 : 'bg-orange-50 border-orange-200'
             }`}>
               {(() => {
@@ -599,7 +531,7 @@ export default function Orders() {
                 setIsAssignModalOpen(false)
                 setSelectedOrderForAssign(null)
                 setSelectedManufacturer('')
-                setSelectedProduct('')
+                setSelectedCategory('bricks')
               }}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
             >
@@ -640,7 +572,7 @@ export default function Orders() {
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-             Orders ({yourOrdersCount})
+            Your Orders ({yourOrdersCount})
           </button>
           <button
             onClick={() => setActiveTab('outsource')}
@@ -650,7 +582,7 @@ export default function Orders() {
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            Confirm Orders ({outsourceOrdersCount})
+            Outsource Orders ({outsourceOrdersCount})
           </button>
           <button
             onClick={() => setActiveTab('confirm')}
@@ -660,7 +592,7 @@ export default function Orders() {
                 : 'bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            Rejected Order ({confirmOrdersCount})
+            Confirm Order ({confirmOrdersCount})
           </button>
         </div>
       </div>
@@ -724,12 +656,12 @@ export default function Orders() {
       {activeTab === 'confirm' && (
         <>
           {filteredOrders.length > 0 ? (
-            renderOrderTable(filteredOrders, 'Rejected Orders')
+            renderOrderTable(filteredOrders, 'Orders to Confirm')
           ) : (
             <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
               <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No rejected orders yet</h3>
-              <p className="text-slate-600">Rejected orders will appear here</p>
+              <h3 className="text-lg font-medium text-slate-900 mb-2">No orders to confirm yet</h3>
+              <p className="text-slate-600">Assigned orders waiting for confirmation will appear here</p>
             </div>
           )}
         </>

@@ -11,27 +11,20 @@ const Signup = () => {
     email: "",
     contact: "",
     address: "",
-    role: [], // Changed to array for multiple roles
+    role: "", 
     password: "",
     confirmPassword: "",
   });
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, selectedOptions } = e.target;
-    if (name === 'role') {
-      // Handle multiple role selection
-      const selectedRoles = Array.from(selectedOptions, option => option.value);
-      setFormData((prev) => ({ ...prev, [name]: selectedRoles }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -45,46 +38,33 @@ const Signup = () => {
     }
 
     setError("");
-    setIsLoading(true);
 
-    // Create user object for API
+    // Create user object with additional fields
     const userData = {
+      id: Date.now().toString(), // Simple ID generation
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
-      phone: formData.contact,
+      phone: formData.contact, // Changed from 'contact' to 'phone' to match approval page
       address: formData.address,
       role: formData.role,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
+      password: formData.password, // Note: In real app, hash this!
+      status: "pending",
+      createdAt: new Date().toISOString(),
     };
 
-    try {
-      const response = await fetch('/api/users/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+    console.log("Form submitted:", userData);
 
-      const data = await response.json();
+    // Store in localStorage for approval
+    const existingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+    const updatedUsers = [...existingUsers, userData];
+    localStorage.setItem('pendingUsers', JSON.stringify(updatedUsers));
 
-      if (response.ok) {
-        setSuccess(true);
-        setTimeout(() => {
-          setSuccess(false);
-          navigate("/user/login");
-        }, 2000);
-      } else {
-        setError(data.message || 'Failed to register user');
-      }
-    } catch (error) {
-      console.error('Signup error:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    setSuccess(true);
+    setTimeout(() => {
+      setSuccess(false);
+      navigate("/user/login");
+    }, 2000);
   };
 
   return (
@@ -216,32 +196,22 @@ const Signup = () => {
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Role (Select multiple if applicable)
+              <label className="block text-sm font-medium text-gray-700 ">
+                Role
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                {['Agent', 'Manufacturer', 'Truck Owner', 'Driver'].map((role) => (
-                  <label key={role} className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="role"
-                      value={role}
-                      checked={formData.role.includes(role)}
-                      onChange={(e) => {
-                        const { value, checked } = e.target;
-                        setFormData((prev) => ({
-                          ...prev,
-                          role: checked
-                            ? [...prev.role, value]
-                            : prev.role.filter((r) => r !== value)
-                        }));
-                      }}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm text-gray-700">{role}</span>
-                  </label>
-                ))}
-              </div>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full h-9 border border-gray-300 rounded-lg px-3 text-sm focus:outline-none focus:border-[#555] transition-all"
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="Agent">Agent</option>
+                <option value="Manufacturer">Manufacturer</option>
+                <option value="Truck Owner">Truck Owner</option>
+                <option value="Driver">Driver</option>
+              </select>
             </div>
 
             {/* Password & Confirm Password */}
@@ -282,13 +252,12 @@ const Signup = () => {
             )}
 
             {/* Submit Button */}
-
+            
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2"
             >
-              {isLoading ? 'Submitting...' : 'Submit for Approval'}
+              Submit for Approval
             </button>
           </form>
 

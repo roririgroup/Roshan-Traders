@@ -106,6 +106,8 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
         </div>
       </div>
 
+
+
       {/* Right Section */}
       <div className="flex items-center gap-1 sm:gap-3">
         {/* Search Button (Mobile & Tablet) */}
@@ -131,20 +133,14 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
           {/* User Details - Hidden on mobile */}
           <div className="hidden md:block text-right">
             <p className="text-sm font-medium text-slate-900 truncate max-w-24 lg:max-w-32">
-              {getUserDisplayName()}
+              {user?.name || 'User'}
             </p>
-            <p className="text-xs text-slate-500 -mt-0.5 truncate max-w-24 lg:max-w-32">
-              {getDisplayRole()}
-            </p>
+            <p className="text-xs text-slate-500 truncate">{getRoleDisplayName(activeRole)}</p>
           </div>
-
+          
           {/* User Avatar */}
-          <div className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm ${
-            activeRole === 'superadmin' 
-              ? 'bg-gradient-to-br from-purple-600 to-purple-700' 
-              : 'bg-gradient-to-br from-blue-600 to-blue-700'
-          }`}>
-            {getUserInitials()}
+          <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm">
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </div>
         </div>
         

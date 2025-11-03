@@ -5,7 +5,7 @@ import { Card } from "../../../components/ui/Card";
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil, Trash } from "lucide-react"; // 👈 icons
 
-const AgentCard = ({ agent, onEdit, onRemove, onViewDetails }) => {
+const AgentCard = ({ agent, onEdit, onRemove }) => {
   const navigate = useNavigate();
   const { id, name, referrals, image, location, joinDate, status } = agent;
 
@@ -64,7 +64,7 @@ const AgentCard = ({ agent, onEdit, onRemove, onViewDetails }) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onViewDetails(agent)}
+            onClick={() => navigate(`/agents/${id}`)}
             className="flex items-center gap-1 text-xs"
           >
             <Eye className="h-4 w-4" />

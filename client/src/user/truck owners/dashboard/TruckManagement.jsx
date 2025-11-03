@@ -196,6 +196,7 @@ export default function TruckManagement() {
     setViewingTruck(truck)
   }
 
+
   const validateTruckNumber = (truckNo) => {
     // Indian vehicle registration number pattern
     const pattern = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/
@@ -210,6 +211,17 @@ export default function TruckManagement() {
       alert('Please enter a valid vehicle registration number (e.g., TN01AB1234)')
       return
     }
+
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    let newDocuments = editingTruck ? [...editingTruck.documents] : []
+    if (formData.rcBookFile && !newDocuments.includes('RC Book')) newDocuments.push('RC Book')
+    if (formData.insuranceFile && !newDocuments.includes('Insurance')) newDocuments.push('Insurance')
+    if (formData.fitnessFile && !newDocuments.includes('Fitness Certificate')) newDocuments.push('Fitness Certificate')
+    if (formData.licenseFile && !newDocuments.includes('License')) newDocuments.push('License')
+    if (formData.aadhaarFile && !newDocuments.includes('Aadhaar')) newDocuments.push('Aadhaar')
 
     try {
       const truckData = {
@@ -515,9 +527,8 @@ export default function TruckManagement() {
               <input
                 type="text"
                 value={formData.truckNo}
-                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value.toUpperCase() })}
+                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value })}
                 className="w-full p-2 border rounded"
-                placeholder="e.g., TN01AB1234"
                 required
               />
             </div>

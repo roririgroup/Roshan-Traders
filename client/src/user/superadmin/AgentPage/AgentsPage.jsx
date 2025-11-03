@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 import AddAgentsModal from './AddAgentsModal'
 import EditAgentModal from './EditAgentModal'
 import AgentCard from './AgentCard'
-import AgentDetailsModal from './AgentDetailsModal'
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState([])
@@ -14,8 +13,6 @@ export default function AgentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editAgent, setEditAgent] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [selectedAgent, setSelectedAgent] = useState(null)
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
 
   useEffect(() => {
     fetchAgents();
@@ -30,11 +27,11 @@ export default function AgentsPage() {
         const data = await response.json();
         const mappedAgents = data.map(agent => ({
           id: agent.id,
-          name: agent.name,
+          name: agent.user.name,
           referrals: agent.referrals || 0,
-          image: agent.image || 'https://via.placeholder.com/150',
-          phone: agent.phone,
-          email: agent.email,
+          image: agent.user.image || 'https://via.placeholder.com/150',
+          phone: agent.user.phone,
+          email: agent.user.email,
           location: agent.location,
           joinDate: new Date(agent.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
           status: agent.status,
@@ -66,14 +63,11 @@ export default function AgentsPage() {
       if (response.ok) {
         fetchAgents();
         setIsModalOpen(false);
-        alert('Agent added successfully!');
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to add agent');
+        console.error('Failed to add agent');
       }
     } catch (error) {
       console.error('Error adding agent:', error);
-      alert('Error adding agent');
     }
   };
 
@@ -118,11 +112,6 @@ export default function AgentsPage() {
     }
   };
 
-  const handleViewDetails = (agent) => {
-    setSelectedAgent(agent);
-    setIsDetailsModalOpen(true);
-  };
-
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       {/* Header */}
@@ -162,10 +151,10 @@ export default function AgentsPage() {
           <p className="text-2xl font-bold text-slate-900">{activeAgents}</p>
           <p className="text-sm text-slate-600">Active Agents</p>
         </div>
-        {/* <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
           <p className="text-2xl font-bold text-slate-900">{inactiveAgents}</p>
           <p className="text-sm text-slate-600">Inactive Agents</p>
-        </div> */}
+        </div>
       </div>
 
       {/* Active Agents Section */}
@@ -185,7 +174,6 @@ export default function AgentsPage() {
             agent={agent}
             onEdit={handleEditAgent}
             onRemove={handleRemoveAgent}
-            onViewDetails={handleViewDetails}
           />
         ))}
     </div>
@@ -193,7 +181,7 @@ export default function AgentsPage() {
 </div>
 
      {/* Inactive Agents Section */}
-{/* <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+<div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
   <div className="p-6 border-b border-slate-200">
     <h2 className="text-lg font-semibold text-slate-900">Inactive Agents</h2>
     <p className="text-sm text-slate-600 mt-1">View and manage inactive agents</p>
@@ -209,7 +197,7 @@ export default function AgentsPage() {
       />
     ))}
   </div>
-</div> */}
+</div>
 
 
       {/* Add Agent Modal */}
@@ -226,14 +214,6 @@ export default function AgentsPage() {
           agent={editAgent}
           onClose={() => setIsEditModalOpen(false)}
           onSave={handleSaveEdit}
-        />
-      )}
-
-      {/* Agent Details Modal */}
-      {isDetailsModalOpen && selectedAgent && (
-        <AgentDetailsModal
-          agent={selectedAgent}
-          onClose={() => setIsDetailsModalOpen(false)}
         />
       )}
     </div>
