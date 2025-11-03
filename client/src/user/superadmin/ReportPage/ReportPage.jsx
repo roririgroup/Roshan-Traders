@@ -7,6 +7,7 @@ const reportData = [
   { id: 4, name: 'Emily Davis', department: 'HR', performance: 'Satisfactory', sales: 7000 },
 ];
 
+
 export default function ReportPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -28,6 +29,7 @@ export default function ReportPage() {
             {reportData.reduce((prev, curr) => (curr.sales > prev.sales ? curr : prev)).name}
           </span>
         </div>
+        
         <div className="bg-white p-4 rounded-lg shadow flex flex-col">
           <span className="text-gray-500">Total Sales</span>
           <span className="text-2xl font-bold text-gray-800">

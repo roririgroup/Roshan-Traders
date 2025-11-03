@@ -28,6 +28,7 @@ const EmployeeCard = ({ employee, onRemoveClick, onEdit, isLoading }) => {
     setIsEditModalOpen(false);
   };
 
+  
   return (
     <>
       <Card className="p-4 border-gray-200 hover:shadow-md transition-shadow duration-200">
@@ -41,6 +42,7 @@ const EmployeeCard = ({ employee, onRemoveClick, onEdit, isLoading }) => {
                 onError={handleImageError}
                 loading="lazy"
               />
+              
               <div
                 className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
                   status === "Available"

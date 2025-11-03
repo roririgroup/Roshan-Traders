@@ -1,86 +1,229 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import { User, Plus, Edit, Upload, Star, Phone, Mail, Trash2, Eye } from 'lucide-react'
+import { getCurrentUser } from '../../../lib/auth'
+
+const API_BASE_URL = 'http://localhost:7700/api'
 
 export default function DriverManagement() {
-  const [drivers, setDrivers] = useState([
-    {
-      id: 1,
-      name: 'Raj Kumar',
-      phone: '+91 9876543210',
-      email: 'raj@example.com',
-      license: 'Valid',
-      aadhaar: 'Uploaded',
-      assignedTruck: 'TN01AB1234',
-      status: 'Present',
-      reason: '',
-      tripsCompleted: 25,
-      rating: 4.8
-    },
-    {
-      id: 2,
-      name: 'Suresh Patel',
-      phone: '+91 9876543211', 
-      email: 'suresh@example.com',
-      license: 'Valid',
-      aadhaar: 'Uploaded',
-      assignedTruck: null,
-      status: 'Present',
-      reason: '',
-      tripsCompleted: 18,
-      rating: 4.5
-    }
-  ])
+  const [drivers, setDrivers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [truckOwnerId, setTruckOwnerId] = useState(null)
 
-  const [trucks] = useState(['TN01AB1234', 'TN02CD5678', 'TN03EF9012'])
+  useEffect(() => {
+    const fetchTruckOwnerId = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          throw new Error('User not logged in');
+        }
+
+        // Get truck owner ID from acting labour table
+        const response = await fetch(`${API_BASE_URL}/truck-owners/profile`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setTruckOwnerId(data.data.id);
+            return data.data.id;
+          }
+        }
+        
+        throw new Error('Failed to fetch truck owner profile');
+      } catch (err) {
+        setError('Unable to load truck owner information');
+        console.error('Error fetching truck owner ID:', err);
+        return null;
+      }
+    }
+
+    const fetchDrivers = async () => {
+      try {
+        setLoading(true);
+        const ownerId = await fetchTruckOwnerId();
+        
+        if (!ownerId) {
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/truck-owners/drivers`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.status === 401) {
+          throw new Error('Unauthorized access');
+        }
+
+        if (response.status === 403) {
+          throw new Error('Access forbidden - insufficient permissions');
+        }
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Failed to fetch drivers');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setDrivers(data.data);
+          setError(null);
+        } else {
+          throw new Error(data.message || 'Failed to fetch drivers');
+        }
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching drivers:', err);
+        setDrivers([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDrivers();
+  }, [])
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDriver, setEditingDriver] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    status: 'Present',
-    reason: '',
-    assignedTruck: '',
+    email: '',
+    location: '',
+    licenseNumber: '',
+    aadhaarNumber: '',
     licenseFile: null,
     aadhaarFile: null
   })
 
   const handleAdd = () => {
     setEditingDriver(null)
-    setFormData({ name: '', phone: '', assignedTruck: '', licenseFile: null, aadhaarFile: null })
+    setFormData({ 
+      name: '', 
+      phone: '', 
+      email: '',
+      location: '',
+      licenseNumber: '',
+      aadhaarNumber: '',
+      licenseFile: null, 
+      aadhaarFile: null 
+    })
     setIsModalOpen(true)
   }
 
   const handleEdit = (driver) => {
     setEditingDriver(driver)
-    setFormData({ ...driver, licenseFile: null, aadhaarFile: null })
+    setFormData({ 
+      name: driver.name,
+      phone: driver.phone,
+      email: driver.email || '',
+      location: driver.location || '',
+      licenseNumber: driver.licenseNumber || '',
+      aadhaarNumber: driver.aadhaarNumber || '',
+      licenseFile: null, 
+      aadhaarFile: null 
+    })
     setIsModalOpen(true)
   }
 
-  const handleAssign = (driverId, truckNo) => {
-    setDrivers(drivers.map(driver =>
-      driver.id === driverId ? { ...driver, assignedTruck: truckNo } : driver
-    ))
-  }
-
-  const handleDelete = (driverId) => {
+  const handleDelete = async (driverId) => {
     if (window.confirm('Are you sure you want to delete this driver?')) {
-      setDrivers(drivers.filter(driver => driver.id !== driverId))
+      try {
+        const response = await fetch(`${API_BASE_URL}/truck-owners/drivers/${driverId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to delete driver')
+        }
+
+        const result = await response.json()
+        if (result.success) {
+          setDrivers(drivers.filter(driver => driver.id !== driverId))
+        } else {
+          throw new Error(result.message || 'Failed to delete driver')
+        }
+      } catch (err) {
+        setError(err.message)
+        console.error('Error deleting driver:', err)
+      }
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (editingDriver) {
-      const updatedDriver = { ...formData, id: editingDriver.id }
-      if (formData.licenseFile) updatedDriver.license = 'Uploaded'
-      if (formData.aadhaarFile) updatedDriver.aadhaar = 'Uploaded'
-      setDrivers(drivers.map(driver => driver.id === editingDriver.id ? updatedDriver : driver))
-    } else {
-      setDrivers([...drivers, { ...formData, id: Date.now(), license: formData.licenseFile ? 'Uploaded' : 'Pending', aadhaar: formData.aadhaarFile ? 'Uploaded' : 'Pending', performance: 0, tripsCompleted: 0, rating: 0 }])
+    try {
+      const driverData = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || null,
+        location: formData.location || 'Local',
+        licenseNumber: formData.licenseNumber || null,
+        aadhaarNumber: formData.aadhaarNumber || null,
+        status: 'AVAILABLE',
+        rating: 0.0,
+        experience: 0
+      }
+
+      if (editingDriver) {
+        const response = await fetch(`${API_BASE_URL}/truck-owners/drivers/${editingDriver.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(driverData)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to update driver')
+        }
+
+        const result = await response.json()
+        if (result.success) {
+          setDrivers(drivers.map(driver => driver.id === editingDriver.id ? result.data : driver))
+        } else {
+          throw new Error(result.message || 'Failed to update driver')
+        }
+      } else {
+        const response = await fetch(`${API_BASE_URL}/truck-owners/drivers`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(driverData)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to create driver')
+        }
+
+        const result = await response.json()
+        if (result.success) {
+          setDrivers([...drivers, result.data])
+        } else {
+          throw new Error(result.message || 'Failed to create driver')
+        }
+      }
+      setIsModalOpen(false)
+    } catch (err) {
+      setError(err.message)
+      console.error('Error saving driver:', err)
     }
-    setIsModalOpen(false)
   }
 
   const [currentDriverId, setCurrentDriverId] = useState(null)
@@ -103,14 +246,34 @@ export default function DriverManagement() {
     setIsReasonModalOpen(true)
   }
 
-  const updateDriverStatus = (driverId, status, reason) => {
-    setDrivers(drivers.map(d => d.id === driverId ? { ...d, status, reason } : d))
-  }
+  const updateDriverStatus = async (driverId, status, reason) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/truck-owners/drivers/${driverId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          status: status === 'Present' ? 'AVAILABLE' : 'UNAVAILABLE',
+          ...(reason && { statusReason: reason })
+        })
+      })
 
-  const handleReasonSubmit = (e) => {
-    e.preventDefault()
-    updateDriverStatus(selectedDriverId, 'Absent', reason)
-    setIsReasonModalOpen(false)
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setDrivers(drivers.map(d => d.id === driverId ? { ...d, status: result.data.status } : d))
+        }
+      }
+    } catch (err) {
+      console.error('Error updating driver status:', err);
+      // Fallback to local update if API fails
+      setDrivers(drivers.map(d => d.id === driverId ? { 
+        ...d, 
+        status: status === 'Present' ? 'AVAILABLE' : 'UNAVAILABLE'
+      } : d))
+    }
   }
 
   const handleUploadClick = (driverId, docType) => {
@@ -120,13 +283,38 @@ export default function DriverManagement() {
     }
   }
 
-  const handleFileChange = (e, docType) => {
+  const handleFileChange = async (e, docType) => {
     const file = e.target.files[0]
     if (file && currentDriverId) {
-      setDrivers(drivers.map(driver =>
-        driver.id === currentDriverId ? { ...driver, [docType.toLowerCase()]: 'Uploaded' } : driver
-      ))
-      alert(`${docType} uploaded successfully`)
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('documentType', docType.toUpperCase());
+
+        const response = await fetch(`${API_BASE_URL}/truck-owners/drivers/${currentDriverId}/documents`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: formData
+        })
+
+        if (response.ok) {
+          setDrivers(drivers.map(driver =>
+            driver.id === currentDriverId ? { 
+              ...driver, 
+              [`${docType.toLowerCase()}File`]: 'Uploaded',
+              [`${docType.toLowerCase()}Number`]: 'Pending Verification'
+            } : driver
+          ))
+          alert(`${docType} uploaded successfully`)
+        } else {
+          throw new Error('Upload failed');
+        }
+      } catch (err) {
+        console.error('Error uploading document:', err);
+        alert('Upload failed. Please try again.');
+      }
     }
   }
 
@@ -160,8 +348,13 @@ export default function DriverManagement() {
     setAttendanceData(mockData)
   }
 
-  // Add hidden file inputs for License and Aadhaar
-  // These inputs must be rendered inside the component return JSX
+  if (loading) {
+    return (
+      <div className="p-6 bg-slate-50 min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading drivers...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
@@ -177,12 +370,18 @@ export default function DriverManagement() {
               <p className="text-slate-600">Manage drivers and assign to trucks</p>
             </div>
           </div>
-          <Button onClick={handleAdd} className="bg-[#F08344] hover:bg-[#e073a]">
+          <Button onClick={handleAdd} className="bg-[#F08344] hover:bg-[#e07334]">
             <Plus className="size-4 mr-2" />
             Add Driver
           </Button>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
 
       {/* Hidden file inputs */}
       <input
@@ -207,7 +406,6 @@ export default function DriverManagement() {
             <tr>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Truck</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Documents</th>
@@ -217,49 +415,52 @@ export default function DriverManagement() {
           <tbody className="bg-white divide-y divide-gray-200">
             {drivers.map((driver) => (
               <tr key={driver.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{driver.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1 text-sm text-slate-600">
+                <td className="px-6 py-4 whitespace-nowrap text-center">{driver.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <div className="flex items-center gap-1 text-sm text-slate-600 justify-center">
                     <Phone className="size-4" />
                     {driver.phone}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{driver.assignedTruck || 'Not Assigned'}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <label className="inline-flex relative items-center cursor-pointer">
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <label className="inline-flex relative items-center cursor-pointer justify-center">
                     <input
                       type="checkbox"
                       className="sr-only peer"
-                      checked={driver.status === 'Present'}
+                      checked={driver.status === 'AVAILABLE' || driver.status === 'Present'}
                       onChange={() => {
-                        if (driver.status === 'Present') {
-                          // Change to Absent and open reason modal
+                        if (driver.status === 'AVAILABLE' || driver.status === 'Present') {
                           openReasonModal(driver.id)
                         } else {
-                          // Change to Present directly
                           updateDriverStatus(driver.id, 'Present', '')
                         }
                       }}
                     />
-                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 relative"></div>
-                    <span className="ml-3 text-sm font-medium text-gray-900">{driver.status}</span>
+                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-focus:ring-4 peer-focus:ring-green-300 relative"></div>
+                    <span className="ml-3 text-sm font-medium text-gray-900">
+                      {driver.status === 'AVAILABLE' || driver.status === 'Present' ? 'Available' : 'Unavailable'}
+                    </span>
                   </label>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1">
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <div className="flex items-center gap-1 justify-center">
                     <Star className="size-4 text-yellow-500" />
-                    <span>{driver.rating}</span>
+                    <span>{driver.rating || '0.0'}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex gap-1">
-                    {[{ name: 'License', status: driver.license }, { name: 'Aadhaar', status: driver.aadhaar }].map((doc) => (
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <div className="flex gap-1 justify-center">
+                    {[
+                      { name: 'License', status: driver.licenseFile, number: driver.licenseNumber },
+                      { name: 'Aadhaar', status: driver.aadhaarFile, number: driver.aadhaarNumber }
+                    ].map((doc) => (
                       <button
                         key={doc.name}
                         onClick={() => handleUploadClick(driver.id, doc.name)}
                         className={`px-3 py-1 rounded text-xs flex items-center gap-1 ${
                           doc.status === 'Uploaded' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
+                        title={doc.number || `Upload ${doc.name}`}
                       >
                         <Upload className="size-3" />
                         {doc.name}
@@ -267,23 +468,8 @@ export default function DriverManagement() {
                     ))}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex gap-2">
-                    <div className="relative inline-block text-left">
-                      <select
-                        value={driver.assignedTruck || ''}
-                        onChange={(e) => handleAssign(driver.id, e.target.value)}
-                        className="appearance-none p-2 border rounded text-sm pr-6"
-                      >
-                        <option value="">Assign Truck</option>
-                        {trucks.map(truck => (
-                          <option key={truck} value={truck}>{truck}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M7 10l5 5 5-5H7z"/></svg>
-                      </div>
-                    </div>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <div className="flex gap-2 justify-center">
                     <Button onClick={() => handleView(driver)} variant="outline" size="sm">
                       <Eye className="size-4" />
                     </Button>
@@ -326,20 +512,46 @@ export default function DriverManagement() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Assign Truck</label>
-            <select
-              value={formData.assignedTruck}
-              onChange={(e) => setFormData({ ...formData, assignedTruck: e.target.value })}
+            <label className="block text-sm font-medium mb-1">Email (Optional)</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full p-2 border rounded"
-            >
-              <option value="">Select Truck</option>
-              {trucks.map(truck => (
-                <option key={truck} value={truck}>{truck}</option>
-              ))}
-            </select>
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">License</label>
+            <label className="block text-sm font-medium mb-1">Location</label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="e.g., Chennai, Tamil Nadu"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">License Number (Optional)</label>
+            <input
+              type="text"
+              value={formData.licenseNumber}
+              onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Driver license number"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Aadhaar Number (Optional)</label>
+            <input
+              type="text"
+              value={formData.aadhaarNumber}
+              onChange={(e) => setFormData({ ...formData, aadhaarNumber: e.target.value })}
+              className="w-full p-2 border rounded"
+              placeholder="Aadhaar number"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">License File</label>
             <input
               type="file"
               onChange={(e) => setFormData({ ...formData, licenseFile: e.target.files[0] })}
@@ -348,7 +560,7 @@ export default function DriverManagement() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Aadhaar</label>
+            <label className="block text-sm font-medium mb-1">Aadhaar File</label>
             <input
               type="file"
               onChange={(e) => setFormData({ ...formData, aadhaarFile: e.target.files[0] })}
@@ -357,7 +569,7 @@ export default function DriverManagement() {
             />
           </div>
           <div className="flex gap-2">
-            <Button type="submit" className="bg-[#F08344] hover:bg-[#e0733a]">
+            <Button type="submit" className="bg-[#F08344] hover:bg-[#e07334]">
               {editingDriver ? 'Update' : 'Add'} Driver
             </Button>
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
@@ -367,10 +579,15 @@ export default function DriverManagement() {
         </form>
       </Modal>
 
+      {/* Rest of your modals remain the same */}
       {/* Reason Modal */}
       <Modal isOpen={isReasonModalOpen} onClose={() => setIsReasonModalOpen(false)}>
         <h2 className="text-xl font-bold mb-4">Select Reason for Absence</h2>
-        <form onSubmit={handleReasonSubmit} className="space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          updateDriverStatus(selectedDriverId, 'Absent', reason);
+          setIsReasonModalOpen(false);
+        }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Reason</label>
             <select
@@ -388,7 +605,7 @@ export default function DriverManagement() {
             </select>
           </div>
           <div className="flex gap-2">
-            <Button type="submit" className="bg-[#F08344] hover:bg-[#e0733a]">
+            <Button type="submit" className="bg-[#F08344] hover:bg-[#e07334]">
               Submit
             </Button>
             <Button type="button" variant="outline" onClick={() => setIsReasonModalOpen(false)}>
@@ -398,7 +615,7 @@ export default function DriverManagement() {
         </form>
       </Modal>
 
-      {/* View Attendance Modal */}
+      {/* View Attendance Modal - remains the same */}
       <Modal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)}>
         <h2 className="text-xl font-bold mb-4">Attendance for {selectedDriverForView?.name}</h2>
         <div className="space-y-4">
@@ -456,7 +673,6 @@ export default function DriverManagement() {
               </table>
             </div>
           )}
-         
         </div>
       </Modal>
     </div>

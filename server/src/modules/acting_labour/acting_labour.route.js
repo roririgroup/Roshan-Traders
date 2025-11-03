@@ -1,12 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const actingLabourService = require('./acting_labour.service');
+const { serializeBigInt } = require('../../shared/lib/json');
+
+// Helper function to send serialized response
+const sendResponse = (res, status, data) => {
+  res.status(status).json(serializeBigInt(data));
+};
+
 
 // Get all acting labours with optional filters
 router.get('/', async (req, res) => {
   try {
-    const { type, status, assignedToType, search } = req.query;
-    /** @type {{type?:string,status?:string,assignedToType?:string,search?:string}} */
+    const { type, status, assignedToType, search, includeEmployees } = req.query;
+    /** @type {{type?:string,status?:string,assignedToType?:string,search?:string,includeEmployees?:boolean}} */
     const filters = {};
 
     /**
@@ -18,19 +25,23 @@ router.get('/', async (req, res) => {
       if (Array.isArray(v)) return typeof v[0] === 'string' ? v[0] : String(v[0]);
       if (typeof v === 'string') return v;
       return String(v);
-    };
+    }; 
+    
+    
 
     if (type) filters.type = toStringValue(type);
     if (status) filters.status = toStringValue(status);
     if (assignedToType) filters.assignedToType = toStringValue(assignedToType);
     if (search) filters.search = toStringValue(search);
+    // Parse includeEmployees as boolean
+    filters.includeEmployees = includeEmployees === 'true' || includeEmployees === '1';
 
     const labours = await actingLabourService.getAllActingLabours(filters);
-    res.json(labours);
+    sendResponse(res, 200, labours);
   } catch (error) {
     console.error('Error in GET /acting-labours:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ error: errorMessage });
+    sendResponse(res, 500, { error: errorMessage });
   }
 });
 
@@ -38,7 +49,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const labour = await actingLabourService.getActingLabourById(req.params.id);
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in GET /acting-labours/:id:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -58,11 +69,11 @@ router.post('/', async (req, res) => {
 
     const body = req.body || {};
     if (!body.name || !body.type || !body.phone || !body.location) {
-      return res.status(400).json({ error: 'Missing required fields: name, type, phone, location' });
+      return sendResponse(res, 400, { error: 'Missing required fields: name, type, phone, location' });
     }
 
     const labour = await actingLabourService.createActingLabour(body);
-    res.status(201).json(labour);
+    sendResponse(res, 201, labour);
   } catch (error) {
     console.error('Error in POST /acting-labours:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -78,15 +89,12 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const labour = await actingLabourService.updateActingLabour(req.params.id, req.body);
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in PUT /acting-labours/:id:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    if (errorMessage === 'Acting labour not found') {
-      res.status(404).json({ error: errorMessage });
-    } else {
-      res.status(500).json({ error: errorMessage });
-    }
+    const status = errorMessage === 'Acting labour not found' ? 404 : 500;
+    sendResponse(res, status, { error: errorMessage });
   }
 });
 
@@ -94,7 +102,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const result = await actingLabourService.deleteActingLabour(req.params.id);
-    res.json(result);
+    sendResponse(res, 200, result);
   } catch (error) {
     console.error('Error in DELETE /acting-labours/:id:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -111,7 +119,7 @@ router.post('/:id/assign', async (req, res) => {
   try {
     const { assignedToId, assignedToType } = req.body;
     const labour = await actingLabourService.assignLabour(req.params.id, { assignedToId, assignedToType });
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in POST /acting-labours/:id/assign:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -127,7 +135,7 @@ router.post('/:id/assign', async (req, res) => {
 router.post('/:id/unassign', async (req, res) => {
   try {
     const labour = await actingLabourService.unassignLabour(req.params.id);
-    res.json(labour);
+    sendResponse(res, 200, labour);
   } catch (error) {
     console.error('Error in POST /acting-labours/:id/unassign:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -140,7 +148,7 @@ router.get('/assigned/:targetType/:targetId', async (req, res) => {
   try {
     const { targetType, targetId } = req.params;
     const labours = await actingLabourService.getAssignedLabours(targetId, targetType);
-    res.json(labours);
+    sendResponse(res, 200, labours);
   } catch (error) {
     console.error('Error in GET /acting-labours/assigned/:targetType/:targetId:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -153,7 +161,7 @@ router.get('/available/:type?', async (req, res) => {
   try {
     const type = req.params.type || undefined;
     const labours = await actingLabourService.getAvailableLabours(type);
-    res.json(labours);
+    sendResponse(res, 200, labours);
   } catch (error) {
     console.error('Error in GET /acting-labours/available:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

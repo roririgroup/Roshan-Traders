@@ -19,6 +19,8 @@ export default function Earnings() {
         amount: 8500,
         status: 'Settled'
       },
+      
+      
       {
         id: 2,
         date: '2024-09-28',

@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/agents/:id - Get agent by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -25,6 +26,7 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch agent' });
   }
 });
+
 
 // POST /api/agents - Create new agent
 router.post('/', async (req, res) => {

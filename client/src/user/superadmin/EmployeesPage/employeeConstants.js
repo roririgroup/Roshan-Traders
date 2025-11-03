@@ -14,6 +14,7 @@ export const EMPLOYEE_STATUS_CONFIG = {
   },
 };
 
+
 export const MOCK_EMPLOYEES = [
   {
     id: "emp_001",
@@ -23,6 +24,7 @@ export const MOCK_EMPLOYEES = [
     image:
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop",
   },
+  
   {
     id: "emp_002",
     name: "Karan Singh",

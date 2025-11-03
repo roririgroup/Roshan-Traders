@@ -10,6 +10,8 @@ export default function Reports() {
     weekly: [],
     monthly: []
   })
+  
+  
 
   // Mock data - replace with API calls
   useEffect(() => {

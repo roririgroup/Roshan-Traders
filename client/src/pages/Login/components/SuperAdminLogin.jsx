@@ -14,6 +14,8 @@ export default function SuperAdminLogin() {
   if (isAuthenticated()) {
     return <Navigate to="/" replace />
   }
+  
+  
 
   function handleSubmit(e) {
     e.preventDefault()

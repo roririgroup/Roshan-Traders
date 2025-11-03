@@ -27,6 +27,7 @@ function registerAdmin(payload) {
         return { message: "Registered Successfully", admin };
     });
 }
+
 function loginAdmin(payload) {
     return __awaiter(this, void 0, void 0, function* () {
         const admin = yield db_1.db.admin.findUnique({

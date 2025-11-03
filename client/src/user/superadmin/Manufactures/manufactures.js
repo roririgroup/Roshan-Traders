@@ -15,12 +15,14 @@ export const manufacturersData = [
       experience: '15 years',
       qualification: 'B.E. Ceramic Engineering'
     }, 
+    
     companyInfo: {
       employees: 150,
       annualTurnover: '₹50 Crores',
       exportCountries: 15,
       certifications: ['ISO 9001:2015', 'CE Marking', 'GREENGUARD']
     },
+    
     contact: {
       phone: '+91 98765 43210',
       email: 'info@rntiles.com',

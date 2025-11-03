@@ -24,6 +24,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
               <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1 shadow-sm">
                 <Star className="w-3 h-3 text-yellow-500 fill-current" />
                 <span className="text-sm font-semibold text-gray-800">{manufacturer.rating}</span>
+       
               </div>
 
               {/* Specialization Badge */}
@@ -178,6 +179,7 @@ const ManufacturerCard = ({ manufacturer, viewMode = 'grid', onEdit, onDelete })
               </div>
             )}
           </div>
+          
 
           {/* Stats Grid (removed Employees) */}
           <div className="grid grid-cols-2 gap-3 mb-6">

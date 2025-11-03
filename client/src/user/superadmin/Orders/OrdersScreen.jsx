@@ -10,6 +10,7 @@ import Modal from '../../../components/ui/Modal.jsx'
 
 const API_BASE_URL = 'http://localhost:7700/api'
 
+
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -48,7 +49,9 @@ export default function Orders() {
               price: item.unitPrice
             })) || [],
             manufacturerName: order.manufacturer ? order.manufacturer.companyName : null,
-            orderDate: order.orderDate
+            orderDate: order.orderDate,
+            deliveryDate: order.deliveryDate,
+            estimatedDeliveryDate: order.estimatedDeliveryDate
           }))
 
           setOrders(transformedOrders)
@@ -285,8 +288,8 @@ export default function Orders() {
     } else if (activeTab === 'outsource') {
       filtered = filtered
     } else if (activeTab === 'confirm') {
-      filtered = filtered.filter(order => 
-        order.manufacturerName && order.status === 'in_progress'
+      filtered = filtered.filter(order =>
+        order.status === 'rejected'
       )
     }
 
@@ -297,14 +300,14 @@ export default function Orders() {
 
   // Calculate order counts for tabs
   const user = getCurrentUser()
-  const yourOrdersCount = orders.filter(order => 
-    isSuperAdmin() 
+  const yourOrdersCount = orders.filter(order =>
+    isSuperAdmin()
       ? !order.manufacturerName && order.status === 'pending'
       : true
   ).length
   const outsourceOrdersCount = orders.length
-  const confirmOrdersCount = orders.filter(order => 
-    order.manufacturerName && order.status === 'in_progress'
+  const confirmOrdersCount = orders.filter(order =>
+    order.status === 'rejected'
   ).length
 
   const renderManufacturerSelect = () => (
@@ -366,12 +369,12 @@ export default function Orders() {
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-              <th className="text-left py-4 px-6 font-medium text-slate-900">Order BY</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
+              <th className="text-left py-4 px-6 font-medium text-slate-900">Estimated Delivery Date</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Manufacturer</th>
               <th className="text-left py-4 px-6 font-medium text-slate-900">Actions</th>
             </tr>
@@ -385,9 +388,6 @@ export default function Orders() {
               >
                 <td className="py-4 px-6 font-medium text-slate-900 group-hover:text-[#F08344] transition-colors">
                   #{order.id}
-                </td>
-                <td className="py-4 px-6 text-slate-900 group-hover:text-[#F08344] transition-colors">
-                  {order.customerName || order.userInfo?.name || 'N/A'}
                 </td>
                 <td className="py-4 px-6">
                   <div className="space-y-1">
@@ -410,6 +410,9 @@ export default function Orders() {
                 </td>
                 <td className="py-4 px-6 text-slate-600 max-w-xs truncate group-hover:text-[#F08344] transition-colors">
                   {order.deliveryAddress || 'N/A'}
+                </td>
+                <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
+                  {order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate).toLocaleDateString() : 'N/A'}
                 </td>
                 <td className="py-4 px-6 text-slate-600 group-hover:text-[#F08344] transition-colors">
                   {order.manufacturerName || 'Not Assigned'}
@@ -458,6 +461,7 @@ export default function Orders() {
       </div>
     </div>
   )
+  
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
@@ -720,12 +724,12 @@ export default function Orders() {
       {activeTab === 'confirm' && (
         <>
           {filteredOrders.length > 0 ? (
-            renderOrderTable(filteredOrders, 'Orders to Confirm')
+            renderOrderTable(filteredOrders, 'Rejected Orders')
           ) : (
             <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
               <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No orders to confirm yet</h3>
-              <p className="text-slate-600">Assigned orders waiting for confirmation will appear here</p>
+              <h3 className="text-lg font-medium text-slate-900 mb-2">No rejected orders yet</h3>
+              <p className="text-slate-600">Rejected orders will appear here</p>
             </div>
           )}
         </>

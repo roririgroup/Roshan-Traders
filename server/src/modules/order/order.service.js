@@ -1,5 +1,6 @@
 const prisma = require('../../shared/lib/db.js');
 
+
 /**
  * @param {Object} payload
  * @param {string} payload.customerName
@@ -28,6 +29,7 @@ const createOrder = async (payload) => {
     throw new Error('Product not found');
   }
 
+  
   // Handle priceRange - extract first price from range or use default
   let unitPrice = 0;
   if (product.priceRange) {
@@ -67,7 +69,7 @@ const createOrder = async (payload) => {
 };
 
 const getAllOrders = async () => {
-  return await prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     include: {
       items: {
         include: {
@@ -78,13 +80,25 @@ const getAllOrders = async () => {
     },
     orderBy: { orderDate: 'desc' },
   });
+
+  // Transform the data to match frontend expectations
+  return orders.map(order => ({
+    ...order,
+    items: order.items.map(item => ({
+      id: item.id,
+      name: item.product.name,
+      price: item.unitPrice,
+      quantity: item.quantity,
+      totalPrice: item.totalPrice,
+    })),
+  }));
 };
 
 /**
  * @param {string} id
  */
 const getOrderById = async (id) => {
-  return await prisma.order.findUnique({
+  const order = await prisma.order.findUnique({
     where: { id },
     include: {
       items: {
@@ -95,6 +109,21 @@ const getOrderById = async (id) => {
       manufacturer: true,
     },
   });
+
+  if (order) {
+    return {
+      ...order,
+      items: order.items.map(item => ({
+        id: item.id,
+        name: item.product.name,
+        price: item.unitPrice,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice,
+      })),
+    };
+  }
+
+  return order;
 };
 
 /**

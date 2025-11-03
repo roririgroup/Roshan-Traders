@@ -12,7 +12,9 @@ const AgentCard = ({ agent, onEdit, onRemove, onViewDetails }) => {
   const handleImageError = (e) => {
     e.currentTarget.src =
       "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop";
-  };  
+  }; 
+   
+  
   return (
     <Card className="p-4 border-gray-200 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">

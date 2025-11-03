@@ -15,6 +15,7 @@ const ConfirmRemoveModal = ({ onClose, onConfirm }) => (
             stroke="currentColor"
             strokeWidth="2"
           >
+            
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -26,6 +27,7 @@ const ConfirmRemoveModal = ({ onClose, onConfirm }) => (
           Confirm Removal
         </h3>
       </div>
+      
 
       {/* Body */}
       <p className="text-gray-600 mb-6 leading-relaxed">

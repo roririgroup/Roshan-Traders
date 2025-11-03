@@ -9,11 +9,13 @@ export function getCurrentUserRole() {
   // For backward compatibility, check if user has single role
   if (user.role) {
     const normalized = String(user.role).toLowerCase()
-    // normalize legacy 'superAdmin' etc.
+    // normalize legacy roles
     if (normalized === 'superadmin' || normalized === 'super-admin') return 'superadmin'
     if (normalized === 'manufacturer' || normalized === 'manufactures') return 'manufacturer'
+    if (normalized === 'truck owner' || normalized === 'truckowner') return 'truck_owner'
     return normalized
   }
+  
 
   // For multi-role users, return active role
   return getCurrentUserActiveRole()
@@ -66,11 +68,13 @@ export function setCurrentUserActiveRole(role) {
   return false
 }
 
+
 export function hasRole(expectedRoles) {
   const role = getCurrentUserActiveRole()
   if (!role) return false
   if (Array.isArray(expectedRoles)) return expectedRoles.map(r => String(r).toLowerCase()).includes(role)
   return role === String(expectedRoles).toLowerCase()
 }
+
 
 

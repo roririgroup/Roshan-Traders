@@ -16,6 +16,7 @@ const active = ({ isActive }) =>
   isActive
     ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25`
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`;
+    
 
 const MENU_CONFIG = {
   superadmin: [
@@ -34,10 +35,11 @@ const MENU_CONFIG = {
     // { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
       { to : '/dashboard/project-requirement', label: 'PRD', icon: File },
   ],
+  
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
     { to: '/dashboard/agent-products', label: 'Products', icon: Package },
-    { to: '/dashboard/agent-orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/dashboard/agent-orders', label: 'My Orders', icon: ShoppingCart },
     { to: '/dashboard/agent-payment-report', label: 'Payment Report', icon: DollarSign },
     { to: '/dashboard/agent-profile', label: 'Profile', icon: User },
     { to: '/dashboard/agent-reports', label: 'Reports', icon: BarChart3 },

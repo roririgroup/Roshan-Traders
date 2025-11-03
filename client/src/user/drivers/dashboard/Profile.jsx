@@ -21,6 +21,8 @@ export default function Profile() {
     aadhaar: 'Uploaded',
     photo: 'Pending'
   })
+  
+  
 
   const handleSave = () => {
     setIsEditing(false)

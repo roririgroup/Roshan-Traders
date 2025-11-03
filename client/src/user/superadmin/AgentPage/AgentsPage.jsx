@@ -20,6 +20,8 @@ export default function AgentsPage() {
   useEffect(() => {
     fetchAgents();
   }, []);
+  
+  
 
   const fetchAgents = async () => {
     try {

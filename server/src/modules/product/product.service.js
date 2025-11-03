@@ -1,5 +1,6 @@
 const prisma = require('../../shared/lib/db.js');
 
+
 /**
  * @param {any} payload
  */
@@ -40,6 +41,7 @@ const createProduct = async (payload) => {
     },
   });
 
+  
   // Transform the response to match frontend expectations
   let parsedPaymentOptions = [];
   try {

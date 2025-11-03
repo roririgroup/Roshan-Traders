@@ -35,6 +35,7 @@ function createPurchase(_a) {
                 quantity: item.quantity,
                 totalAmount: itemTotal,
             });
+            
         }
         if (user.balance < totalAmount) {
             throw new Error("Insufficient balance");

@@ -3,6 +3,7 @@ import Modal from '../../../../components/ui/Modal';
 import Button from '../../../../components/ui/Button';
 
 
+
 const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     companyName: '',
@@ -17,6 +18,7 @@ const AddManufacturerModal = ({ isOpen, onClose, onSubmit }) => {
       website: '',
       address: '',
     },
+    
     companyInfo: {
       employees: '',
       annualTurnover: '',

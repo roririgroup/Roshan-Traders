@@ -14,6 +14,8 @@ const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ${className}`}>
     {children}
   </div>
+  
+  
 );
 
 const CardHeader = ({ children, className = "" }) => (
@@ -69,7 +71,7 @@ export default function SuperAdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:7700/api/admin-auth/stats');
+        const response = await fetch('http://localhost:7700/api/admins/stats');
         if (response.ok) {
           const data = await response.json();
           setStats(data);

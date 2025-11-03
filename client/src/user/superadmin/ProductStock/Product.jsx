@@ -8,6 +8,7 @@ const ProductAvailability = () => {
     const productName = e.target.alt.replace(" ", "+");
     e.target.src = `https://via.placeholder.com/300x200/dc2626/ffffff?text=${productName}`;
   };
+  
 
   // Product data
   const [products, setProducts] = useState([
@@ -30,6 +31,7 @@ const ProductAvailability = () => {
     
     },
   ]);
+  
 
   // Stock status function
   const getStockStatus = (stock) => {

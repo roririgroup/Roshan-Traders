@@ -3,6 +3,7 @@ const { createProduct, getProducts, getProductById, updateProduct, deleteProduct
 
 const router = Router();
 
+
 // GET /api/products - Get all products
 router.get('/', async (req, res) => {
   try {
@@ -25,6 +26,7 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch product' });
   }
 });
+
 
 // POST /api/products - Create new product
 router.post('/', async (req, res) => {

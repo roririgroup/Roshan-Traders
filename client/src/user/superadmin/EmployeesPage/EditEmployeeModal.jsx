@@ -28,6 +28,7 @@ const EditEmployeeModal = ({ onClose, onEdit, employee }) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -136,6 +137,7 @@ const EditEmployeeModal = ({ onClose, onEdit, employee }) => {
               <option>Unavailable</option>
             </select>
           </div>
+
 
 
 

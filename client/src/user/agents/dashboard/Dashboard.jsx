@@ -20,6 +20,8 @@ export default function Dashboard() {
       monthlyRevenue: 45000
     })
   }, [])
+  
+  
 
   const statCards = [
     {

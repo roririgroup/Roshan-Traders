@@ -18,6 +18,7 @@ const Signup = () => {
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, selectedOptions } = e.target;
@@ -30,7 +31,7 @@ const Signup = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -38,34 +39,52 @@ const Signup = () => {
       return;
     }
 
-    setError("");
+    if (formData.role.length === 0) {
+      setError("Please select at least one role!");
+      return;
+    }
 
-    // Create user object with additional fields
+    setError("");
+    setIsLoading(true);
+
+    // Create user object for API
     const userData = {
-      id: Date.now().toString(), // Simple ID generation
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
-      phone: formData.contact, // Changed from 'contact' to 'phone' to match approval page
+      phone: formData.contact,
       address: formData.address,
       role: formData.role,
-      password: formData.password, // Note: In real app, hash this!
-      status: "pending",
-      createdAt: new Date().toISOString(),
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
     };
 
-    console.log("Form submitted:", userData);
+    try {
+      const response = await fetch('/api/users/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
 
-    // Store in localStorage for approval
-    const existingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-    const updatedUsers = [...existingUsers, userData];
-    localStorage.setItem('pendingUsers', JSON.stringify(updatedUsers));
+      const data = await response.json();
 
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      navigate("/user/login");
-    }, 2000);
+      if (response.ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          navigate("/user/login");
+        }, 2000);
+      } else {
+        setError(data.message || 'Failed to register user');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -263,12 +282,13 @@ const Signup = () => {
             )}
 
             {/* Submit Button */}
-            
+
             <button
               type="submit"
-              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2"
+              disabled={isLoading}
+              className="w-full h-10 bg-gradient-to-br from-[#5B2BEB] via-[#6C36F4] to-[#8848FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit for Approval
+              {isLoading ? 'Submitting...' : 'Submit for Approval'}
             </button>
           </form>
 
@@ -287,5 +307,6 @@ const Signup = () => {
     </div>
   );
 };
+
 
 export default Signup;
