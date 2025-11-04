@@ -243,3 +243,4 @@ module.exports = {
   updateAgent,
   deleteAgent,
 };
+'module.exports = { createAgent, getAllAgents, getAgentById, updateAgent, deleteAgent, getDashboardStats, };' 

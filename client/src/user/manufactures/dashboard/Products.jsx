@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
-import { Trash2, Package } from 'lucide-react'
+import FilterBar from '../../../components/ui/FilterBar'
+import { Card } from '../../../components/ui/Card'
+import { Package, Plus, Trash2 } from 'lucide-react'
 import { useAuth } from '../../../Context/AuthContext'
 
 const API_BASE_URL = 'http://localhost:7700/api'
@@ -12,23 +14,20 @@ export default function ProductsPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [addForm, setAddForm] = useState({
     name: '',
-    qualityRating: 4.0,
     priceAmount: '',
-    offer: '',
-    buyersCount: 0,
-    returnExchange: false,
-    cashOnDelivery: false,
-    paymentOptions: [],
     description: '',
     image: ''
   })
   const [addErrors, setAddErrors] = useState({})
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(false)
 
   // Fetch products on component mount
   useEffect(() => {
     const fetchProducts = async () => {
       if (!currentUser?.id) return
 
+      setLoading(true)
       try {
         const response = await fetch(`${API_BASE_URL}/manufacturer-products/user/${currentUser.id}`)
         if (response.ok) {
@@ -36,25 +35,18 @@ export default function ProductsPage() {
           setProducts(data)
         } else {
           console.error('Failed to fetch products')
+          setProducts([])
         }
       } catch (error) {
         console.error('Error fetching products:', error)
+        setProducts([])
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchProducts()
   }, [currentUser?.id])
-
-  const handleAddProduct = () => setShowAddModal(true)
-
-  const handlePaymentOptionChange = (option) => {
-    setAddForm((prev) => ({
-      ...prev,
-      paymentOptions: prev.paymentOptions.includes(option)
-        ? prev.paymentOptions.filter((opt) => opt !== option)
-        : [...prev.paymentOptions, option],
-    }))
-  }
 
   const handleAddSubmit = async (e) => {
     e.preventDefault()
@@ -78,16 +70,15 @@ export default function ProductsPage() {
         category: 'General',
         priceRange: addForm.priceAmount.toString(),
         imageUrl: addForm.image,
-        qualityRating: addForm.qualityRating,
-        offer: addForm.offer,
-        buyersCount: parseInt(addForm.buyersCount) || 0,
-        returnExchange: addForm.returnExchange,
-        cashOnDelivery: addForm.cashOnDelivery,
-        paymentOptions: addForm.paymentOptions,
+        qualityRating: 4.0,
+        offer: '',
+        buyersCount: 0,
+        returnExchange: false,
+        cashOnDelivery: false,
+        paymentOptions: [],
         description: addForm.description,
       }
 
-      // ✅ FIXED ENDPOINT HERE
       const response = await fetch(`${API_BASE_URL}/manufacturer-products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,13 +91,7 @@ export default function ProductsPage() {
         setShowAddModal(false)
         setAddForm({
           name: '',
-          qualityRating: 4.0,
           priceAmount: '',
-          offer: '',
-          buyersCount: 0,
-          returnExchange: false,
-          cashOnDelivery: false,
-          paymentOptions: [],
           description: '',
           image: '',
         })
@@ -132,52 +117,81 @@ export default function ProductsPage() {
         } else {
           alert('❌ Failed to delete product.')
         }
-      } catch {
+      } catch (error) {
         alert('❌ Error deleting product.')
       }
     }
   }
 
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">My Products</h1>
-        <Button
-          className="bg-[#F08344] hover:bg-[#e0733a] text-white px-6 py-2 rounded-lg font-medium"
-          onClick={handleAddProduct}
-        >
-          Add Product
-        </Button>
+    <div className="p-6 bg-slate-50 min-h-screen">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <Package className="size-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">My Products</h1>
+              <p className="text-slate-600">Manage your product inventory</p>
+            </div>
+          </div>
+          <Button
+            onClick={() => setShowAddModal(true)}
+            className="bg-[#F08344] hover:bg-[#e0733a] text-white"
+          >
+            <Plus className="size-4 mr-2" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
-      {products.length > 0 ? (
+      {/* Search */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search products..."
+      />
+
+      {/* Products Grid */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F08344] mx-auto"></div>
+          <p className="text-slate-600 mt-4">Loading products...</p>
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <div
-              key={product.id || product.name}
-              className="bg-white rounded-xl shadow-lg p-5 border border-gray-100"
-            >
-              <img
-                src={product.imageUrl || product.image}
-                alt={product.name}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-lg font-semibold">{product.name}</h3>
-              <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-              <p className="font-bold text-[#F08344] text-lg mb-2">
-                ₹{product.priceRange || product.priceAmount}
-              </p>
-              <p className="text-sm text-green-600 mb-2">{product.offer}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-red-600 border-red-600 hover:bg-red-50"
-                onClick={() => handleDelete(product.id)}
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
-              </Button>
-            </div>
+          {filteredProducts.map((product) => (
+            <Card key={product.id} className="p-6 border-gray-200 hover:shadow-lg transition-shadow duration-200">
+              <div className="flex flex-col h-full">
+                <img
+                  src={product.imageUrl || product.image}
+                  alt={product.name}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <h3 className="font-semibold text-slate-900 text-lg mb-2">{product.name}</h3>
+                <p className="text-slate-600 text-sm line-clamp-2 mb-2">{product.description}</p>
+                <p className="text-xl font-bold text-[#F08344] mb-4">
+                  ₹{product.priceRange || product.priceAmount}
+                </p>
+                <div className="mt-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-red-600 border-red-600 hover:bg-red-50"
+                    onClick={() => handleDelete(product.id)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
       ) : (
@@ -186,8 +200,8 @@ export default function ProductsPage() {
           <h3 className="text-lg font-medium text-slate-900 mb-2">No products yet</h3>
           <p className="text-slate-600 mb-4">Add your first product to get started</p>
           <Button
-            onClick={handleAddProduct}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => setShowAddModal(true)}
+            className="bg-[#F08344] hover:bg-[#e0733a] text-white"
           >
             Add Product
           </Button>
