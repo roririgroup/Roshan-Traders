@@ -42,6 +42,7 @@ export default function Products() {
     fetchProducts();
   }, [])
   
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target

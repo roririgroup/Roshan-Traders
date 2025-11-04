@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 // import Card from '../../../components/ui/Card' // Uncomment if Card is default export
 import { Package,User, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react'
+import { useAuth } from '../../../Context/AuthContext'
 
 export default function ManufacturerDashboard() {
+  const { currentUser } = useAuth()
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalEmployee: 0,
@@ -12,19 +14,34 @@ export default function ManufacturerDashboard() {
     todayRevenue: 0,
     monthlyRevenue: 0
   })
-  
-
-  // Mock data - replace with API calls
   useEffect(() => {
-    // Fetch stats from API
-    setStats({
-      totalProducts: 25,
-      totalEmployee: 50,
-      totalOrders: 12,
-      todayRevenue: 2500,
-      monthlyRevenue: 45000
-    })
-  }, [])
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token') || 'dummy-token'
+        const response = await fetch('/api/manufacturers/stats', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setStats({
+            totalProducts: data.totalProducts || 0,
+            totalEmployee: data.totalEmployees || 0,
+            totalOrders: data.totalOrders || 0,
+            todayRevenue: data.todayRevenue || 0,
+            monthlyRevenue: data.monthlyRevenue || 0
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      }
+    }
+    if (currentUser) {
+      fetchStats()
+    }
+  }, [currentUser])
 
   const statCards = [
     {
@@ -77,8 +94,8 @@ export default function ManufacturerDashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 ">
         {statCards.map((card, index) => (
-          <Card 
-            key={index} 
+          <Card
+            key={index}
             className=" border-gray-200 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group relative overflow-hidden"
             style={{ animationDelay: `${index * 150}ms` }}
           >

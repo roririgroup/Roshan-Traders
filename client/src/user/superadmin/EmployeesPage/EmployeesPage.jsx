@@ -31,8 +31,123 @@ const EmployeesPage = () => {
     }
   };
 
+<<<<<<< HEAD
   const handleRemoveEmployee = (employeeId) => {
     setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
+=======
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const handleAddEmployee = async (employeeData) => {
+    try {
+      // Validate email if provided
+      if (employeeData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeData.email)) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      const response = await fetch('http://localhost:7700/api/employees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...employeeData,
+          status: 'Available',
+          // Use default profile image that's guaranteed to work
+          image: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(employeeData.name)
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle specific validation errors more user-friendly
+        const errorMessage = data.error || data.message || data;
+        if (errorMessage === 'Email already exists') {
+          throw new Error('This email address is already in use. Please use a different email.');
+        }
+        if (errorMessage === 'Phone number already exists') {
+          throw new Error('This phone number is already in use. Please use a different phone number.');
+        }
+        throw new Error(errorMessage || 'Failed to add employee');
+      }
+
+      await fetchEmployees(); // Refresh the list
+      alert('Employee added successfully!');
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error('Error adding employee:', error);
+      throw error; // Re-throw to let modal handle it
+    }
+  };
+
+  const handleAssignTask = async (employeeId, taskDetails) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'On Job',
+          currentOrder: taskDetails
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to assign task');
+      }
+
+      await fetchEmployees(); // Refresh the list
+    } catch (error) {
+      console.error('Error assigning task:', error);
+      alert(error.message);
+    }
+  };
+
+  const handleRemoveEmployee = async (employeeId) => {
+    if (!window.confirm('Are you sure you want to remove this employee?')) return;
+
+    try {
+      const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove employee');
+      }
+
+      await fetchEmployees(); // Refresh the list
+      alert('Employee removed successfully!');
+    } catch (error) {
+      console.error('Error removing employee:', error);
+      alert(error.message);
+    }
+  };
+
+  const handleEditEmployee = async (employeeId, updatedEmployee) => {
+    try {
+      const response = await fetch(`http://localhost:7700/api/employees/${employeeId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedEmployee),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update employee');
+      }
+
+      await fetchEmployees(); // Refresh the list
+      alert('Employee updated successfully!');
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      alert(error.message);
+    }
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   };
 
   return (

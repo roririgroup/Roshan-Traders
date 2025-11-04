@@ -19,6 +19,7 @@ export default function Reports() {
         { date: today, orders: 5, revenue: 15000 }
       ],
       
+      
       weekly: [
         { week: 'Week 1', orders: 25, revenue: 75000 },
         { week: 'Week 2', orders: 32, revenue: 95000 },

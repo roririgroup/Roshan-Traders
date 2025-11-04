@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { UserCheck, X, Check, Clock, User, Factory, Truck, Wrench, Search, Filter, Mail, Phone, Calendar } from 'lucide-react';
 
 const SignUpApprovalPage = () => {
+<<<<<<< HEAD
+=======
+  const { currentUser } = useAuth();
+  const user = JSON.parse(localStorage.getItem('rt_user'));
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   const [pendingUsers, setPendingUsers] = useState([]);
   const [approvedUsers, setApprovedUsers] = useState([]);
   const [rejectedUsers, setRejectedUsers] = useState([]);
@@ -13,6 +18,7 @@ const SignUpApprovalPage = () => {
     loadUsers();
   }, []);
 
+<<<<<<< HEAD
   const loadUsers = () => {
     const pending = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
     const approved = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
@@ -21,6 +27,67 @@ const SignUpApprovalPage = () => {
     setPendingUsers(pending);
     setApprovedUsers(approved);
     setRejectedUsers(rejected);
+=======
+  const loadUsers = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const [pendingRes, approvedRes, rejectedRes] = await Promise.all([
+        fetch('/api/admins/pending-users'),
+        fetch('/api/admins/approved-users'),
+        fetch('/api/admins/rejected-users')
+      ]);
+
+      if (!pendingRes.ok || !approvedRes.ok || !rejectedRes.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      
+      const pending = await pendingRes.json();
+      const approved = await approvedRes.json();
+      const rejected = await rejectedRes.json();
+
+      // Transform data to match frontend expectations
+      const transformUser = (user) => {
+        const fullName = user.fullName;
+        let displayName = fullName;
+
+        // For manufacturers, always show the name as is (company name)
+        if (user.roles?.includes('manufacturer')) {
+          displayName = fullName || 'Unknown Manufacturer';
+        } else if (!fullName || fullName === 'Unknown') {
+          displayName = user.phoneNumber ? `Phone: ${user.phoneNumber}` : 'Unknown User';
+        }
+
+        const nameParts = displayName.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        return {
+          id: user.id,
+          firstName,
+          lastName,
+          email: user.email,
+          phone: user.phoneNumber,
+          role: user.roles,
+          status: user.status?.toLowerCase(),
+          createdAt: user.createdAt,
+          approvedAt: user.approvedAt,
+          rejectedAt: user.rejectedAt
+        };
+      };
+
+      setPendingUsers(pending.map(transformUser));
+      setApprovedUsers(approved.map(transformUser));
+      setRejectedUsers(rejected.map(transformUser));
+    } catch (error) {
+      console.error('Error loading users:', error);
+      setError('Failed to load users. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   };
 
   const approveUser = (user) => {

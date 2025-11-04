@@ -22,6 +22,7 @@ const AgentDetailsPage = () => {
       status: 'active'
     },
     
+    
     {
       id: 'a2',
       name: 'Kumar',

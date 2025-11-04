@@ -7,6 +7,8 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { truck3, white } from '../../../../public/lottie/lottie';
 import { User, Factory, Wrench, Phone, Key, Loader2, Truck } from 'lucide-react'
 
+const API_BASE_URL = 'http://localhost:7700/api';
+
 export default function UserLogin() {
   const navigate = useNavigate()
   const [phone, setPhone] = useState('9876543210') // Default phone number
@@ -30,8 +32,8 @@ export default function UserLogin() {
       }
 
       // Update user info with selected role
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      localStorage.setItem('currentUser', JSON.stringify({
+      const currentUser = JSON.parse(localStorage.getItem('rt_user') || '{}');
+      localStorage.setItem('rt_user', JSON.stringify({
         ...currentUser,
         selectedRole: selectedRole
       }));
@@ -65,6 +67,7 @@ export default function UserLogin() {
     setIsLoading(true)
     setError('')
 
+<<<<<<< HEAD
     // Direct login without any verification
     const res = loginUser({ phone, otp, selectedRoles })
     if (!res.success) {
@@ -85,6 +88,159 @@ export default function UserLogin() {
       navigate('/drivers/dashboard')
     } else {
       navigate('/')
+=======
+    try {
+      // Check user status and get employee details if needed
+      const statusResponse = await fetch(`${API_BASE_URL}/admins/check-user-status/${phone}`);
+      
+      if (!statusResponse.ok) {
+        throw new Error('Failed to check user status');
+      }
+      
+      const userStatus = await statusResponse.json();
+
+      if (!userStatus.exists) {
+        setError(userStatus.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (userStatus.status !== 'APPROVED') {
+        setError(userStatus.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // For truck owners, fetch employee ID - with improved error handling
+      let employeeId = null;
+      const approvedUser = userStatus.user;
+      const userRoles = Array.isArray(approvedUser.roles) ? approvedUser.roles : [approvedUser.roles];
+      const normalizedUserRoles = userRoles.map(role => role.toLowerCase().replace(' ', ''));
+
+      if (normalizedUserRoles.includes('truckowner')) {
+        try {
+          const empResponse = await fetch(`${API_BASE_URL}/employees/by-phone?phone=${encodeURIComponent(phone)}&role=Truck%20Owner`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (empResponse.ok) {
+            const empData = await empResponse.json();
+            employeeId = empData.id;
+          } else if (empResponse.status === 404) {
+            // Employee record not found - this might be expected for some truck owners
+            console.warn('Employee record not found for truck owner, continuing login...');
+            employeeId = null;
+          } else {
+            throw new Error(`HTTP error! status: ${empResponse.status}`);
+          }
+        } catch (error) {
+          console.error('Error fetching employee details:', error);
+          // Don't block login for truck owners if employee details fail
+          // Just log the error and continue with null employeeId
+          employeeId = null;
+        }
+      }
+
+      // User is approved, proceed with login
+
+      // Handle both single role (string) and multiple roles (array)
+      
+
+      // If user has multiple roles, authenticate first then show role selection
+      if (normalizedUserRoles.length > 1) {
+        // Authenticate the user
+        const res = loginUser({
+          phone,
+          otp,
+          selectedRoles: normalizedUserRoles,
+          userData: approvedUser
+        })
+
+        if (!res.success) {
+          setError(res.error || 'Login failed')
+          setIsLoading(false)
+          return
+        }
+
+        // Store user info with appropriate display name based on user type
+        let displayName = approvedUser.name || 'Unknown';
+        if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
+          displayName = approvedUser.companyName;
+        } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
+          displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
+        }
+
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: approvedUser.id,
+          firstName: displayName.split(' ')[0] || '',
+          lastName: displayName.split(' ').slice(1).join(' ') || '',
+          phone: approvedUser.phone,
+          role: approvedUser.roles,
+          email: approvedUser.email,
+          displayName: displayName
+        }));
+
+        // Show role selection after successful login
+        setUserData(approvedUser);
+        setAvailableRoles(normalizedUserRoles);
+        setShowRoleSelection(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Single role user - proceed with login
+      const res = loginUser({
+        phone,
+        otp,
+        selectedRoles: normalizedUserRoles,
+        userData: approvedUser
+      })
+
+      if (!res.success) {
+        setError(res.error || 'Login failed')
+        setIsLoading(false)
+        return
+      }
+
+      // Store user info with appropriate display name based on user type
+      let displayName = approvedUser.name || 'Unknown';
+      if (approvedUser.userType === 'Manufacturer' && approvedUser.companyName) {
+        displayName = approvedUser.companyName;
+      } else if (approvedUser.userType === 'Agent' && approvedUser.agentCode) {
+        displayName = `${approvedUser.name} (${approvedUser.agentCode})`;
+      }
+
+      // Store user data in rt_user key with employee ID if available
+      localStorage.setItem('rt_user', JSON.stringify({
+        id: approvedUser.id,
+        employeeId: employeeId || approvedUser.employeeId || null,
+        roles: normalizedUserRoles,
+        activeRole: normalizedUserRoles[0],
+        phone: approvedUser.phone,
+        email: approvedUser.email,
+        name: displayName,
+        userType: approvedUser.userType
+      }));
+
+      // Redirect based on role
+      const firstRole = normalizedUserRoles[0]
+      if (firstRole === 'agent') {
+        navigate('/agents/dashboard')
+      } else if (firstRole === 'manufacturer') {
+        navigate('/manufacturers/dashboard')
+      } else if (firstRole === 'truckowner') {
+        navigate('/truck-owners/dashboard')
+      } else if (firstRole === 'driver') {
+        navigate('/drivers/dashboard')
+      } else {
+        navigate('/')
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Network error. Please try again.');
+      setIsLoading(false);
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
     }
   }
 
@@ -242,6 +398,7 @@ export default function UserLogin() {
                 <strong>Demo Instructions:</strong> Just click "Login Instantly" with default values or enter any phone number and OTP
               </p>
             </div>
+            
 
             <p className="text-xs text-gray-500 text-center mt-4">
               By continuing you agree to our <span className="underline underline-offset-2">Terms</span> and <span className="underline underline-offset-2">Privacy Policy</span>.

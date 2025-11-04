@@ -32,6 +32,11 @@ const Signup = () => {
       return;
     }
 
+    if (formData.role.length === 0) {
+      setError("Please select at least one role!");
+      return;
+    }
+
     setError("");
 
     // Create user object with additional fields

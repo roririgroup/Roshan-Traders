@@ -1,8 +1,14 @@
 const { Router } = require('express');
+<<<<<<< HEAD
 const { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, deleteEmployee } = require('./employee.service.js');
+=======
+const { serializeBigInt } = require('../../shared/lib/json.js');
+const { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, deleteEmployee, getEmployeeByPhone, getEmployeeByPhoneWithoutRole } = require('./employee.service.js');
+const prisma = require('../../shared/lib/db.js');
+
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 
 const router = Router();
-
 
 // Helper to send serialized response
 const sendSerializedResponse = (res, data) => {
@@ -11,17 +17,66 @@ const sendSerializedResponse = (res, data) => {
 
 
 
-
 // GET /api/employees - Get all employees (with optional filters)
 router.get('/', async (req, res) => {
   try {
+<<<<<<< HEAD
     const employees = await getAllEmployees();
     res.json(employees);
+=======
+    const excludeLabours = req.query.excludeLabours === 'true';
+    const onlyLabours = req.query.onlyLabours === 'true';
+    
+    const employees = await getAllEmployees({ excludeLabours, onlyLabours });
+    sendSerializedResponse(res, employees);
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch employees' });
   }
 });
 
+<<<<<<< HEAD
+=======
+
+
+
+// GET /api/employees/by-phone - Get employee by phone number
+router.get('/by-phone', async (req, res) => {
+  try {
+    const { phone, role } = req.query;
+    if (!phone || !role) {
+      return res.status(400).json({ message: 'Phone and role are required' });
+    }
+    const employee = await getEmployeeByPhone(phone, role);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+    sendSerializedResponse(res, employee);
+  } catch (error) {
+    console.error('Error fetching employee by phone:', error.stack || error);
+    res.status(500).json({ message: 'Failed to fetch employee', error: error.message });
+  }
+});
+
+// POST /api/employees/by-phone - Get employee by phone number (POST method for compatibility)
+router.post('/by-phone', async (req, res) => {
+  try {
+    const { phone, role } = req.body;
+    if (!phone || !role) {
+      return res.status(400).json({ message: 'Phone and role are required' });
+    }
+    const employee = await getEmployeeByPhone(phone, role);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+    sendSerializedResponse(res, employee);
+  } catch (error) {
+    console.error('Error fetching employee by phone:', error.stack || error);
+    res.status(500).json({ message: 'Failed to fetch employee', error: error.message });
+  }
+});
+
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 // GET /api/employees/:id - Get employee by ID
 router.get('/:id', async (req, res) => {
   try {

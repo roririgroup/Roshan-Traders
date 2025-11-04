@@ -10,6 +10,7 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
   });
 
   const [preview, setPreview] = useState(null); // Fixed: Added preview state variable
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -30,17 +31,48 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
     setPreview(file ? URL.createObjectURL(file) : null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
+
+    // Basic validation
+    if (!form.name.trim()) {
+      setError('Name is required');
+      return;
+    }
+    if (!form.phone.trim()) {
+      setError('Phone number is required');
+      return;
+    }
+    if (!form.role.trim()) {
+      setError('Role is required');
+      return;
+    }
+
     const newEmployee = {
+<<<<<<< HEAD
       id: `emp_${Date.now()}`,
       ...form,
+=======
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim() || undefined,
+      role: form.role.trim(),
+      status: form.status,
+      salary: parseFloat(form.salary) || 0,
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
       image: form.image
         ? URL.createObjectURL(form.image)
         : "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop", // default avatar
     };
-    onAdd(newEmployee);
-    onClose();
+
+    try {
+      await onAdd(newEmployee);
+      onClose();
+    } catch (error) {
+      setError(error.message || 'Failed to add employee');
+      // Modal stays open so user can fix the error
+    }
   };
 
   return (
@@ -51,6 +83,13 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
           <h3 className="text-xl font-semibold text-white">Add New Employee</h3>
           <p className="text-white/90 text-sm mt-1">Fill in the details below to add a new employee</p>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="px-6 py-3 bg-red-50 border-l-4 border-red-400">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">

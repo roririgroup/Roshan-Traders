@@ -27,6 +27,7 @@ const createAgent = async (payload) => {
     }
   }
 
+  
   // Create user first
   const user = await prisma.user.create({
     data: {
@@ -240,3 +241,4 @@ module.exports = {
   updateAgent,
   deleteAgent,
 };
+'module.exports = { createAgent, getAllAgents, getAgentById, updateAgent, deleteAgent, getDashboardStats, };' 

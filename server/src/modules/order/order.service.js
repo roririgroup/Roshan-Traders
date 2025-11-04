@@ -29,7 +29,18 @@ const createOrder = async (payload) => {
     throw new Error('Product not found');
   }
 
+<<<<<<< HEAD
   const unitPrice = parseFloat(product.priceRange.split('-')[0]) || 0; // Assume priceRange is "min-max"
+=======
+  
+  // Handle priceRange - extract first price from range or use default
+  let unitPrice = 0;
+  if (product.priceRange) {
+    const priceParts = product.priceRange.split('-');
+    unitPrice = parseFloat(priceParts[0].trim()) || 0;
+  }
+
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   const totalAmount = quantity * unitPrice;
 
   // Create order

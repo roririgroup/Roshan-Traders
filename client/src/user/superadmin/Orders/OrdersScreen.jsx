@@ -9,6 +9,12 @@ import FilterBar from '../../../components/ui/FilterBar.jsx'
 import { getCurrentUser, isSuperAdmin } from '../../../lib/auth.js'
 import Modal from '../../../components/ui/Modal.jsx'
 
+<<<<<<< HEAD
+=======
+const API_BASE_URL = 'http://localhost:7700/api'
+
+
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)

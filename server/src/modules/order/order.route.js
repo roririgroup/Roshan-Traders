@@ -25,6 +25,7 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch order' });
   }
+  
 });
 
 // POST /api/orders - Create new order

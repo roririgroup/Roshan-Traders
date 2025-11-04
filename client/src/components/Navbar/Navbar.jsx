@@ -8,7 +8,7 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
   const activeRole = getCurrentUserActiveRole()
 
   // Get user data from localStorage for name display
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
+  const currentUser = JSON.parse(localStorage.getItem('rt_user') || '{}')
   
   
   const getRoleDisplayName = (role) => {
@@ -21,6 +21,53 @@ export default function Navbar({ onToggleSidebar, onToggleDesktopSidebar, isDesk
     }
     return roleNames[role] || role
   }
+<<<<<<< HEAD
+=======
+  
+
+  const getUserInitials = () => {
+    // For Super Admin, always show "SA"
+    if (activeRole === 'superadmin') {
+      return 'SA'
+    }
+    
+    // For regular users, show their name initials
+    if (currentUser.firstName && currentUser.lastName) {
+      return `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
+    }
+    if (currentUser.firstName) {
+      return currentUser.firstName.charAt(0).toUpperCase()
+    }
+    return getRoleDisplayName(activeRole).charAt(0).toUpperCase()
+  }
+
+  const getUserDisplayName = () => {
+    // For Super Admin, always show "Super Admin"
+    if (activeRole === 'superadmin') {
+      return 'Super Admin'
+    }
+
+    // For regular users, show their display name if available, otherwise fallback to firstName + lastName
+    if (currentUser.displayName) {
+      return currentUser.displayName
+    }
+    if (currentUser.firstName && currentUser.lastName) {
+      return `${currentUser.firstName} ${currentUser.lastName}`
+    }
+    if (currentUser.firstName) {
+      return currentUser.firstName
+    }
+    return getRoleDisplayName(activeRole)
+  }
+
+  const getDisplayRole = () => {
+    // For Super Admin, you can show empty or specific text
+    if (activeRole === 'superadmin') {
+      return 'Administrator' // or leave empty if you prefer
+    }
+    return getRoleDisplayName(activeRole)
+  }
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   
   return (
     <header className="h-14 sm:h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20 shadow-sm">

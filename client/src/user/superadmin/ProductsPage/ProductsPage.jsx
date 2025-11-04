@@ -29,6 +29,7 @@ export default function ProductsPage() {
       setLoading(false)
     }
   }
+  
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showOrderModal, setShowOrderModal] = useState(false)

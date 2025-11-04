@@ -10,6 +10,7 @@ const CallToAction = () => {
   const handleContact = (method) => {
     console.log(`Contact via ${method}`)
   }
+  
 
   return (
     <div className="mt-20">

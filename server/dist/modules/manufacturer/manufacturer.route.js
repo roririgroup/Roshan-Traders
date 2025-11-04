@@ -26,6 +26,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ error: 'Internal server error' });
     }
 }));
+
 // Get manufacturer by ID
 router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

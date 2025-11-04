@@ -20,3 +20,8 @@ const StatCard = ({ icon, label, value, color, gradient }) => (
 )
 
 export default StatCard
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858

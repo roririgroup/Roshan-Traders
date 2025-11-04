@@ -17,6 +17,7 @@ import {
   Building,
 } from 'lucide-react';
 
+
 export default function ManufacturersPage() {
   const [manufacturers, setManufacturers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');

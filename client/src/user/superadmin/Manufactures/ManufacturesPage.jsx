@@ -16,6 +16,10 @@ import {
   Box,
   Building,
 } from 'lucide-react';
+<<<<<<< HEAD
+=======
+ 
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 
 export default function ManufacturersPage() {
   const [manufacturers, setManufacturers] = useState([]);

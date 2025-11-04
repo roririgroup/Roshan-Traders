@@ -19,6 +19,7 @@ export default function Load() {
       customerPhone: '+91 9876543210'
     },
     
+    
     {
       id: 'LOAD 002',
       pickup: 'Mumbai Port',

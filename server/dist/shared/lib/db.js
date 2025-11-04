@@ -13,3 +13,4 @@ else {
     prisma = global.cachedPrisma;
 }
 exports.db = prisma;
+

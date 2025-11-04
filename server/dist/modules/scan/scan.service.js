@@ -33,6 +33,7 @@ function scanQRCode(qrCode) {
                 },
             },
         });
+        
         if (!user)
             throw new Error('User not found');
         return {

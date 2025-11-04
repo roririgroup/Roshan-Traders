@@ -11,6 +11,7 @@ export default function Reports() {
     monthly: []
   })
   
+  
 
   // Mock data - replace with API calls
   useEffect(() => {

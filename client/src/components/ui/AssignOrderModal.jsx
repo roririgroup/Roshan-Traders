@@ -26,7 +26,7 @@ export default function AssignOrderModal({ isOpen, onClose, order, onAssign }) {
       console.log('Order object:', order) // Debug log
       console.log('Manufacturer ID:', manufacturerId) // Debug log
 
-      const response = await fetch(`http://localhost:7700/api/manufacturer/${manufacturerId}/employees?role=truck-owner`)
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees?role=truck-owner`)
       const result = await response.json()
 
       console.log('API Response:', result) // Debug log

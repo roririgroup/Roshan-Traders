@@ -345,10 +345,280 @@ const deleteManufacturer = async (id) => {
   });
 };
 
+/**
+ * @param {string|number} manufacturerId
+ * @param {string} role
+ */
+const getManufacturerEmployees = async (manufacturerId, role) => {
+  const manufacturer = await prisma.manufacturer.findUnique({
+    where: { id: parseInt(manufacturerId) },
+    include: {
+      employees: true,
+    },
+  });
+
+  if (!manufacturer) {
+    throw new Error('Manufacturer not found');
+  }
+
+  let employees = manufacturer.employees;
+
+  // Filter by role if specified
+  if (role) {
+    if (role === 'truck-owner') {
+      // For truck owners, we need to get from acting_labour table
+      const truckOwners = await prisma.actingLabour.findMany({
+        where: {
+          type: 'TRUCK_OWNER',
+          assignedToId: parseInt(manufacturerId),
+          assignedToType: 'manufacturer',
+        },
+      });
+
+      // Transform to match expected format
+      employees = truckOwners.map(to => ({
+        id: to.id,
+        name: to.name,
+        phone: to.phone,
+        address: to.location,
+        role: 'truck-owner',
+        status: to.status === 'AVAILABLE' ? 'active' : 'inactive',
+      }));
+    } else if (role === 'driver') {
+      // For drivers, get from acting_labour table
+      const drivers = await prisma.actingLabour.findMany({
+        where: {
+          type: 'DRIVER',
+          assignedToId: parseInt(manufacturerId),
+          assignedToType: 'manufacturer',
+        },
+      });
+
+      // Transform to match expected format
+      employees = drivers.map(d => ({
+        id: d.id,
+        name: d.name,
+        phone: d.phone,
+        address: d.location,
+        role: 'driver',
+        status: d.status === 'AVAILABLE' ? 'active' : 'inactive',
+      }));
+    } else if (role === 'loadman') {
+      // For loadmen, get from acting_labour table
+      const loadmen = await prisma.actingLabour.findMany({
+        where: {
+          type: 'LOADMAN',
+          assignedToId: parseInt(manufacturerId),
+          assignedToType: 'manufacturer',
+        },
+      });
+
+      // Transform to match expected format
+      employees = loadmen.map(l => ({
+        id: l.id,
+        name: l.name,
+        phone: l.phone,
+        address: l.location,
+        role: 'loadman',
+        status: l.status === 'AVAILABLE' ? 'active' : 'inactive',
+      }));
+    } else {
+      // For other roles, filter from manufacturer employees
+      employees = employees.filter(emp => emp.role.toLowerCase() === role.toLowerCase());
+    }
+  } else {
+    // If no role specified, get all employees from both tables
+    const labourEmployees = await prisma.actingLabour.findMany({
+      where: {
+        assignedToId: parseInt(manufacturerId),
+        assignedToType: 'manufacturer',
+      },
+    });
+
+    // Transform labour employees to match format
+    const transformedLabourEmployees = labourEmployees.map(l => ({
+      id: l.id,
+      name: l.name,
+      phone: l.phone,
+      address: l.location,
+      role: l.type === 'TRUCK_OWNER' ? 'truck-owner' : l.type === 'DRIVER' ? 'driver' : 'loadman',
+      status: l.status === 'AVAILABLE' ? 'active' : 'inactive',
+    }));
+
+    // Combine both
+    employees = [...employees, ...transformedLabourEmployees];
+  }
+
+  return employees;
+};
+
+/**
+ * @param {string|number} manufacturerId
+ * @param {any} employeeData
+ */
+const createManufacturerEmployee = async (manufacturerId, employeeData) => {
+  const { name, address, phone, role, status } = employeeData;
+
+  // Check if manufacturer exists
+  const manufacturer = await prisma.manufacturer.findUnique({
+    where: { id: parseInt(manufacturerId) },
+  });
+
+  if (!manufacturer) {
+    throw new Error('Manufacturer not found');
+  }
+
+  // Map status to LabourStatus for ActingLabour
+  const labourStatus = status === 'active' ? 'AVAILABLE' : 'UNAVAILABLE';
+
+  // Check if role is a labour role (truck-owner, driver, loadman)
+  if (['truck-owner', 'driver', 'loadman'].includes(role)) {
+    const labourType = role === 'truck-owner' ? 'TRUCK_OWNER' : role === 'driver' ? 'DRIVER' : 'LOADMAN';
+
+    // Create in ActingLabour table
+    const labour = await prisma.actingLabour.create({
+      data: {
+        name,
+        type: labourType,
+        phone,
+        location: address,
+        status: labourStatus,
+        assignedToId: parseInt(manufacturerId),
+        assignedToType: 'manufacturer',
+      },
+    });
+
+    return labour;
+  } else {
+    // Create in ManufacturerEmployee table for other roles
+    const employee = await prisma.manufacturerEmployee.create({
+      data: {
+        name,
+        address,
+        phone,
+        role,
+        status: status || 'active',
+        manufacturerId: parseInt(manufacturerId),
+      },
+    });
+
+    return employee;
+  }
+};
+
+/**
+ * @param {string|number} manufacturerId
+ * @param {string|number} employeeId
+ * @param {any} employeeData
+ */
+const updateManufacturerEmployee = async (manufacturerId, employeeId, employeeData) => {
+  const { name, address, phone, role, status } = employeeData;
+
+  // Check if manufacturer exists
+  const manufacturer = await prisma.manufacturer.findUnique({
+    where: { id: parseInt(manufacturerId) },
+  });
+
+  if (!manufacturer) {
+    throw new Error('Manufacturer not found');
+  }
+
+  // Map status to LabourStatus for ActingLabour
+  const labourStatus = status === 'active' ? 'AVAILABLE' : 'UNAVAILABLE';
+
+  // Check if role is a labour role (truck-owner, driver, loadman)
+  if (['truck-owner', 'driver', 'loadman'].includes(role)) {
+    const labourType = role === 'truck-owner' ? 'TRUCK_OWNER' : role === 'driver' ? 'DRIVER' : 'LOADMAN';
+
+    // Update in ActingLabour table
+    const labour = await prisma.actingLabour.update({
+      where: {
+        id: parseInt(employeeId),
+      },
+      data: {
+        name,
+        type: labourType,
+        phone,
+        location: address,
+        status: labourStatus,
+        assignedToId: parseInt(manufacturerId),
+        assignedToType: 'manufacturer',
+      },
+    });
+
+    return labour;
+  } else {
+    // Update in ManufacturerEmployee table for other roles
+    const employee = await prisma.manufacturerEmployee.update({
+      where: {
+        id: parseInt(employeeId),
+        manufacturerId: parseInt(manufacturerId),
+      },
+      data: {
+        name,
+        address,
+        phone,
+        role,
+        status,
+      },
+    });
+
+    return employee;
+  }
+};
+
+/**
+ * @param {string|number} manufacturerId
+ * @param {string|number} employeeId
+ */
+const deleteManufacturerEmployee = async (manufacturerId, employeeId) => {
+  // Check if manufacturer exists
+  const manufacturer = await prisma.manufacturer.findUnique({
+    where: { id: parseInt(manufacturerId) },
+  });
+
+  if (!manufacturer) {
+    throw new Error('Manufacturer not found');
+  }
+
+  // First, try to find the employee in ActingLabour table (for labour roles)
+  const labourEmployee = await prisma.actingLabour.findUnique({
+    where: {
+      id: parseInt(employeeId),
+    },
+  });
+
+  if (labourEmployee && labourEmployee.assignedToId === parseInt(manufacturerId) && labourEmployee.assignedToType === 'manufacturer') {
+    // Delete from ActingLabour table
+    await prisma.actingLabour.delete({
+      where: {
+        id: parseInt(employeeId),
+      },
+    });
+  } else {
+    // Delete from ManufacturerEmployee table for other roles
+    await prisma.manufacturerEmployee.delete({
+      where: {
+        id: parseInt(employeeId),
+        manufacturerId: parseInt(manufacturerId),
+      },
+    });
+  }
+
+  return true;
+};
+
 module.exports = {
   createManufacturer,
   getAllManufacturers,
   getManufacturerById,
   updateManufacturer,
   deleteManufacturer,
+<<<<<<< HEAD
+=======
+  getManufacturerEmployees,
+  createManufacturerEmployee,
+  updateManufacturerEmployee,
+  deleteManufacturerEmployee,
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 };

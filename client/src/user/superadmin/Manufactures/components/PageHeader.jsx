@@ -23,6 +23,7 @@ const PageHeader = () => {
             <div className="ml-2 w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-ping"></div>
           </div>
           
+          
           {/* Main Heading */}
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
             Discover Our{' '}

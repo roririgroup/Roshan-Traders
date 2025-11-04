@@ -26,6 +26,40 @@ export default function Employees() {
     status: 'active'
   })
 
+<<<<<<< HEAD
+=======
+  // Get manufacturer ID from localStorage or context (you'll need to implement this based on your auth system)
+  const manufacturerId = 1 // Replace with actual manufacturer ID from auth context
+
+  // Fetch employees from API
+  const fetchEmployees = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees?role=${activeTab}`)
+      const result = await response.json()
+      if (result.success) {
+        setAgents(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchEmployees()
+  }, [activeTab])
+
+  const tabs = [
+    { id: 'agent', label: 'Agents', icon: User },
+    { id: 'truck-owner', label: 'Truck Owners', icon: Truck },
+    { id: 'driver', label: 'Drivers', icon: User },
+    { id: 'loadman', label: 'Loadman', icon: Loader },
+    { id: 'supervisor', label: 'Supervisor', icon: Shield }
+  ]
+
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   // Agent/Employee management functions
   const handleAddAgent = () => {
     setEditingAgent(null)
@@ -53,6 +87,7 @@ export default function Employees() {
 
   const handleDeleteAgent = (agentId) => {
     if (window.confirm('Are you sure you want to delete this agent/employee?')) {
+<<<<<<< HEAD
       setAgents(agents.filter(agent => agent.id !== agentId))
     }
   }
@@ -71,6 +106,46 @@ export default function Employees() {
         id: Math.max(...agents.map(a => a.id)) + 1,
         ...formData,
         joinDate: new Date().toISOString().split('T')[0]
+=======
+      try {
+        const response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees/${agentId}`, {
+          method: 'DELETE'
+        })
+        const result = await response.json()
+        if (result.success) {
+          setAgents(agents.filter(agent => agent.id !== agentId))
+        } else {
+          alert('Failed to delete employee')
+        }
+      } catch (error) {
+        console.error('Error deleting employee:', error)
+        alert('Error deleting employee')
+      }
+    }
+  }
+
+  const handleSaveAgent = async () => {
+    try {
+      let response
+      if (editingAgent) {
+        // Update existing agent
+        response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees/${editingAgent.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+      } else {
+        // Add new agent
+        response = await fetch(`http://localhost:7700/api/manufacturers/${manufacturerId}/employees`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
       }
       setAgents([...agents, newAgent])
     }

@@ -22,6 +22,7 @@ app.use((req, res, next) => {
     res.append('Access-Control-Allow-Headers', '*');
     next();
 });
+
 app.get("/", (req, res) => {
     res.send("Express + TypeScript Server");
 });

@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { getManufacturerById } from '../manufactures';
 
+
 // StatCard Component
 function StatCard({ icon, label, value, color, gradient }) {
   return (

@@ -24,6 +24,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+
 // GET /api/users - Get all users
 router.get('/', async (req, res) => {
   try {
