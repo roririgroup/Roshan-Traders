@@ -1,59 +1,40 @@
-import React, { useState, useEffect } from 'react';
+// EmployeesPage.jsx or your main component
+import React, { useState } from 'react';
 import EmployeeCard from './EmployeeCard';
-import AddEmployeeModal from './AddEmployeeModal';
-import { Plus } from 'lucide-react';
-import Button from '../../../components/ui/Button';
-
-const initialEmployees = [
-  {
-    id: '1',
-    name: 'John Smith',
-    role: 'Manager',
-    status: 'Available',
-    phone: '+91 98765 43210',
-    email: 'john@example.com',
-    location: 'Ahmedabad'
-  },
-  {
-    id: '2',
-    name: 'Sarah Wilson',
-    role: 'HR',
-    status: 'Available',
-    phone: '+91 98765 43211',
-    email: 'sarah@example.com',
-    location: 'Mumbai'
-  }
-];
+import { MOCK_EMPLOYEES } from './employeeConstants';
 
 const EmployeesPage = () => {
-  const [employees, setEmployees] = useState(initialEmployees);
+  const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const [error, setError] = useState(null);
-
-  const fetchEmployees = async () => {
+  const handleAssignTask = async (employeeId, taskDetails) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      setError(null); // Clear any previous errors
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const response = await fetch('http://localhost:7700/api/employees?excludeLabours=true');
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || data.message || 'Failed to fetch employees');
-      }
-      
-      setEmployees(Array.isArray(data) ? data : []);
+      setEmployees(prevEmployees => 
+        prevEmployees.map(emp => 
+          emp.id === employeeId 
+            ? { 
+                ...emp, 
+                status: "On Job",
+                currentOrder: taskDetails
+              }
+            : emp
+        )
+      );
     } catch (error) {
-      console.error('Error fetching employees:', error);
-      setError(error.message);
-      setEmployees([]); // Reset employees on error
+      console.error('Error assigning task:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
+<<<<<<< HEAD
+  const handleRemoveEmployee = (employeeId) => {
+    setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
+=======
   useEffect(() => {
     fetchEmployees();
   }, []);
@@ -166,6 +147,7 @@ const EmployeesPage = () => {
       console.error('Error updating employee:', error);
       alert(error.message);
     }
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   };
 
   return (
@@ -204,40 +186,25 @@ const EmployeesPage = () => {
         Total employees: {employees.length}
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-pulse text-gray-600">Loading employees...</div>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {employees.length > 0 ? (
-            employees.map((employee) => (
-              <EmployeeCard
-                key={employee.id}
-                employee={employee}
-                onRemoveClick={handleRemoveEmployee}
-                onEdit={handleEditEmployee}
-                isLoading={isLoading}
-              />
-            ))
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              {error ? 'Failed to load employees' : 'No employees found'}
-            </div>
-          )}
-        </div>
-      )}
-
-      {isAddModalOpen && (
-        <AddEmployeeModal
-          onClose={() => setIsAddModalOpen(false)}
-          onAdd={handleAddEmployee}
-        />
-      )}
+      <div className="grid gap-4">
+        {employees.length > 0 ? (
+          employees.map(employee => (
+            <EmployeeCard
+              key={employee.id}
+              employee={employee}
+              onAssign={handleAssignTask}
+              onRemoveClick={handleRemoveEmployee}
+              isLoading={isLoading}
+            />
+          ))
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            No employees found
+          </div>
+        )}
+      </div>
     </div>
   );
 };
-
-
 
 export default EmployeesPage;

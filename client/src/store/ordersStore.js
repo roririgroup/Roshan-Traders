@@ -48,9 +48,52 @@ const loadOrders = () => {
       }
     }
 
-    // Fallback sample data - empty for outsource orders
-    orders = []
-    nextOrderId = 1
+    // Fallback sample data
+    orders = [
+      {
+        id: 1,
+        customerName: 'John Doe',
+        userInfo: { id: 'user-1', name: 'John Doe' },
+        items: [
+          { name: 'Red Bricks', quantity: 1000, price: 50 },
+          { name: 'Teak Wood Planks', quantity: 5, price: 1500 }
+        ],
+        totalAmount: 1000 * 50 + 5 * 1500, // 57500
+        status: 'pending',
+        orderDate: '2024-01-15T10:30:00Z',
+        deliveryAddress: '123 Main St, Mumbai, Maharashtra',
+        confirmedBy: null,
+        assignedBy: null
+      },
+      {
+        id: 2,
+        customerName: 'Jane Smith',
+        userInfo: { id: 'user-2', name: 'Jane Smith' },
+        items: [{ name: 'River Sand', quantity: 10, price: 800 }],
+        totalAmount: 10 * 800,
+        status: 'confirmed',
+        orderDate: '2024-01-14T14:20:00Z',
+        deliveryAddress: '456 Oak Ave, Delhi, NCR',
+        confirmedBy: { id: 'super-admin-1', role: 'superadmin' },
+        assignedBy: null
+      },
+      {
+        id: 3,
+        customerName: 'Bob Johnson',
+        userInfo: { id: 'user-3', name: 'Bob Johnson' },
+        items: [
+          { name: 'Red Bricks', quantity: 500, price: 50 },
+          { name: 'River Sand', quantity: 5, price: 800 }
+        ],
+        totalAmount: 500 * 50 + 5 * 800,
+        status: 'pending',
+        orderDate: '2024-01-13T09:15:00Z',
+        deliveryAddress: '789 Pine Rd, Bangalore, Karnataka',
+        confirmedBy: null,
+        assignedBy: { id: 'super-admin-1', role: 'superadmin' }
+      }
+    ]
+    nextOrderId = 4
     persist()
   } catch (error) {
     console.error('Error loading orders from localStorage:', error)
@@ -162,24 +205,6 @@ export const assignManufacturer = (orderId, manufacturer) => {
 
   orders[idx].assignedBy = { id: manufacturer.id, companyName: manufacturer.companyName }
   if (!orders[idx].status || orders[idx].status === 'pending') orders[idx].status = 'in_progress'
-  persist()
-  return true
-}
-
-/**
- * Assign truck owner to order
- */
-export const assignTruckOwner = (orderId, truckOwner) => {
-  const idx = orders.findIndex(o => Number(o.id) === Number(orderId))
-  if (idx === -1) return false
-
-  orders[idx].assignedTruckOwner = {
-    id: truckOwner.id,
-    name: truckOwner.name,
-    companyName: truckOwner.companyName,
-    phone: truckOwner.phone
-  }
-  if (orders[idx].status === 'confirmed') orders[idx].status = 'assigned'
   persist()
   return true
 }

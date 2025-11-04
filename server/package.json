@@ -6,12 +6,14 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
-    "dev": "nodemon src/app.js",
-    "seed": "node prisma/seed.js"
+    "dev": "nodemon src/app.js"
   },
+<<<<<<< HEAD
+=======
   "prisma": {
     "seed": "node prisma/seed.js"
   },
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   "author": "Rexcoders",
   "license": "ISC",
   "devDependencies": {

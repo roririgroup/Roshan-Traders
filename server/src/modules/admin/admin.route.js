@@ -1,19 +1,5 @@
 const { Router } = require('express');
-const { serializeBigInt } = require('../../shared/lib/json.js');
-const {
-  createAdmin,
-  getAllAdmins,
-  getAdminById,
-  updateAdmin,
-  deleteAdmin,
-  getDashboardStats,
-  getPendingUsers,
-  getApprovedUsers,
-  getRejectedUsers,
-  approveUser,
-  rejectUser,
-  checkUserStatus
-} = require('./admin.service.js');
+const { createAdmin, getAllAdmins, getAdminById, updateAdmin, deleteAdmin } = require('./admin.service.js');
 
 
 const router = Router();
@@ -29,6 +15,8 @@ router.get('/', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
+=======
 
 // GET /api/admins/stats - Get dashboard stats
 router.get('/stats', async (req, res) => {
@@ -103,6 +91,7 @@ router.post('/reject-user/:id', async (req, res) => {
   }
 });
 
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 // GET /api/admins/:id - Get admin by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -147,17 +136,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting admin:', error);
     res.status(500).json({ message: 'Failed to delete admin' });
-  }
-});
-
-// GET /api/admins/check-user-status/:phone - Check user status by phone number
-router.get('/check-user-status/:phone', async (req, res) => {
-  try {
-    const userStatus = await checkUserStatus(req.params.phone);
-    res.json(serializeBigInt(userStatus));
-  } catch (error) {
-    console.error('Error checking user status:', error);
-    res.status(500).json({ message: 'Failed to check user status' });
   }
 });
 

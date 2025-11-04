@@ -1,23 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, X, Check, Clock, User, Factory, Truck, Wrench, Search, Filter, Mail, Phone, Calendar } from 'lucide-react';
-import { useAuth } from '../../../Context/AuthContext';
 
 const SignUpApprovalPage = () => {
+<<<<<<< HEAD
+=======
   const { currentUser } = useAuth();
   const user = JSON.parse(localStorage.getItem('rt_user'));
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   const [pendingUsers, setPendingUsers] = useState([]);
   const [approvedUsers, setApprovedUsers] = useState([]);
   const [rejectedUsers, setRejectedUsers] = useState([]);
   const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     loadUsers();
   }, []);
 
+<<<<<<< HEAD
+  const loadUsers = () => {
+    const pending = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+    const approved = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+    const rejected = JSON.parse(localStorage.getItem('rejectedUsers') || '[]');
+    
+    setPendingUsers(pending);
+    setApprovedUsers(approved);
+    setRejectedUsers(rejected);
+=======
   const loadUsers = async () => {
     setIsLoading(true);
     setError('');
@@ -77,65 +87,45 @@ const SignUpApprovalPage = () => {
     } finally {
       setIsLoading(false);
     }
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   };
 
-  const approveUser = async (user) => {
-    try {
-      const response = await fetch(`/api/admins/approve-user/${user.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          adminId: currentUser?.id
-        }),
-      });
-
-      if (response.ok) {
-        // Remove from pending and add to approved
-        setPendingUsers(prev => prev.filter(u => u.id !== user.id));
-        setApprovedUsers(prev => [...prev, {
-          ...user,
-          status: 'approved',
-          approvedAt: new Date().toISOString()
-        }]);
-        alert(`User ${user.firstName} ${user.lastName} has been approved!`);
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to approve user: ${errorData.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error approving user:', error);
-      alert('Network error. Please try again.');
-    }
+  const approveUser = (user) => {
+    const updatedPending = pendingUsers.filter(u => u.id !== user.id);
+    const updatedApproved = [...approvedUsers, { 
+      ...user, 
+      status: 'approved', 
+      approvedAt: new Date().toISOString(),
+      approvedBy: 'Super Admin'
+    }];
+    
+    setPendingUsers(updatedPending);
+    setApprovedUsers(updatedApproved);
+    
+    localStorage.setItem('pendingUsers', JSON.stringify(updatedPending));
+    localStorage.setItem('approvedUsers', JSON.stringify(updatedApproved));
+    
+    // Show success message
+    alert(`User ${user.firstName} ${user.lastName} has been approved!`);
   };
 
-  const rejectUser = async (user) => {
-    try {
-      const response = await fetch(`/api/admins/reject-user/${user.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Remove from pending and add to rejected
-        setPendingUsers(prev => prev.filter(u => u.id !== user.id));
-        setRejectedUsers(prev => [...prev, {
-          ...user,
-          status: 'rejected',
-          rejectedAt: new Date().toISOString()
-        }]);
-        alert(`User ${user.firstName} ${user.lastName} has been rejected.`);
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to reject user: ${errorData.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error rejecting user:', error);
-      alert('Network error. Please try again.');
-    }
+  const rejectUser = (user) => {
+    const updatedPending = pendingUsers.filter(u => u.id !== user.id);
+    const updatedRejected = [...rejectedUsers, { 
+      ...user, 
+      status: 'rejected',
+      rejectedAt: new Date().toISOString(),
+      rejectedBy: 'Super Admin'
+    }];
+    
+    setPendingUsers(updatedPending);
+    setRejectedUsers(updatedRejected);
+    
+    localStorage.setItem('pendingUsers', JSON.stringify(updatedPending));
+    localStorage.setItem('rejectedUsers', JSON.stringify(updatedRejected));
+    
+    // Show rejection message
+    alert(`User ${user.firstName} ${user.lastName} has been rejected.`);
   };
 
   const getRoleIcon = (role) => {
@@ -169,7 +159,7 @@ const SignUpApprovalPage = () => {
 
   const filteredUsers = () => {
     let users = [];
-
+    
     switch(activeTab) {
       case 'pending':
         users = pendingUsers;
@@ -186,7 +176,7 @@ const SignUpApprovalPage = () => {
 
     // Apply search filter
     if (searchTerm) {
-      users = users.filter(user =>
+      users = users.filter(user => 
         user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -196,10 +186,7 @@ const SignUpApprovalPage = () => {
 
     // Apply role filter
     if (roleFilter !== 'all') {
-      users = users.filter(user => {
-        const userRoles = Array.isArray(user.role) ? user.role : [user.role];
-        return userRoles.some(role => role?.toLowerCase() === roleFilter.toLowerCase());
-      });
+      users = users.filter(user => user.role?.toLowerCase() === roleFilter.toLowerCase());
     }
 
     return users;
@@ -335,24 +322,7 @@ const SignUpApprovalPage = () => {
 
           {/* Users List */}
           <div className="p-6">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-500">Loading users...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <X className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Users</h3>
-                <p className="text-gray-500 mb-4">{error}</p>
-                <button
-                  onClick={loadUsers}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : filteredUsers().length === 0 ? (
+            {filteredUsers().length === 0 ? (
               <div className="text-center py-12">
                 <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -396,19 +366,10 @@ const SignUpApprovalPage = () => {
                               {user.firstName} {user.lastName}
                             </h3>
                             <div className="flex flex-wrap gap-2 mt-1 sm:mt-0">
-                              {Array.isArray(user.role) ? (
-                                user.role.map((role, index) => (
-                                  <span key={index} className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(role)}`}>
-                                    {getRoleIcon(role)}
-                                    <span className="ml-1">{role}</span>
-                                  </span>
-                                ))
-                              ) : (
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                                  {getRoleIcon(user.role)}
-                                  <span className="ml-1">{user.role}</span>
-                                </span>
-                              )}
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                                {getRoleIcon(user.role)}
+                                <span className="ml-1">{user.role}</span>
+                              </span>
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
                                 {user.status?.charAt(0).toUpperCase() + user.status?.slice(1)}
                               </span>

@@ -33,12 +33,6 @@ function EnquiryPage() {
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [showCashOptions, setShowCashOptions] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  const [showOrderModal, setShowOrderModal] = useState(false);
-  const [orderFormData, setOrderFormData] = useState({
-    name: '',
-    phone: '',
-    address: ''
-  });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -60,8 +54,6 @@ function EnquiryPage() {
   const companyLocation = { lat: 8.5252374, lng: 77.5806626 };
 
   const navigate = useNavigate();
-
-  const API_BASE_URL = 'http://localhost:7700/api';
 
   useEffect(() => {
     const product = localStorage.getItem('selectedProduct');
@@ -462,7 +454,37 @@ function EnquiryPage() {
                 {getProductDescription()}
               </p>
 
-           
+              {/* Distance Rates */}
+              <div className="mb-6 p-4 bg-[#F8F4F0] rounded-lg border border-[#E8D7C3]">
+                <h4 className="font-semibold text-[#4A2F2A] mb-2">Delivery Rates:</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>0-10 km:</span>
+                    <span className="font-semibold text-[#B0413E]">₹1000</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>11-20 km:</span>
+                    <span className="font-semibold text-[#B0413E]">₹1500</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>21-30 km:</span>
+                    <span className="font-semibold text-[#B0413E]">₹2000</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>31-40 km:</span>
+                    <span className="font-semibold text-[#B0413E]">₹2500</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>41-50 km:</span>
+                    <span className="font-semibold text-[#B0413E]">₹3000</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>50+ km:</span>
+                    <span className="font-semibold text-[#B0413E]">₹60/km</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Product Quantity */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -532,8 +554,8 @@ function EnquiryPage() {
                   <button
                     onClick={() => handlePaymentMethodSelect('online')}
                     className={`p-3 border-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                      selectedPaymentMethod === 'online'
-                        ? 'border-[#B0413E] bg-[#B0413E] text-white'
+                      selectedPaymentMethod === 'online' 
+                        ? 'border-[#B0413E] bg-[#B0413E] text-white' 
                         : 'border-gray-300 hover:border-[#B0413E] text-gray-700'
                     }`}
                   >
@@ -543,8 +565,8 @@ function EnquiryPage() {
                   <button
                     onClick={() => handlePaymentMethodSelect('cash')}
                     className={`p-3 border-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                      selectedPaymentMethod === 'cash'
-                        ? 'border-[#B0413E] bg-[#B0413E] text-white'
+                      selectedPaymentMethod === 'cash' 
+                        ? 'border-[#B0413E] bg-[#B0413E] text-white' 
                         : 'border-gray-300 hover:border-[#B0413E] text-gray-700'
                     }`}
                   >
@@ -554,21 +576,13 @@ function EnquiryPage() {
                 </div>
               </div>
 
-              {/* Place Order Button */}
-              <button
-                onClick={() => setShowOrderModal(true)}
-                className="w-full bg-[#B0413E] hover:bg-[#8d332e] text-white px-6 py-4 rounded-lg font-medium transition-colors duration-200 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                Place Order
-              </button>
-
               {/* Return Policy */}
-              {/* <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <RotateCcw className="h-5 w-5 text-blue-600" />
                 <span className="text-sm text-blue-800 font-medium">
                   Return Option Available - 7 Days Return Policy
                 </span>
-              </div> */}
+              </div>
             </div>
           </div>
         </div>
@@ -664,7 +678,7 @@ function EnquiryPage() {
                 <X className="h-6 w-6" />
               </button>
             </div>
-
+            
             <div className="space-y-4 mb-6">
               <div className="p-4 border-2 border-green-200 rounded-lg bg-green-50">
                 <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
@@ -720,173 +734,6 @@ function EnquiryPage() {
                 Our delivery executive will call you 30 minutes before arrival
               </p>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Order Modal */}
-      {showOrderModal && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-[#4A2F2A]">Place Your Order</h3>
-              <button
-                onClick={() => setShowOrderModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-
-              // Calculate estimated delivery date
-              const estimatedDeliveryDate = new Date();
-              estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 7);
-
-              // Collect all order data
-              const orderData = {
-                customerName: orderFormData.name,
-                phone: orderFormData.phone,
-                deliveryAddress: formData.deliveryAddress || orderFormData.address,
-                email: formData.email,
-                items: [{
-                  product: {
-                    name: selectedProduct,
-                    category: selectedProduct === 'Red Clay Bricks' ? 'bricks' : 'clay_roof'
-                  },
-                  quantity: quantity,
-                  unitPrice: getCurrentRate()
-                }],
-                totalAmount: calculateTotalCost(),
-                paymentMethod: selectedPaymentMethod,
-                estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
-                status: 'PENDING'
-              };
-
-              try {
-                // Send order to backend API
-                const response = await fetch(`${API_BASE_URL}/orders`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(orderData)
-                });
-
-                if (response.ok) {
-                  const result = await response.json();
-                  console.log('Order created:', result);
-                  // Reset form and close modal
-                  setOrderFormData({ name: '', phone: '', address: '' });
-                  setShowOrderModal(false);
-                  alert('Order placed successfully! We will contact you soon.');
-                } else {
-                  const errorData = await response.json();
-                  throw new Error(errorData.message || 'Failed to place order');
-                }
-              } catch (error) {
-                console.error('Error placing order:', error);
-                alert('Failed to place order. Please try again.');
-              }
-            }}>
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={orderFormData.name}
-                    onChange={(e) => setOrderFormData({...orderFormData, name: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-[#B0413E] focus:ring-2 focus:ring-[#B0413E]/20 transition-colors"
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    value={orderFormData.phone}
-                    onChange={(e) => setOrderFormData({...orderFormData, phone: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-[#B0413E] focus:ring-2 focus:ring-[#B0413E]/20 transition-colors"
-                    placeholder="Enter your phone number"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Delivery Address *
-                  </label>
-                  <textarea
-                    value={orderFormData.address}
-                    onChange={(e) => setOrderFormData({...orderFormData, address: e.target.value})}
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-[#B0413E] focus:ring-2 focus:ring-[#B0413E]/20 transition-colors"
-                    placeholder="Enter your complete delivery address"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Order Summary */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-gray-900 mb-3">Order Summary</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Product:</span>
-                    <span className="font-medium">{selectedProduct}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Quantity:</span>
-                    <span className="font-medium">{quantity} {quantityRange.unit}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Payment Method:</span>
-                    <span className="font-medium capitalize">{selectedPaymentMethod || 'Not selected'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Estimated Delivery:</span>
-                    <span className="font-medium">{(() => {
-                      const today = new Date();
-                      const deliveryDate = new Date(today);
-                      deliveryDate.setDate(today.getDate() + 7); // Add 7 days for estimated delivery
-                      return deliveryDate.toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      });
-                    })()}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between font-semibold">
-                    <span>Total Amount:</span>
-                    <span>₹{calculateTotalCost().toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowOrderModal(false)}
-                  className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-3 bg-[#B0413E] hover:bg-[#8d332e] text-white rounded-lg transition-colors font-medium"
-                >
-                  Place Order
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

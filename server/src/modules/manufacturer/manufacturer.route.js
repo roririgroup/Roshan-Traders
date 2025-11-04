@@ -1,6 +1,10 @@
 const { Router } = require('express');
+<<<<<<< HEAD
+const { createManufacturer, getAllManufacturers, getManufacturerById, updateManufacturer, deleteManufacturer } = require('./manufacturer.service.js');
+=======
 const { serializeBigInt } = require('../../shared/lib/json.js');
 const { createManufacturer, getAllManufacturers, getManufacturerById, updateManufacturer, deleteManufacturer, getManufacturerEmployees, createManufacturerEmployee, updateManufacturerEmployee, deleteManufacturerEmployee } = require('./manufacturer.service.js');
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 
 const router = Router();
 
@@ -8,7 +12,7 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const manufacturers = await getAllManufacturers();
-    res.json(serializeBigInt(manufacturers));
+    res.json(manufacturers);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch manufacturers' });
   }
@@ -22,7 +26,7 @@ router.get('/:id', async (req, res) => {
     if (!manufacturer) {
       return res.status(404).json({ message: 'Manufacturer not found' });
     }
-    res.json(serializeBigInt(manufacturer));
+    res.json(manufacturer);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch manufacturer' });
   }
@@ -32,7 +36,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const manufacturer = await createManufacturer(req.body);
-    res.status(201).json(serializeBigInt(manufacturer));
+    res.status(201).json(manufacturer);
   } catch (error) {
     console.error('Error creating manufacturer:', error);
     res.status(500).json({ message: 'Failed to create manufacturer' });
@@ -43,14 +47,9 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const manufacturer = await updateManufacturer(req.params.id, req.body);
-    res.json(serializeBigInt(manufacturer));
+    res.json(manufacturer);
   } catch (error) {
-    console.error('Error updating manufacturer:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    res.status(500).json({
-      message: 'Failed to update manufacturer',
-      error: errorMessage
-    });
+    res.status(500).json({ message: 'Failed to update manufacturer' });
   }
 });
 

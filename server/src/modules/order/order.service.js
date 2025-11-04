@@ -29,6 +29,9 @@ const createOrder = async (payload) => {
     throw new Error('Product not found');
   }
 
+<<<<<<< HEAD
+  const unitPrice = parseFloat(product.priceRange.split('-')[0]) || 0; // Assume priceRange is "min-max"
+=======
   
   // Handle priceRange - extract first price from range or use default
   let unitPrice = 0;
@@ -37,6 +40,7 @@ const createOrder = async (payload) => {
     unitPrice = parseFloat(priceParts[0].trim()) || 0;
   }
 
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
   const totalAmount = quantity * unitPrice;
 
   // Create order
@@ -69,7 +73,7 @@ const createOrder = async (payload) => {
 };
 
 const getAllOrders = async () => {
-  const orders = await prisma.order.findMany({
+  return await prisma.order.findMany({
     include: {
       items: {
         include: {
@@ -80,25 +84,10 @@ const getAllOrders = async () => {
     },
     orderBy: { orderDate: 'desc' },
   });
-
-  // Transform the data to match frontend expectations
-  return orders.map(order => ({
-    ...order,
-    items: order.items.map(item => ({
-      id: item.id,
-      name: item.product.name,
-      price: item.unitPrice,
-      quantity: item.quantity,
-      totalPrice: item.totalPrice,
-    })),
-  }));
 };
 
-/**
- * @param {string} id
- */
 const getOrderById = async (id) => {
-  const order = await prisma.order.findUnique({
+  return await prisma.order.findUnique({
     where: { id },
     include: {
       items: {
@@ -109,27 +98,8 @@ const getOrderById = async (id) => {
       manufacturer: true,
     },
   });
-
-  if (order) {
-    return {
-      ...order,
-      items: order.items.map(item => ({
-        id: item.id,
-        name: item.product.name,
-        price: item.unitPrice,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice,
-      })),
-    };
-  }
-
-  return order;
 };
 
-/**
- * @param {string} id
- * @param {string} manufacturerId
- */
 const assignOrder = async (id, manufacturerId) => {
   return await prisma.order.update({
     where: { id },
@@ -137,10 +107,6 @@ const assignOrder = async (id, manufacturerId) => {
   });
 };
 
-/**
- * @param {string} id
- * @param {'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'} status
- */
 const updateOrderStatus = async (id, status) => {
   return await prisma.order.update({
     where: { id },
@@ -148,9 +114,6 @@ const updateOrderStatus = async (id, status) => {
   });
 };
 
-/**
- * @param {string} id
- */
 const deleteOrder = async (id) => {
   // Delete order items first
   await prisma.orderItem.deleteMany({

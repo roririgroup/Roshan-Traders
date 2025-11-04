@@ -196,6 +196,21 @@ export default function TruckManagement() {
     setViewingTruck(truck)
   }
 
+<<<<<<< HEAD
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    let newDocuments = editingTruck ? [...editingTruck.documents] : []
+    if (formData.rcBookFile && !newDocuments.includes('RC Book')) newDocuments.push('RC Book')
+    if (formData.insuranceFile && !newDocuments.includes('Insurance')) newDocuments.push('Insurance')
+    if (formData.fitnessFile && !newDocuments.includes('Fitness Certificate')) newDocuments.push('Fitness Certificate')
+    if (formData.licenseFile && !newDocuments.includes('License')) newDocuments.push('License')
+    if (formData.aadhaarFile && !newDocuments.includes('Aadhaar')) newDocuments.push('Aadhaar')
+    const newTruck = { ...formData, documents: newDocuments }
+    if (editingTruck) {
+      setTrucks(trucks.map(truck => truck.id === editingTruck.id ? { ...newTruck, id: editingTruck.id } : truck))
+    } else {
+      setTrucks([...trucks, { ...newTruck, id: Date.now() }])
+=======
   const validateTruckNumber = (truckNo) => {
     // Indian vehicle registration number pattern
     const pattern = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/
@@ -263,6 +278,7 @@ export default function TruckManagement() {
     } catch (err) {
       setError(err.message)
       console.error(`Error ${editingTruck ? 'updating' : 'creating'} truck:`, err)
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
     }
   }
 
@@ -515,9 +531,8 @@ export default function TruckManagement() {
               <input
                 type="text"
                 value={formData.truckNo}
-                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value.toUpperCase() })}
+                onChange={(e) => setFormData({ ...formData, truckNo: e.target.value })}
                 className="w-full p-2 border rounded"
-                placeholder="e.g., TN01AB1234"
                 required
               />
             </div>

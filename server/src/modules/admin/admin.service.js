@@ -1,14 +1,6 @@
 const prisma = require('../../shared/lib/db.js');
 
 // Super admin CRUD operations
-/**
- * @param {Object} payload
- * @param {string} payload.name
- * @param {string} payload.phone
- * @param {string} payload.email
- * @param {string} payload.password
- * @param {string} payload.role
- */
 const createAdmin = async (payload) => {
   const { name, phone, email, password, role } = payload;
 
@@ -56,19 +48,16 @@ const getAllAdmins = async () => {
   });
 
   return admins.map(admin => ({
-    id: admin.id.toString(),
-    name: admin?.profile?.fullName || 'Unknown',
-    phone: admin?.phoneNumber || '',
-    email: admin?.profile?.email || '',
+    id: admin.id,
+    name: admin.profile?.fullName || 'Unknown',
+    phone: admin.phoneNumber,
+    email: admin.profile?.email || '',
     role: 'Super Admin',
-    status: admin?.isActive ? 'Active' : 'Inactive',
+    status: admin.isActive ? 'Active' : 'Inactive',
     createdAt: admin.createdAt,
   }));
 };
 
-/**
- * @param {string} id
- */
 const getAdminById = async (id) => {
   const admin = await prisma.user.findUnique({
     where: { id: parseInt(id), userType: 'ADMIN' },
@@ -81,24 +70,15 @@ const getAdminById = async (id) => {
 
   return {
     id: admin.id,
-    name: admin?.profile?.fullName || 'Unknown',
-    phone: admin?.phoneNumber || '',
-    email: admin?.profile?.email || '',
+    name: admin.profile?.fullName || 'Unknown',
+    phone: admin.phoneNumber,
+    email: admin.profile?.email || '',
     role: 'Super Admin',
-    status: admin?.isActive ? 'Active' : 'Inactive',
+    status: admin.isActive ? 'Active' : 'Inactive',
     createdAt: admin.createdAt,
   };
 };
 
-/**
- * @param {string} id
- * @param {Object} payload
- * @param {string} payload.name
- * @param {string} payload.phone
- * @param {string} payload.email
- * @param {string} payload.role
- * @param {string} payload.status
- */
 const updateAdmin = async (id, payload) => {
   const { name, phone, email, role, status } = payload;
 
@@ -143,9 +123,6 @@ const updateAdmin = async (id, payload) => {
   };
 };
 
-/**
- * @param {string} id
- */
 const deleteAdmin = async (id) => {
   const admin = await prisma.user.findUnique({
     where: { id: parseInt(id), userType: 'ADMIN' },
@@ -161,6 +138,8 @@ const deleteAdmin = async (id) => {
   });
 };
 
+<<<<<<< HEAD
+=======
 const getDashboardStats = async () => {
   // Get filtered counts from database (only active/verified records)
   const [totalManufacturers, totalAgents, totalActingLabours, totalEmployees, totalUsers, pendingPayments, totalRevenue] = await Promise.all([
@@ -504,17 +483,11 @@ const checkUserStatus = async (phoneNumber) => {
   }
 };
 
+>>>>>>> c9f10485ce667d750f74ff46fc726fc7d1982858
 module.exports = {
   createAdmin,
   getAllAdmins,
   getAdminById,
   updateAdmin,
   deleteAdmin,
-  getDashboardStats,
-  getPendingUsers,
-  getApprovedUsers,
-  getRejectedUsers,
-  approveUser,
-  rejectUser,
-  checkUserStatus
 };
