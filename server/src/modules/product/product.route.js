@@ -1,7 +1,8 @@
 const { Router } = require('express');
-const { createProduct, getProducts, getProductById, updateProduct, deleteProduct, searchProducts } = require('./product.service.js');
+const { createProduct, getProducts, getProductsByManufacturer, getProductById, updateProduct, deleteProduct, searchProducts } = require('./product.service.js');
 
 const router = Router();
+
 
 // GET /api/products - Get all products
 router.get('/', async (req, res) => {
@@ -9,6 +10,18 @@ router.get('/', async (req, res) => {
     const products = await getProducts();
     res.json(products);
   } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch products' });
+  }
+});
+
+// GET /api/products/manufacturer/:userId - Get products by manufacturer user ID
+router.get('/manufacturer/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const products = await getProductsByManufacturer(userId);
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching products by manufacturer:', error);
     res.status(500).json({ message: 'Failed to fetch products' });
   }
 });
@@ -25,6 +38,7 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch product' });
   }
 });
+
 
 // POST /api/products - Create new product
 router.post('/', async (req, res) => {

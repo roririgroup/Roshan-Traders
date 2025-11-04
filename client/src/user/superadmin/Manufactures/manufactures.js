@@ -14,13 +14,15 @@ export const manufacturersData = [
       name: 'Rajesh Patel',
       experience: '15 years',
       qualification: 'B.E. Ceramic Engineering'
-    },
+    }, 
+    
     companyInfo: {
       employees: 150,
       annualTurnover: '₹50 Crores',
       exportCountries: 15,
       certifications: ['ISO 9001:2015', 'CE Marking', 'GREENGUARD']
     },
+    
     contact: {
       phone: '+91 98765 43210',
       email: 'info@rntiles.com',
@@ -439,6 +441,77 @@ export const manufacturersData = [
     turnover: '₹25 Crores',
     exportCountries: 3,
     teamSize: 80
+  },
+  {
+    id: 'abc-manufacturing',
+    name: 'ABC Manufacturing',
+    location: 'Delhi, India',
+    specialization: 'Electronics',
+    established: 2015,
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop',
+    logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=200&auto=format&fit=crop',
+    rating: 4.7,
+    founder: {
+      name: 'John Doe',
+      experience: '20 years',
+      qualification: 'M.Tech Electronics'
+    },
+    companyInfo: {
+      employees: 300,
+      annualTurnover: '₹100 Crores',
+      exportCountries: 12,
+      certifications: ['ISO 9001:2015', 'CE Marking', 'RoHS Compliant']
+    },
+    contact: {
+      phone: '+91 98765 43211',
+      email: 'contact@abcmanufacturing.com',
+      website: 'abcmanufacturing.com',
+      address: 'Industrial Area, Delhi - 110001, India'
+    },
+    products: [
+      {
+        id: 'p10',
+        name: 'Smartphone Components',
+        category: 'Electronics',
+        specifications: {
+          type: 'Circuit Boards',
+          material: 'PCB',
+          compatibility: 'Various Models'
+        },
+        priceRange: '₹50-100 per unit',
+        image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=400&auto=format&fit=crop',
+        description: 'High-quality components for smartphone manufacturing.',
+        features: ['Durable', 'Cost-effective', 'Customizable']
+      }
+    ],
+    specializations: ['Custom Electronics', 'Prototyping', 'Mass Production'],
+    description: 'Leading manufacturer of electronic components with cutting-edge technology and innovation.',
+    achievements: ['Innovation Award 2023', 'Best Supplier 2022', 'Quality Excellence 2021'],
+    orders: [
+      {
+        id: 'ORD-010',
+        customerName: 'Tech Solutions Ltd.',
+        customerEmail: 'orders@techsolutions.com',
+        orderDate: '2024-01-30',
+        status: 'pending',
+        totalAmount: 500000,
+        items: [
+          {
+            productId: 'p10',
+            productName: 'Smartphone Components',
+            quantity: 5000,
+            unitPrice: 75,
+            totalPrice: 375000
+          }
+        ],
+        deliveryAddress: 'Tech Park, Bangalore - 560001',
+        notes: 'High priority order'
+      }
+    ],
+    productsCount: 1,
+    turnover: '₹100 Crores',
+    exportCountries: 12,
+    teamSize: 300
   }
 ];
 

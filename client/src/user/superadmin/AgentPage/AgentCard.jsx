@@ -5,14 +5,16 @@ import { Card } from "../../../components/ui/Card";
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil, Trash } from "lucide-react"; // 👈 icons
 
-const AgentCard = ({ agent, onEdit, onRemove }) => {
+const AgentCard = ({ agent, onEdit, onRemove, onViewDetails }) => {
   const navigate = useNavigate();
   const { id, name, referrals, image, location, joinDate, status } = agent;
 
   const handleImageError = (e) => {
     e.currentTarget.src =
       "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=800&auto=format&fit=crop";
-  };  
+  }; 
+   
+  
   return (
     <Card className="p-4 border-gray-200 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
@@ -62,7 +64,7 @@ const AgentCard = ({ agent, onEdit, onRemove }) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(`/agents/${id}`)}
+            onClick={() => onViewDetails(agent)}
             className="flex items-center gap-1 text-xs"
           >
             <Eye className="h-4 w-4" />

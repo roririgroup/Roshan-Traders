@@ -17,7 +17,9 @@ const EmployeeFilter = ({ currentFilter, onFilterChange }) => {
         </Button>
       ))}
     </div>
+    
   );
 };
+
 
 export default EmployeeFilter;

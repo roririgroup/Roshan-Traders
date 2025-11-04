@@ -1,33 +1,46 @@
 import { useState, useEffect } from 'react'
 import { Card } from '../../../components/ui/Card'
 import { Package, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react'
+import { useAuth } from '../../../Context/AuthContext'
 
 export default function Dashboard() {
+  const { currentUser } = useAuth()
   const [stats, setStats] = useState({
-    totalProducts: 0,
     totalOrders: 0,
-    todayRevenue: 0,
-    monthlyRevenue: 0
+    totalRevenue: 0,
+    totalEarnings: 0,
+    commissionRate: 0
   })
 
-  // Mock data - replace with API calls
   useEffect(() => {
-    // Fetch stats from API
-    setStats({
-      totalProducts: 25,
-      totalOrders: 12,
-      todayRevenue: 2500,
-      monthlyRevenue: 45000
-    })
-  }, [])
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token') || 'dummy-token'
+        const response = await fetch('/api/agents/stats', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setStats({
+            totalOrders: data.totalOrders || 0,
+            totalRevenue: data.totalRevenue || 0,
+            totalEarnings: data.totalEarnings || 0,
+            commissionRate: data.commissionRate || 0
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      }
+    }
+    if (currentUser) {
+      fetchStats()
+    }
+  }, [currentUser])
 
   const statCards = [
-    {
-      title: 'Total Products',
-      value: stats.totalProducts,
-      icon: Package,
-      color: 'bg-blue-500'
-    },
     {
       title: 'Total Orders',
       value: stats.totalOrders,
@@ -35,16 +48,22 @@ export default function Dashboard() {
       color: 'bg-green-500'
     },
     {
-      title: "Today's Revenue",
-      value: `₹${stats.todayRevenue.toLocaleString()}`,
+      title: 'Total Revenue',
+      value: `₹${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-yellow-500'
     },
     {
-      title: 'Monthly Revenue',
-      value: `₹${stats.monthlyRevenue.toLocaleString()}`,
+      title: 'Total Earnings',
+      value: `₹${stats.totalEarnings.toLocaleString()}`,
       icon: TrendingUp,
       color: 'bg-purple-500'
+    },
+    {
+      title: 'Commission Rate',
+      value: `${stats.commissionRate}%`,
+      icon: Package,
+      color: 'bg-blue-500'
     }
   ]
 
@@ -66,8 +85,8 @@ export default function Dashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, index) => (
-          <Card 
-            key={index} 
+          <Card
+            key={index}
             className="p-6 border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 animate-fade-in-up group relative overflow-hidden"
             style={{ animationDelay: `${index * 150}ms` }}
           >

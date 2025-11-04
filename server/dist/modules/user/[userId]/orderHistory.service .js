@@ -25,6 +25,7 @@ function getAllOrderHistories() {
                         email: true,
                     },
                 },
+                
                 purchases: {
                     include: {
                         product: true,

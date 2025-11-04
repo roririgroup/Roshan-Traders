@@ -25,6 +25,7 @@ router.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(400).json({ success: false, error: err.message });
     }
 }));
+
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield (0, admin_service_1.loginAdmin)(req.body);

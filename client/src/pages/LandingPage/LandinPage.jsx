@@ -9,6 +9,7 @@ import rooftile from '../../assets/roof-tile.jpg';
 import floortiles from '../../assets/floor tile.jpg';
 import tile from '../../assets/tile.jpg';
 
+
 import {
   Factory,
   Shield,
@@ -73,6 +74,7 @@ function LandingPage() {
       },
       { threshold: 0.1 }
     );
+    
 
     document.querySelectorAll('.fade-in-section').forEach((el) => {
       observer.observe(el);

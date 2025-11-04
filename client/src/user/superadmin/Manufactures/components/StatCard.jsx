@@ -5,6 +5,7 @@ const StatCard = ({ icon, label, value, color, gradient }) => (
     <div
       className={`mx-auto mb-3 sm:mb-4 inline-block p-3 sm:p-4 rounded-full bg-gradient-to-br from-${color}-400/30 to-${color}-600/20 ring-2 ring-${color}-400/30 shadow-inner animate-pulse`}
     >
+      
       <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white">{icon}</div>
     </div>
     <h3
@@ -19,3 +20,5 @@ const StatCard = ({ icon, label, value, color, gradient }) => (
 )
 
 export default StatCard
+
+

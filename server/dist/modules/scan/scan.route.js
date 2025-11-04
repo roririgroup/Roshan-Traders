@@ -30,6 +30,7 @@ router.post('/scan', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         });
     }
 }));
+
 router.get('/user/:identifier', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { identifier } = req.params;
     try {

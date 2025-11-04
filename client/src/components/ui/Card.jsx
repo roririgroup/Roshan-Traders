@@ -22,6 +22,7 @@ export function CardHeader({ title, subtitle, action }) {
   )
 }
 
+
 export function CardContent({ children }) {
   return <div className="p-4 pt-0 text-sm text-muted-foreground">{children}</div>
 }

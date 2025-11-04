@@ -1,6 +1,8 @@
 import React from 'react'
 import { Building2, Globe, Users, Award, Sparkles, TrendingUp, Shield } from 'lucide-react'
 
+
+
 const PageHeader = () => {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-900">
@@ -20,6 +22,7 @@ const PageHeader = () => {
             Trusted Manufacturing Partners
             <div className="ml-2 w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-ping"></div>
           </div>
+          
           
           {/* Main Heading */}
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">

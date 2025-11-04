@@ -1,139 +1,191 @@
 import { useState, useEffect } from 'react'
-import Badge from '../../../components/ui/Badge'
-import { ShoppingCart, CheckCircle, Clock, Truck } from 'lucide-react'
-import { getOrders } from '../../../store/ordersStore'
-import FilterBar from '../../../components/ui/FilterBar'
+import { ShoppingCart, Star, Users, RotateCcw, Truck, CreditCard, Eye, CheckCircle, XCircle } from 'lucide-react'
+import Button from '../../../components/ui/Button'
+import Modal from '../../../components/ui/Modal'
+import { getCurrentUser } from '../../../lib/auth.js'
+import { getOrders } from '../../../store/ordersStore.js'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Load orders from shared store
+  // Load orders from localStorage and main store
   useEffect(() => {
-    setOrders(getOrders())
+    loadOrders()
   }, [refreshTrigger])
 
-  // Auto-refresh every 5 seconds to check for new orders
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRefreshTrigger(prev => prev + 1)
-    }, 5000)
+  const loadOrders = () => {
+    const agentOrders = JSON.parse(localStorage.getItem('agentOrders')) || []
+    const mainOrders = getOrders()
+    const user = getCurrentUser()
 
-    return () => clearInterval(interval)
-  }, [])
+
+    
+    
+    // Combine and filter for current user
+    const allOrders = [...agentOrders, ...mainOrders]
+    const uniqueOrders = allOrders.filter((order, index, self) =>
+      index === self.findIndex((o) => o.id === order.id)
+    )
+
+    setOrders(uniqueOrders.filter(order =>
+      order.userInfo && order.userInfo.id === user?.id
+    ))
+  }
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order)
+    setIsModalOpen(true)
+  }
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="warning">Pending</Badge>
+        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
       case 'confirmed':
-        return <Badge variant="success">Confirmed</Badge>
-      case 'shipped':
-        return <Badge variant="info">Shipped</Badge>
+        return <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Confirmed</span>
+      case 'rejected':
+        return <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Rejected</span>
       default:
-        return <Badge variant="default">{status}</Badge>
+        return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{status}</span>
     }
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-[#F08344] rounded-lg flex items-center justify-center">
-            <ShoppingCart className="size-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
-            <p className="text-slate-600">Manage customer orders and track their status</p>
-          </div>
-        </div>
-      </div>
+    <div className="p-6 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">My Orders</h1>
 
-      <FilterBar
-        search={search}
-        onSearchChange={setSearch}
-        placeholder="Search orders..."
-        selects={[{
-          name: 'status',
-          value: statusFilter,
-          onChange: setStatusFilter,
-          options: [
-            { value: 'all', label: 'All Status' },
-            { value: 'pending', label: 'Pending' },
-            { value: 'confirmed', label: 'Confirmed' },
-            { value: 'shipped', label: 'Shipped' },
-          ]
-        }]}
-      />
-
-      {/* Orders Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Order ID</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Customer</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Items</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Total Amount</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Status</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Order Date</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Delivery Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders
-                .filter(o => (
-                  o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-                  String(o.id).includes(search)
-                ))
-                .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-                .map((order) => (
-                <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
-                    #{order.id}
-                  </td>
-                  <td className="py-4 px-6 text-slate-900 hover:text-[#F08344] transition-colors">
-                    {order.customerName}
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="space-y-1">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="text-sm">
-                          <span className="font-medium text-slate-900">{item.name}</span>
-                          <span className="text-slate-600"> (Qty: {item.quantity})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 font-medium text-slate-900 hover:text-[#F08344] transition-colors">
-                    ₹{order.totalAmount != null ? order.totalAmount.toLocaleString() : '0'}
-                  </td>
-                  <td className="py-4 px-6">
-                    {getStatusBadge(order.status)}
-                  </td>
-                  <td className="py-4 px-6 text-slate-600 hover:text-[#F08344] transition-colors">
-                    {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : '—'}
-                  </td>
-                  <td className="py-4 px-6 text-slate-600 max-w-xs truncate hover:text-[#F08344] transition-colors">
-                    {order.deliveryAddress || '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {orders.length === 0 && (
+      {orders.length === 0 ? (
         <div className="text-center py-12">
           <ShoppingCart className="size-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
-          <p className="text-slate-600">Orders will appear here once customers place them</p>
+          <p className="text-slate-600">Orders you place will appear here</p>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {orders.map(order => (
+            <div
+              key={order.id}
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Order #{order.id}</h3>
+                    <p className="text-sm text-gray-600">{order.customerName}</p>
+                  </div>
+                  {getStatusBadge(order.status)}
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Items:</span>
+                    <span className="font-medium">{order.items?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Total:</span>
+                    <span className="font-bold text-[#F08344]">₹{order.totalAmount?.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Date:</span>
+                    <span>{order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                </div>
+
+                <Button
+                  className="w-full bg-[#F08344] hover:bg-[#e0733a] text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  onClick={() => handleViewOrder(order)}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Details
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={`Order #${selectedOrder.id} Details`}
+          className="max-w-2xl"
+        >
+          <div className="space-y-6">
+            {/* Order Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-semibold">Status:</span>
+              {getStatusBadge(selectedOrder.status)}
+            </div>
+
+            {/* Customer Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                <p className="text-gray-900">{selectedOrder.customerName}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <p className="text-gray-900">{selectedOrder.phoneNumber || 'N/A'}</p>
+              </div>
+            </div>
+
+            {/* Delivery Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
+              <p className="text-gray-900">{selectedOrder.deliveryAddress}</p>
+            </div>
+
+            {/* Order Items */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Order Items</label>
+              <div className="space-y-2">
+                {selectedOrder.items?.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <span className="font-medium text-gray-900">{item.name}</span>
+                      <span className="text-gray-600 ml-2">Qty: {item.quantity}</span>
+                    </div>
+                    <span className="font-medium text-[#F08344]">₹{(item.price * item.quantity).toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center text-lg font-bold">
+                <span>Total Amount:</span>
+                <span className="text-[#F08344]">₹{selectedOrder.totalAmount?.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm text-gray-600 mt-1">
+                <span>Order Date:</span>
+                <span>{selectedOrder.orderDate ? new Date(selectedOrder.orderDate).toLocaleString() : 'N/A'}</span>
+              </div>
+              {selectedOrder.estimatedDeliveryDate && (
+                <div className="flex justify-between items-center text-sm text-gray-600 mt-1">
+                  <span>Estimated Delivery:</span>
+                  <span>{new Date(selectedOrder.estimatedDeliveryDate).toLocaleDateString()}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Payment Info */}
+            {selectedOrder.paymentMethod && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                <p className="text-gray-900 capitalize">{selectedOrder.paymentMethod}</p>
+                {selectedOrder.selectedPaymentOption && (
+                  <p className="text-sm text-gray-600 mt-1">Option: {selectedOrder.selectedPaymentOption}</p>
+                )}
+              </div>
+            )}
+          </div>
+        </Modal>
       )}
     </div>
   )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Button from '../../../components/ui/Button'
+
 import { DollarSign, Clock, CheckCircle, TrendingUp } from 'lucide-react'
 
 export default function Payments() {
@@ -13,6 +14,7 @@ export default function Payments() {
       dueDate: '2024-10-10',
       description: 'Chennai to Bangalore delivery'
     },
+    
     {
       id: 2,
       tripId: 'T002',

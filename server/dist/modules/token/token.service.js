@@ -27,6 +27,7 @@ function createToken(_a) {
         const existingToken = yield db_1.db.token.findUnique({
             where: { purchaseId },
         });
+        
         if (existingToken) {
             return existingToken;
         }

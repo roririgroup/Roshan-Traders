@@ -22,6 +22,7 @@ const authenticateToken = (req, res, next) => {
     if (!authHeader) {
         (0, errorObject_1.sendErrorObj)(res, customErrorCode_1.token_err, "Token Not Found!");
     }
+    
     else {
         const token = authHeader && authHeader.split(" ")[1];
         if (token == null) {

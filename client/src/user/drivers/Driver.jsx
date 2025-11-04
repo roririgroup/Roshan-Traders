@@ -5,6 +5,7 @@ import DeliveriesList from './dashboard/DeliveriesList'
 import Earnings from './dashboard/Earnings'
 import Profile from './dashboard/Profile'
 
+
 export default function Driver() {
   return (
     <Routes>
@@ -17,3 +18,4 @@ export default function Driver() {
     </Routes>
   )
 }
+

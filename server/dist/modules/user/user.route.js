@@ -28,6 +28,7 @@ const logRequest = (req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 };
+
 router.use(logRequest);
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 
+
 dotenv.config();
 
 const app = express();
@@ -17,10 +18,20 @@ app.set("port", port);
 
 //Using custom cors policy
 app.use((req, res, next) => {
-  res.append('Access-Control-Allow-Origin', '*');
-  res.append('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-  res.append('Access-Control-Allow-Headers', '*');
+  res.set('Access-Control-Allow-Origin', 'http://localhost:5175');
+  res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Employee-Id, X-User-Roles');
+  res.set('Access-Control-Allow-Credentials', 'true');
   next();
+});
+
+// Handle preflight OPTIONS requests
+app.options('*', (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'http://localhost:5175');
+  res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Employee-Id, X-User-Roles');
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
 });
 
 
@@ -36,14 +47,21 @@ const ordersApi = require('./modules/order/order.route.js');
 const manufacturerApi = require('./modules/manufacturer/manufacturer.route.js');
 const agentApi = require('./modules/agent/agent.route.js');
 const employeeApi = require('./modules/employee/employee.route.js');
+const actingLabourApi = require('./modules/acting_labour/acting_labour.route.js');
+const truckOwnerApi = require('./modules/truck_owner/truck_owner.route.js');
+const manufacturerProductRoutes = require('./modules/manufacturer-products (1)/manufacturer-products/manufacturer-product.route.js');
+
+app.use('/api/manufacturer-products', manufacturerProductRoutes);
 
 app.use('/api/users', userApi);
-app.use('/api/admin-auth', adminAuthApi);
+app.use('/api/admins', adminAuthApi);
 app.use('/api/products', productApi);
 app.use('/api/orders', ordersApi);
 app.use('/api/manufacturers', manufacturerApi);
 app.use('/api/agents', agentApi);
 app.use('/api/employees', employeeApi);
+app.use('/api/acting-labours', actingLabourApi);
+app.use('/api/truck-owners', truckOwnerApi);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

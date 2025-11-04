@@ -13,6 +13,8 @@ export default function PaymentReport() {
     pendingAmount: 0,
     paidAmount: 0
   })
+  
+  
 
   const [paymentDetails, setPaymentDetails] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)

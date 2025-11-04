@@ -1,5 +1,101 @@
 const prisma = require('../../shared/lib/db.js');
 
+
+const signupUser = async (userData) => {
+  const { firstName, lastName, email, phone, address, role, password, confirmPassword } = userData;
+
+  // Trim inputs
+  const trimmedFirstName = firstName?.trim() || '';
+  const trimmedLastName = lastName?.trim() || '';
+  const trimmedEmail = email?.trim() || '';
+  const trimmedPhone = phone?.trim() || '';
+  const trimmedAddress = address?.trim() || '';
+
+  // Validation
+  if (!trimmedFirstName || !trimmedLastName || !trimmedEmail || !trimmedPhone || !role || !password || !confirmPassword) {
+    throw new Error('All fields are required');
+  }
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail)) {
+    throw new Error('Invalid email format');
+  }
+
+  if (password !== confirmPassword) {
+    throw new Error('Passwords do not match');
+  }
+
+  if (!Array.isArray(role) || role.length === 0) {
+    throw new Error('At least one role must be selected');
+  }
+
+  // Normalize phone number (remove +91 prefix if present)
+  const normalizedPhone = trimmedPhone.replace(/^\+91/, '').trim();
+
+  // Phone number format validation
+  if (!/^\d{10}$/.test(normalizedPhone)) {
+    throw new Error('Phone number must be 10 digits');
+  }
+
+  // Check if phone number already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { phoneNumber: normalizedPhone }
+  });
+
+  if (existingUser) {
+    throw new Error('Phone number already registered');
+  }
+
+  // Check if email already exists
+  const existingEmail = await prisma.userProfile.findUnique({
+    where: { email: trimmedEmail }
+  });
+
+  if (existingEmail) {
+    throw new Error('Email already registered');
+  }
+
+  // Determine userType based on roles
+  let userType = 'CUSTOMER';
+  if (role.includes('Agent')) {
+    userType = 'AGENT';
+  } else if (role.includes('Manufacturer')) {
+    userType = 'MANUFACTURER';
+  }
+
+  // Create user with PENDING status
+  const user = await prisma.user.create({
+    data: {
+      phoneNumber: normalizedPhone,
+      userType: userType,
+      roles: role,
+      status: 'PENDING',
+      profile: {
+        create: {
+          fullName: `${trimmedFirstName} ${trimmedLastName}`,
+          email: trimmedEmail,
+          address: trimmedAddress
+        }
+      }
+    },
+    include: {
+      profile: true
+    }
+  });
+
+  // Log the signup action
+  await prisma.auditLog.create({
+    data: {
+      userId: user.id,
+      action: 'user_signup',
+      description: `User signed up with roles: ${role.join(', ')}`
+    }
+  });
+
+  return user;
+};
+
 const getAllUsers = async () => {
   // Get all users with their profiles and related data
   const users = await prisma.user.findMany({
@@ -73,17 +169,17 @@ const getAllUsers = async () => {
     }
 
     return {
-      id: user.id,
-      name: user.profile?.fullName || 'Unknown',
-      userId: user.agent?.agentCode || user.employee?.employeeCode || `USR-${user.id}`,
-      email: user.profile?.email || '',
-      phone: user.phoneNumber,
-      organization: user.manufacturer?.companyName || user.agent?.assignedArea || user.employee?.role || '',
-      balance: user.agent?.totalEarnings || 0,
-      lastUsed: user.lastLogin,
+      id: user.id.toString(),
+      name: user?.profile?.fullName || 'Unknown',
+      userId: user?.agent?.agentCode || user?.employee?.employeeCode || `USR-${user.id}`,
+      email: user?.profile?.email || '',
+      phone: user?.phoneNumber || '',
+      organization: user?.manufacturer?.companyName || user?.agent?.assignedArea || user?.employee?.role || '',
+      balance: user?.agent?.totalEarnings || 0,
+      lastUsed: user?.lastLogin,
       userType: userType,
-      status: user.agent?.isApproved ? 'Available' : user.employee?.status || 'Available',
-      image: user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+      status: user?.agent?.isApproved ? 'Available' : user?.employee?.status || 'Available',
+      image: user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
       ...additionalData,
     };
   });
@@ -136,22 +232,90 @@ const getUserById = async (id) => {
   }
 
   return {
-    id: user.id,
-    name: user.profile?.fullName || 'Unknown',
-    userId: user.agent?.agentCode || user.employee?.employeeCode || `USR-${user.id}`,
-    email: user.profile?.email || '',
-    phone: user.phoneNumber,
-    organization: user.manufacturer?.companyName || user.agent?.assignedArea || user.employee?.role || '',
-    balance: user.agent?.totalEarnings || 0,
-    lastUsed: user.lastLogin,
+    id: user.id.toString(),
+    name: user?.profile?.fullName || 'Unknown',
+    userId: user?.agent?.agentCode || user?.employee?.employeeCode || `USR-${user.id}`,
+    email: user?.profile?.email || '',
+    phone: user?.phoneNumber || '',
+    organization: user?.manufacturer?.companyName || user?.agent?.assignedArea || user?.employee?.role || '',
+    balance: user?.agent?.totalEarnings || 0,
+    lastUsed: user?.lastLogin,
     userType: userType,
-    status: user.agent?.isApproved ? 'Available' : user.employee?.status || 'Available',
-    image: user.profile?.profileImageUrl || 'https://via.placeholder.com/150',
+    status: user?.agent?.isApproved ? 'Available' : user?.employee?.status || 'Available',
+    image: user?.profile?.profileImageUrl || 'https://via.placeholder.com/150',
     ...additionalData,
   };
 };
 
+const getAllManufacturers = async () => {
+  const manufacturers = await prisma.manufacturer.findMany({
+    include: {
+      contact: true,
+      companyInfo: true,
+      founders: true,
+      specializations: {
+        include: {
+          specialization: true,
+        },
+      },
+      achievements: {
+        include: {
+          achievement: true,
+        },
+      },
+      certifications: {
+        include: {
+          certification: true,
+        },
+      },
+      products: {
+        select: {
+          id: true,
+        },
+      },
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
+  });
+
+  // Transform the response to match frontend expectations
+  return manufacturers.map(manufacturer => ({
+    id: manufacturer.id,
+    companyName: manufacturer.companyName,
+    businessType: manufacturer.businessType,
+    gstNumber: manufacturer.gstNumber,
+    panNumber: manufacturer.panNumber,
+    businessAddress: manufacturer.businessAddress,
+    websiteUrl: manufacturer.websiteUrl,
+    isVerified: manufacturer.isVerified,
+    description: manufacturer.description,
+    established: manufacturer.established,
+    location: manufacturer.location,
+    rating: manufacturer.rating,
+    image: manufacturer.image,
+    contact: manufacturer.contact,
+    companyInfo: manufacturer.companyInfo,
+    founders: manufacturer.founders,
+    specializationsList: manufacturer.specializations?.map(s => s.specialization?.name).filter(Boolean) || [],
+    achievementsList: manufacturer.achievements?.map(a => a.achievement?.name).filter(Boolean) || [],
+    certificationsList: manufacturer.certifications?.map(c => c.certification?.name).filter(Boolean) || [],
+    productsCount: manufacturer._count.products,
+    // Add stock and category fields for frontend compatibility
+    stock: manufacturer.companyInfo?.employees || 0, // Using employees as stock for now
+    category: manufacturer.businessType || 'bricks', // Default to bricks
+    productType: manufacturer.businessType || 'All Types',
+    email: manufacturer.contact?.email || '',
+    phone: manufacturer.contact?.phone || '',
+    address: manufacturer.contact?.address || manufacturer.businessAddress || ''
+  }));
+};
+
 module.exports = {
+  signupUser,
   getAllUsers,
   getUserById,
+  getAllManufacturers,
 };

@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // GET /api/agents/:id - Get agent by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -25,6 +26,7 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch agent' });
   }
 });
+
 
 // POST /api/agents - Create new agent
 router.post('/', async (req, res) => {
@@ -58,3 +60,6 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+'const { authenticateToken } = require("../../shared/middleware/auth.js");' 
+'// GET /api/agents/stats - Get dashboard stats for authenticated agent' 
+'router.get("/stats", authenticateToken, async (req, res) = try { const userId = req.user.id; const stats = await getDashboardStats(userId); res.json(stats); } catch (error) { console.error("Error fetching dashboard stats:", error); res.status(500).json({ message: "Failed to fetch dashboard stats" }); } });' 

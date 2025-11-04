@@ -16,6 +16,7 @@ export default function DashboardLayout() {
     }
   }, [theme])
 
+  
   // Close mobile sidebar when screen gets larger
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +28,7 @@ export default function DashboardLayout() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [mobileOpen])
+  
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {

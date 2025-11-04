@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'; // ✅ Add this import at the top
 import {
   Factory, Building2, Store, UserRound, UserCheck, Users, LogOut, X,
   TrendingUp, FileText, CreditCard, Package, LayoutDashboard, ShoppingCart,
-  DollarSign, User, BarChart3, Truck, Gift
+  DollarSign, User, BarChart3, Truck, Gift, File
 } from 'lucide-react';
 import { logout } from '../../lib/auth';
 import { getCurrentUserRole, getCurrentUserRoles, getCurrentUserActiveRole, setCurrentUserActiveRole } from '../../lib/roles';
@@ -16,6 +16,7 @@ const active = ({ isActive }) =>
   isActive
     ? `${linkBase} bg-[#F08344] text-white shadow-lg shadow-[#F08344]/25`
     : `${linkBase} text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm`;
+    
 
 const MENU_CONFIG = {
   superadmin: [
@@ -24,18 +25,21 @@ const MENU_CONFIG = {
     { to: '/dashboard/agents', label: 'Agents', icon: UserRound },
     // { to: '/dashboard/companies', label: 'Companies', icon: Building2 },
     { to: '/dashboard/employees', label: 'Employees', icon: Gift },
+    { to: '/dashboard/acting-labours', label: 'Acting Labours', icon: Users },
     { to: '/dashboard/products', label: 'Products', icon: Package },
     // { to: '/dashboard/users', label: 'Users', icon: Users },
     { to: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/dashboard/paymentreports', label: 'Payment Reports', icon: CreditCard },
     { to: '/dashboard/report', label: 'Reports', icon: FileText },
     { to: '/dashboard/signup-approval', label: 'SignUp Approval', icon: UserCheck },
-    { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
+    // { to : '/dashboard/product-stock', label: 'Product Stock', icon: Store },
+      { to : '/dashboard/project-requirement', label: 'PRD', icon: File },
   ],
+  
   agent: [
     { to: '/dashboard/agent-dashboard', label: 'Dashboard', icon: TrendingUp },
     { to: '/dashboard/agent-products', label: 'Products', icon: Package },
-    { to: '/dashboard/agent-orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/dashboard/agent-orders', label: 'My Orders', icon: ShoppingCart },
     { to: '/dashboard/agent-payment-report', label: 'Payment Report', icon: DollarSign },
     { to: '/dashboard/agent-profile', label: 'Profile', icon: User },
     { to: '/dashboard/agent-reports', label: 'Reports', icon: BarChart3 },
@@ -51,6 +55,7 @@ const MENU_CONFIG = {
   ],
   truckowner: [
     { to: '/dashboard/truck-owners', label: 'Dashboard', icon: Truck },
+    { to: '/dashboard/truck-owners/orders', label: 'Orders', icon: ShoppingCart },
     { to: '/dashboard/truck-owners/driver-management', label: 'Driver Management', icon: Users },
     { to: '/dashboard/truck-owners/truck-management', label: 'Truck Management', icon: Truck },
     { to: '/dashboard/truck-owners/trips', label: 'Trips', icon: Package },
@@ -173,6 +178,29 @@ export default function Sidebar({ isCollapsed, onClose, mobile }) {
         >
           {menu.map((item) => {
             const Icon = item.icon;
+            if (item.label === 'PRD') {
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={active}
+                  onClick={mobile ? onClose : undefined}
+                  end
+                >
+                  <Icon className="size-4 sm:size-5 flex-shrink-0" />
+                  {(!isCollapsed || mobile) && (
+                    <span className="group-hover:translate-x-0.5 transition-transform truncate">
+                      {item.label}
+                    </span>
+                  )}
+                  {(!isCollapsed || mobile) && (
+                    <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                    </div>
+                  )}
+                </NavLink>
+              );
+            }
             return (
               <NavLink
                 key={item.to}
