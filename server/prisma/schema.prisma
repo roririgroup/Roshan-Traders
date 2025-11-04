@@ -327,7 +327,6 @@ model Product {
 
   attributes           ProductAttribute[]
   orderItems           OrderItem[]
-  manufacturerProducts ManufacturerProduct[]
 
   @@map("products")
   @@index([name])
@@ -421,48 +420,15 @@ model Employee {
 model ManufacturerProduct {
   id              String    @id @default(uuid())
   manufacturerId  BigInt
-  productId       String?
   name            String
-  category        String?
-  priceRange      String?
-  imageUrl        String?
-  qualityRating   Float?    @default(4.0)
-  offer           String?
-  buyersCount     Int?      @default(0)
-  returnExchange  Boolean?  @default(false)
-  cashOnDelivery  Boolean?  @default(false)
-  paymentOptions  String?
-  description     String?
-  isActive        Boolean?  @default(true)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  stockQuantity   Int?      @default(0)
-  minOrderQuantity Int?     @default(1)
-  maxOrderQuantity Int?
-  weight          Float?
-  dimensions      String?
-  material        String?
-  color           String?
-  size            String?
-  brand           String?
-  sku             String?   @unique
-  hsnCode         String?
-  gstRate         Float?    @default(0.0)
-  discount        Float?    @default(0.0)
-  warrantyPeriod  Int?
-  returnPolicy    String?
 
   manufacturer    Manufacturer @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
-  product         Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
   orderItems      OrderItem[]
 
   @@map("manufacturer_products")
   @@index([manufacturerId])
-  @@index([productId])
-  @@index([category])
-  @@index([isActive])
-  @@index([createdAt])
-  @@index([sku])
 }
 
 model AuditLog {

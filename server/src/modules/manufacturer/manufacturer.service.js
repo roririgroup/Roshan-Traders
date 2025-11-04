@@ -211,25 +211,18 @@ const createManufacturer = async (payload) => {
     }
   }
 
-  // Handle products - link existing products via ManufacturerProduct
-  const productsToLink = productIds || products;
-  if (productsToLink && productsToLink.length > 0) {
-    console.log('Linking products to manufacturer...');
-    for (const productName of productsToLink) {
-      // Find product by name
-      const product = await prisma.product.findFirst({
-        where: { name: productName },
+  // Handle products - create entries in manufacturer_product table with name
+  const productsToAdd = productIds || products;
+  if (productsToAdd && productsToAdd.length > 0) {
+    console.log('Adding products to manufacturer...');
+    for (const productName of productsToAdd) {
+      await prisma.manufacturerProduct.create({
+        data: {
+          manufacturerId: manufacturer.id,
+          name: productName,
+          // productId is not set, only name is saved
+        },
       });
-      if (product) {
-        await prisma.manufacturerProduct.create({
-          data: {
-            manufacturerId: manufacturer.id,
-            productId: product.id,
-          },
-        });
-      } else {
-        console.warn(`Product with name "${productName}" not found, skipping.`);
-      }
     }
   }
 
@@ -272,17 +265,7 @@ const getAllManufacturers = async () => {
           certification: true,
         },
       },
-      manufacturerProducts: {
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              category: true,
-            },
-          },
-        },
-      },
+      manufacturerProducts: true,
       orders: true,
       _count: {
         select: {
@@ -332,11 +315,7 @@ const getManufacturerById = async (id) => {
           certification: true,
         },
       },
-      manufacturerProducts: {
-        include: {
-          product: true,
-        },
-      },
+      manufacturerProducts: true,
       orders: true,
     },
   });
@@ -382,6 +361,8 @@ const updateManufacturer = async (id, payload) => {
       location,
       rating,
       image,
+      products,
+      productIds,
     } = payload;
 
     // Fetch existing manufacturer first to get userId
@@ -590,6 +571,29 @@ const updateManufacturer = async (id, payload) => {
       }
     }
 
+    // Update products - delete existing and create new
+    if (products !== undefined || productIds !== undefined) {
+      // Delete existing products
+      await prisma.manufacturerProduct.deleteMany({
+        where: { manufacturerId: parseInt(id) },
+      });
+
+      // Handle products
+      const productsToAdd = productIds || products;
+      if (productsToAdd && productsToAdd.length > 0) {
+        console.log('Adding products to manufacturer...');
+        for (const productName of productsToAdd) {
+          await prisma.manufacturerProduct.create({
+            data: {
+              manufacturerId: parseInt(id),
+              name: productName,
+              // productId is not set, only name is saved
+            },
+          });
+        }
+      }
+    }
+
     // Fetch updated manufacturer with all relations
     const updatedManufacturer = await prisma.manufacturer.findUnique({
       where: { id: parseInt(id) },
@@ -612,17 +616,7 @@ const updateManufacturer = async (id, payload) => {
             certification: true,
           },
         },
-        manufacturerProducts: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                category: true,
-              },
-            },
-          },
-        },
+        manufacturerProducts: true,
         _count: {
           select: {
             manufacturerProducts: true,
