@@ -14,13 +14,6 @@ export default function ManufacturerDashboard() {
     todayRevenue: 0,
     monthlyRevenue: 0
   })
-<<<<<<< HEAD
-=======
-  
-  
->>>>>>> dc505d68e93cf97f85dbc4ea8d2e658b0f2da92e
-
-
   useEffect(() => {
     const fetchStats = async () => {
       try {

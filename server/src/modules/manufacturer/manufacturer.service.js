@@ -934,12 +934,8 @@ module.exports = {
   getManufacturerById,
   updateManufacturer,
   deleteManufacturer,
-<<<<<<< HEAD
-};'module.exports = { createManufacturer, getAllManufacturers, getManufacturerById, updateManufacturer, deleteManufacturer, getDashboardStats, };' 
-=======
   getManufacturerEmployees,
   createManufacturerEmployee,
   updateManufacturerEmployee,
   deleteManufacturerEmployee,
 };
->>>>>>> dc505d68e93cf97f85dbc4ea8d2e658b0f2da92e
